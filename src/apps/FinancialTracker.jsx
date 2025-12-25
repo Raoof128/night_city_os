@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FinancialAgents from './FinancialAgents';
 import Forecasting from './Forecasting';
+import Investments from './Investments';
 import TabBar from './TabBar';
 import {
     TrendingUp,
@@ -573,6 +574,17 @@ export default function FinancialTracker({ data, onLearnRule, onUpdateData, addN
                             className="h-full"
                         >
                             <MonteCarloSim currentBalance={data.balance} monthlyBurn={data.spent} />
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'investments' && (
+                        <motion.div
+                            key="investments"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                        >
+                            <Investments />
                         </motion.div>
                     )}
 

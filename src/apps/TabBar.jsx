@@ -8,13 +8,15 @@ import {
     Receipt,
     Settings,
     Bot,
-    LineChart
+    LineChart,
+    Coins
 } from 'lucide-react';
 const TabBar = ({ activeTab, setActiveTab }) => {
     const tabs = [
         { id: 'overview', label: 'OVERVIEW', icon: PieChart },
         { id: 'transactions', label: 'TRANSACTIONS', icon: Receipt },
         { id: 'assets', label: 'ASSETS', icon: Wallet },
+        { id: 'investments', label: 'INVESTMENTS', icon: Coins },
         { id: 'spending', label: 'SPENDING', icon: TrendingUp },
         { id: 'forecasting', label: 'FORECASTING', icon: LineChart },
         { id: 'simulation', label: 'SIMULATION', icon: Target },
