@@ -9,7 +9,8 @@ import {
     Settings,
     Bot,
     LineChart,
-    Coins
+    Coins,
+    Shield
 } from 'lucide-react';
 const TabBar = ({ activeTab, setActiveTab }) => {
     const tabs = [
@@ -23,6 +24,7 @@ const TabBar = ({ activeTab, setActiveTab }) => {
         { id: 'insights', label: 'AI_INSIGHTS', icon: BrainCircuit },
         { id: 'rules', label: 'RULES', icon: Settings },
         { id: 'agents', label: 'AGENTS', icon: Bot },
+        { id: 'security', label: 'SECURITY', icon: Shield },
     ];
 
     return (

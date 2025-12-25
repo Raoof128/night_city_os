@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import FinancialAgents from './FinancialAgents';
 import Forecasting from './Forecasting';
 import Investments from './Investments';
+import Security from './Security';
 import TabBar from './TabBar';
 import {
     TrendingUp,
@@ -730,6 +731,17 @@ export default function FinancialTracker({ data, onLearnRule, onUpdateData, addN
                              className="h-full"
                         >
                            <FinancialAgents data={data} onUpdateData={onUpdateData} addNotification={addNotification} />
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'security' && (
+                        <motion.div
+                            key="security"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                        >
+                            <Security />
                         </motion.div>
                     )}
                 </AnimatePresence>
