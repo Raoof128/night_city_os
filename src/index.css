@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,64 +8,72 @@
   --color-yellow: #FCEE0A;
   --color-blue: #00F0FF;
   --color-red: #FF003C;
-  font-family: 'Rajdhani', sans-serif;
+  --color-surface: #131313;
+  --font-cyber: 'Rajdhani', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
 }
 
-body {
-  margin: 0;
-  overflow: hidden;
-  background-color: black;
-  color: white;
+@layer base {
+  body {
+    @apply m-0 overflow-hidden bg-black text-white antialiased;
+    font-family: var(--font-cyber);
+  }
+
+  /* Selection styling */
+  ::selection {
+    background-color: var(--color-yellow);
+    color: black;
+  }
 }
 
-/* Custom Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
+@layer components {
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #1a1a1a;
-}
+  /* Premium Custom Scrollbar */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-yellow) #1a1a1a;
+  }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--color-yellow);
-  border-radius: 0;
-}
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+  }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--color-red);
-}
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-[#1a1a1a];
+  }
 
-/* Cyberpunk Glitch Effect */
-.glitch {
-  position: relative;
-  color: var(--color-yellow);
-}
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-[var(--color-yellow)] transition-colors;
+  }
 
-.glitch::before,
-.glitch::after {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: black;
-}
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-[var(--color-red)];
+  }
 
-.glitch::before {
-  left: 2px;
-  text-shadow: -1px 0 var(--color-red);
-  clip-path: inset(0 0 0 0);
-  animation: glitch-anim-1 2s infinite linear alternate-reverse;
-}
+  /* Cyberpunk Glitch Effect */
+  .glitch {
+    @apply relative text-[var(--color-yellow)];
+  }
 
-.glitch::after {
-  left: -2px;
-  text-shadow: -1px 0 var(--color-blue);
-  clip-path: inset(0 0 0 0);
-  animation: glitch-anim-2 3s infinite linear alternate-reverse;
+  .glitch::before,
+  .glitch::after {
+    @apply absolute inset-0 bg-black;
+    content: attr(data-text);
+  }
+
+  .glitch::before {
+    @apply left-[2px];
+    text-shadow: -1px 0 var(--color-red);
+    clip-path: inset(0 0 0 0);
+    animation: glitch-anim-1 2s infinite linear alternate-reverse;
+  }
+
+  .glitch::after {
+    @apply -left-[2px];
+    text-shadow: -1px 0 var(--color-blue);
+    clip-path: inset(0 0 0 0);
+    animation: glitch-anim-2 3s infinite linear alternate-reverse;
+  }
 }
 
 @keyframes glitch-anim-1 {
@@ -131,4 +141,19 @@ body {
 
 .animate-scanline {
   animation: scanline 4s linear infinite;
+}
+
+/* Utility Animations */
+.animate-flicker {
+  animation: flicker 0.15s infinite alternate;
+}
+
+@keyframes flicker {
+  0% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }

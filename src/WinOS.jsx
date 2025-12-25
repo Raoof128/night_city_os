@@ -32,12 +32,12 @@ import {
 
 // --- CYBERPUNK 2077 OFFICIAL PALETTE ---
 const COLORS = {
-    yellow: '#FCEE0A',
-    blue: '#00F0FF',
-    red: '#FF003C',
-    void: '#000000',
-    surface: '#131313',
-    grid: '#2a2a2a',
+    YELLOW: 'var(--color-yellow)',
+    BLUE: 'var(--color-blue)',
+    RED: 'var(--color-red)',
+    VOID: '#000000',
+    SURFACE: 'var(--color-surface)',
+    GRID: 'var(--color-grid)',
 };
 
 // --- API CONFIG ---
@@ -84,10 +84,10 @@ const Toast = ({ message, type = 'info', onClose }) => {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 100, opacity: 0 }}
             className="absolute top-20 right-4 z-[999] bg-black border-l-4 p-4 shadow-lg w-72"
-            style={{ borderColor: type === 'error' ? COLORS.red : COLORS.yellow }}
+            style={{ borderColor: type === 'error' ? COLORS.RED : COLORS.YELLOW }}
         >
             <div className="flex items-center gap-3">
-                {type === 'error' ? <ShieldAlert size={20} color={COLORS.red} /> : <Bell size={20} color={COLORS.yellow} />}
+                {type === 'error' ? <ShieldAlert size={20} color={COLORS.RED} /> : <Bell size={20} color={COLORS.YELLOW} />}
                 <div>
                     <div className="text-xs font-black tracking-widest text-gray-500">SYSTEM_ALERT</div>
                     <div className="text-sm font-bold text-white">{message}</div>
@@ -104,30 +104,30 @@ const ContextMenu = ({ x, y, onClose, onReset, onToggleStealth, stealthMode, onS
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="absolute z-50 w-64 bg-black border border-yellow-400 shadow-[4px_4px_0px_0px_rgba(255,0,60,0.5)]"
+            className="absolute z-50 w-64 bg-black border border-[var(--color-yellow)] shadow-[4px_4px_0px_0px_rgba(255,0,60,0.5)]"
             style={{ left: x, top: y }}
             onClick={(e) => e.stopPropagation()}
         >
-            <div className="bg-yellow-400 px-2 py-1 text-black font-black text-xs tracking-widest flex justify-between items-center">
+            <div className="bg-[var(--color-yellow)] px-2 py-1 text-black font-black text-xs tracking-widest flex justify-between items-center">
                 <span>SYSTEM_OPS</span>
                 <Square size={8} fill="black" />
             </div>
             <div className="p-1 space-y-1">
                 <button
                     onClick={() => { onToggleStealth(); onClose(); }}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-cyan-400 hover:bg-white/10 hover:text-white transition-colors text-xs font-bold font-mono text-left group"
+                    className="w-full flex items-center gap-3 px-3 py-2 text-[var(--color-blue)] hover:bg-white/10 hover:text-white transition-colors text-xs font-bold font-mono text-left group"
                 >
-                    <Eye size={14} className="group-hover:text-yellow-400" />
+                    <Eye size={14} className="group-hover:text-[var(--color-yellow)]" />
                     <span>{stealthMode ? "DISABLE_STEALTH" : "ENABLE_STEALTH"}</span>
                 </button>
                 <button
                     onClick={() => { onScan(); onClose(); }}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-cyan-400 hover:bg-white/10 hover:text-white transition-colors text-xs font-bold font-mono text-left group"
+                    className="w-full flex items-center gap-3 px-3 py-2 text-[var(--color-blue)] hover:bg-white/10 hover:text-white transition-colors text-xs font-bold font-mono text-left group"
                 >
-                    <Activity size={14} className="group-hover:text-yellow-400" />
+                    <Activity size={14} className="group-hover:text-[var(--color-yellow)]" />
                     <span>RUN_DIAGNOSTIC</span>
                 </button>
-                <button onClick={onReset} className="w-full flex items-center gap-3 px-3 py-2 text-red-500 hover:bg-white/10 hover:text-red-400 transition-colors text-xs font-bold font-mono text-left group border-t border-gray-800">
+                <button onClick={onReset} className="w-full flex items-center gap-3 px-3 py-2 text-[var(--color-red)] hover:bg-white/10 hover:text-red-400 transition-colors text-xs font-bold font-mono text-left group border-t border-gray-800">
                     <RotateCcw size={14} className="group-hover:rotate-180 transition-transform duration-500" />
                     <span>RESET_GRID_LAYOUT</span>
                 </button>
@@ -144,7 +144,7 @@ const BootScreen = ({ onComplete }) => {
         const bootText = [
             "BIOS_REL_2077 // ARASAKA_KERNEL_V14",
             "OVERRIDING_SECURITY... [SUCCESS]",
-            `INJECTING_COLOR_MATRIX... #FCEE0A`,
+            `INJECTING_COLOR_MATRIX... var(--color-yellow)`,
             "ESTABLISHING_NEURAL_LINK... DONE",
             "WAKE_UP_SAMURAI...",
             "USER: RAOUF"
@@ -163,7 +163,7 @@ const BootScreen = ({ onComplete }) => {
     }, [onComplete]);
 
     return (
-        <div className="fixed inset-0 bg-black font-mono p-10 z-[100] flex flex-col justify-end selection:bg-red-500 selection:text-black">
+        <div className="fixed inset-0 bg-black font-mono p-10 z-[100] flex flex-col justify-end selection:bg-[var(--color-red)] selection:text-black">
             {/* Glitch Overlay */}
             <div className="absolute inset-0 pointer-events-none opacity-10 animate-pulse bg-red-900/20 mix-blend-overlay"></div>
 
@@ -176,14 +176,14 @@ const BootScreen = ({ onComplete }) => {
                     <div
                         className="text-6xl font-black tracking-tighter mb-2 glitch"
                         data-text="NIGHT_CITY_OS"
-                        style={{ color: COLORS.yellow, textShadow: `4px 4px 0px ${COLORS.red}` }}
+                        style={{ color: COLORS.YELLOW, textShadow: `4px 4px 0px ${COLORS.RED}` }}
                     >
                         NIGHT_CITY_OS
                     </div>
                 </motion.div>
-                <div className="h-2 w-64 bg-red-600 mx-auto mt-4 overflow-hidden relative">
+                <div className="h-2 w-64 bg-[var(--color-red)] mx-auto mt-4 overflow-hidden relative">
                     <motion.div
-                        className="h-full bg-yellow-400"
+                        className="h-full bg-[var(--color-yellow)]"
                         initial={{ width: 0 }}
                         animate={{ width: "100%" }}
                         transition={{ duration: 2, ease: "circIn" }}
@@ -193,8 +193,8 @@ const BootScreen = ({ onComplete }) => {
             <div className="space-y-1 text-sm md:text-base font-bold">
                 {lines.map((line, i) => (
                     <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-                        <span style={{ color: COLORS.red }} className="mr-2">[{new Date().toLocaleTimeString()}]</span>
-                        <span style={{ color: COLORS.blue }}>{line}</span>
+                        <span style={{ color: COLORS.RED }} className="mr-2">[{new Date().toLocaleTimeString()}]</span>
+                        <span style={{ color: COLORS.BLUE }}>{line}</span>
                     </motion.div>
                 ))}
             </div>
@@ -208,11 +208,11 @@ const ShutdownScreen = ({ onReboot }) => (
         initial={{ opacity: 0 }} animate={{ opacity: 1 }}
         className="fixed inset-0 bg-black z-[200] flex flex-col items-center justify-center font-mono"
     >
-        <div className="text-red-500 text-4xl font-black tracking-widest mb-4">SYSTEM HALTED</div>
+        <div className="text-[var(--color-red)] text-4xl font-black tracking-widest mb-4">SYSTEM HALTED</div>
         <div className="text-gray-500 text-sm mb-8">It is safe to turn off your neural link.</div>
         <button
             onClick={onReboot}
-            className="px-6 py-2 border border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black transition-colors font-bold"
+            className="px-6 py-2 border border-[var(--color-yellow)] text-[var(--color-yellow)] hover:bg-[var(--color-yellow)] hover:text-black transition-colors font-bold"
         >
             MANUAL_REBOOT
         </button>
@@ -245,13 +245,13 @@ const WindowFrame = ({ title, icon: Icon, children, onClose, onMinimize, isActiv
             className={`flex flex-col transition-all duration-200`}
             style={{
                 zIndex: zIndex,
-                backgroundColor: COLORS.surface,
-                border: `1px solid ${isActive ? COLORS.yellow : '#333'}`,
-                boxShadow: isActive ? `8px 8px 0px 0px ${COLORS.void}, 9px 9px 0px 0px ${COLORS.yellow}` : 'none',
+                backgroundColor: COLORS.SURFACE,
+                border: `1px solid ${isActive ? COLORS.YELLOW : '#333'}`,
+                boxShadow: isActive ? `8px 8px 0px 0px ${COLORS.VOID}, 9px 9px 0px 0px ${COLORS.YELLOW}` : 'none',
             }}
         >
             <div className="h-12 flex items-center justify-between px-4 select-none cursor-move active:cursor-grabbing relative overflow-hidden"
-                style={{ backgroundColor: isActive ? COLORS.yellow : '#333' }}
+                style={{ backgroundColor: isActive ? COLORS.YELLOW : '#333' }}
                 onDoubleClick={() => setIsMaximized(!isMaximized)}>
                 <div className="absolute top-0 right-0 w-32 h-full bg-black opacity-10 skew-x-[-45deg] translate-x-10"></div>
                 <div className="flex items-center gap-2 z-10">
@@ -261,11 +261,11 @@ const WindowFrame = ({ title, icon: Icon, children, onClose, onMinimize, isActiv
                 <div className="flex items-center gap-3 z-10">
                     <button onClick={(e) => { e.stopPropagation(); onMinimize(); }} className="p-1 hover:bg-black/20 transition-colors"><Minus size={16} className={isActive ? "text-black" : "text-gray-500"} /></button>
                     <button onClick={(e) => { e.stopPropagation(); setIsMaximized(!isMaximized); }} className="p-1 hover:bg-black/20 transition-colors"><Maximize2 size={16} className={isActive ? "text-black" : "text-gray-500"} /></button>
-                    <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="p-1 hover:bg-red-600 hover:text-white transition-colors"><X size={16} className={isActive ? "text-black hover:text-white" : "text-gray-500"} /></button>
+                    <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="p-1 hover:bg-[var(--color-red)] hover:text-white transition-colors"><X size={16} className={isActive ? "text-black hover:text-white" : "text-gray-500"} /></button>
                 </div>
             </div>
             <div className="flex-1 overflow-auto custom-scrollbar p-0 relative bg-black/95">
-                <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: `linear-gradient(${COLORS.blue} 1px, transparent 1px), linear-gradient(90deg, ${COLORS.blue} 1px, transparent 1px)`, backgroundSize: '20px 20px' }} />
+                <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: `linear-gradient(${COLORS.BLUE} 1px, transparent 1px), linear-gradient(90deg, ${COLORS.BLUE} 1px, transparent 1px)`, backgroundSize: '20px 20px' }} />
                 <div className="relative z-10 h-full">
                     {children}
                 </div>
@@ -280,13 +280,13 @@ const TextPadApp = () => {
 
     return (
         <div className="h-full flex flex-col bg-black">
-            <div className="bg-gray-900 px-2 py-1 text-xs text-gray-500 font-mono flex gap-2">
+            <div className="bg-[var(--color-surface)] px-2 py-1 text-xs text-gray-500 font-mono flex gap-2">
                 <span>UTF-8</span>
                 <span>RO-RW</span>
-                <span className="text-green-500">SAVED</span>
+                <span className="text-[var(--color-blue)]">SAVED</span>
             </div>
             <textarea
-                className="flex-1 bg-transparent text-cyan-400 font-mono p-4 outline-none resize-none selection:bg-yellow-400 selection:text-black"
+                className="flex-1 bg-transparent text-[var(--color-blue)] font-mono p-4 outline-none resize-none selection:bg-[var(--color-yellow)] selection:text-black"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 spellCheck="false"
@@ -312,7 +312,7 @@ const NetworkMapApp = () => {
     return (
         <div className="h-full w-full p-6 relative overflow-hidden bg-black text-cyan-500 font-mono">
             <div className="absolute top-4 left-4 z-10 bg-black/80 border border-cyan-500 p-2 text-xs">
-                <div>STATUS: <span className="text-green-500">ACTIVE_TRACE</span></div>
+                <div>STATUS: <span className="text-[var(--color-blue)]">ACTIVE_TRACE</span></div>
                 <div>NODES: 5</div>
                 <div>PING: 12ms</div>
             </div>
@@ -326,9 +326,9 @@ const NetworkMapApp = () => {
                             <line
                                 x1={`${fromNode.x}%`} y1={`${fromNode.y}%`}
                                 x2={`${toNode.x}%`} y2={`${toNode.y}%`}
-                                stroke={COLORS.blue} strokeWidth="1" opacity="0.4"
+                                stroke={COLORS.BLUE} strokeWidth="1" opacity="0.4"
                             />
-                            <circle r="3" fill={COLORS.yellow}>
+                            <circle r="3" fill={COLORS.YELLOW}>
                                 <animateMotion
                                     dur={`${2 + i}s`}
                                     repeatCount="indefinite"
@@ -342,8 +342,8 @@ const NetworkMapApp = () => {
 
                 {nodes.map(node => (
                     <g key={node.id}>
-                        <circle cx={`${node.x}%`} cy={`${node.y}%`} r="6" fill="black" stroke={COLORS.red} strokeWidth="2" className="cursor-pointer hover:fill-red-900" />
-                        <text x={`${node.x}%`} y={`${node.y + 5}%`} textAnchor="middle" fill={COLORS.yellow} fontSize="10" className="font-bold tracking-widest">{node.label}</text>
+                        <circle cx={`${node.x}%`} cy={`${node.y}%`} r="6" fill="black" stroke={COLORS.RED} strokeWidth="2" className="cursor-pointer hover:fill-red-900" />
+                        <text x={`${node.x}%`} y={`${node.y + 5}%`} textAnchor="middle" fill={COLORS.YELLOW} fontSize="10" className="font-bold tracking-widest">{node.label}</text>
                     </g>
                 ))}
             </svg>
@@ -398,16 +398,16 @@ const TerminalApp = ({ financeData }) => {
     };
 
     return (
-        <div className="h-full p-6 font-mono text-sm overflow-auto bg-black custom-scrollbar" style={{ color: COLORS.blue }} onClick={() => document.getElementById('terminal-input')?.focus()}>
+        <div className="h-full p-6 font-mono text-sm overflow-auto bg-black custom-scrollbar" style={{ color: COLORS.BLUE }} onClick={() => document.getElementById('terminal-input')?.focus()}>
             {history.map((line, i) => (
                 <div key={i} className="mb-1 break-all">
-                    {line.startsWith("netrunner") ? <span className="text-green-400">{line}</span> : line.includes("[SUCCESS]") ? <span style={{ color: COLORS.yellow }}>{line}</span> : line.includes("Command not found") ? <span style={{ color: COLORS.red }}>{line}</span> : <span style={{ color: COLORS.blue }}>{line}</span>}
+                    {line.startsWith("netrunner") ? <span className="text-[var(--color-blue)]">{line}</span> : line.includes("[SUCCESS]") ? <span style={{ color: COLORS.YELLOW }}>{line}</span> : line.includes("Command not found") ? <span style={{ color: COLORS.RED }}>{line}</span> : <span style={{ color: COLORS.BLUE }}>{line}</span>}
                 </div>
             ))}
             <div className="flex items-center gap-2 mt-2">
-                <span className="text-green-400">netrunner@nightcity:~#</span>
-                <input id="terminal-input" type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (handleCommand(input), setInput(""))} autoFocus className="bg-transparent border-none outline-none flex-1 font-mono" style={{ color: COLORS.yellow }} />
-                <span className="w-2 h-4 bg-yellow-400 animate-pulse inline-block align-middle" />
+                <span className="text-[var(--color-blue)]">netrunner@nightcity:~#</span>
+                <input id="terminal-input" type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (handleCommand(input), setInput(""))} autoFocus className="bg-transparent border-none outline-none flex-1 font-mono" style={{ color: COLORS.YELLOW }} />
+                <span className="w-2 h-4 bg-[var(--color-yellow)] animate-pulse inline-block align-middle" />
             </div>
             <div ref={bottomRef} />
         </div>
@@ -416,17 +416,17 @@ const TerminalApp = ({ financeData }) => {
 
 // --- APP: TRACKER ---
 const TrackerAppContent = ({ data }) => (
-    <div className="p-6 h-full font-mono relative" style={{ color: COLORS.yellow }}>
+    <div className="p-6 h-full font-mono relative" style={{ color: COLORS.YELLOW }}>
         <div className="relative z-10">
             <div className="flex justify-between items-end mb-8 border-b border-gray-800 pb-4">
                 <div>
-                    <div className="text-xs mb-1" style={{ color: COLORS.blue }}>CURRENT_BALANCE</div>
+                    <div className="text-xs mb-1" style={{ color: COLORS.BLUE }}>CURRENT_BALANCE</div>
                     <div className="text-5xl font-black tracking-tighter text-white">
-                        {data.balance.toLocaleString()}<span style={{ color: COLORS.yellow }}>.00</span>
+                        {data.balance.toLocaleString()}<span style={{ color: COLORS.YELLOW }}>.00</span>
                     </div>
                 </div>
                 <div className="text-right">
-                    <div className="flex items-center gap-2 justify-end" style={{ color: COLORS.blue }}>
+                    <div className="flex items-center gap-2 justify-end" style={{ color: COLORS.BLUE }}>
                         <TrendingUp size={20} />
                         <span className="font-bold">+24.5%</span>
                     </div>
@@ -435,40 +435,40 @@ const TrackerAppContent = ({ data }) => (
             </div>
 
             <div className="grid grid-cols-2 gap-6 mb-8">
-                <div className="bg-gray-900/50 border border-gray-800 p-4">
-                    <div className="flex items-center gap-2 mb-4" style={{ color: COLORS.red }}>
+                <div className="bg-[var(--color-surface)]/50 border border-gray-800 p-4">
+                    <div className="flex items-center gap-2 mb-4" style={{ color: COLORS.RED }}>
                         <Wallet size={18} />
                         <span className="font-bold text-sm">CRYPTO_STASH</span>
                     </div>
                     <div className="text-2xl font-bold text-white">4.20 BTC</div>
                     <div className="w-full bg-gray-800 h-1 mt-4">
-                        <div className="h-full w-3/4 bg-red-600" />
+                        <div className="h-full w-3/4 bg-[var(--color-red)]" />
                     </div>
                 </div>
-                <div className="bg-gray-900/50 border border-gray-800 p-4">
-                    <div className="flex items-center gap-2 mb-4" style={{ color: COLORS.blue }}>
+                <div className="bg-[var(--color-surface)]/50 border border-gray-800 p-4">
+                    <div className="flex items-center gap-2 mb-4" style={{ color: COLORS.BLUE }}>
                         <CreditCard size={18} />
                         <span className="font-bold text-sm">EDDIES_SPENT</span>
                     </div>
                     <div className="text-2xl font-bold text-white">{data.spent.toLocaleString()} €$</div>
                     <div className="w-full bg-gray-800 h-1 mt-4">
-                        <div className="h-full bg-cyan-400" style={{ width: `${Math.min((data.spent / 10000) * 100, 100)}%` }} />
+                        <div className="h-full bg-[var(--color-blue)]" style={{ width: `${Math.min((data.spent / 10000) * 100, 100)}%` }} />
                     </div>
                 </div>
             </div>
 
             <div>
-                <div className="text-xs font-bold mb-4 flex items-center gap-2" style={{ color: COLORS.blue }}>
-                    <Square size={8} fill={COLORS.blue} /> RECENT_TRANSACTIONS
+                <div className="text-xs font-bold mb-4 flex items-center gap-2" style={{ color: COLORS.BLUE }}>
+                    <Square size={8} fill={COLORS.BLUE} /> RECENT_TRANSACTIONS
                 </div>
                 <div className="space-y-2 h-48 overflow-y-auto custom-scrollbar">
                     {data.recent.map((tx, i) => (
-                        <div key={i} className="flex justify-between items-center p-3 border-l-2 border-transparent hover:border-yellow-400 hover:bg-white/5 transition-all cursor-pointer">
+                        <div key={i} className="flex justify-between items-center p-3 border-l-2 border-transparent hover:border-[var(--color-yellow)] hover:bg-white/5 transition-all cursor-pointer">
                             <div className="flex items-center gap-4">
                                 <div className="text-xs font-bold text-gray-500">{tx.time}</div>
                                 <div className="font-bold text-white uppercase">{tx.desc}</div>
                             </div>
-                            <div className="font-mono" style={{ color: COLORS.yellow }}>-{tx.amount} €$</div>
+                            <div className="font-mono" style={{ color: COLORS.YELLOW }}>-{tx.amount} €$</div>
                         </div>
                     ))}
                 </div>
@@ -493,31 +493,31 @@ const DesktopCalendarWidget = ({ constraintsRef }) => {
     return (
         <DraggableItem initialX="auto" initialY="240px" className="right-10 w-64" constraintsRef={constraintsRef}>
             <div className="bg-black/80 border border-red-900 p-4 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-yellow-400" />
-                <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-yellow-400" />
+                <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-[var(--color-yellow)]" />
+                <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-[var(--color-yellow)]" />
 
                 <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-black text-red-500 tracking-widest">SYNC_CHRONO</span>
+                    <span className="text-xs font-black text-[var(--color-red)] tracking-widest">SYNC_CHRONO</span>
                     <span className="text-xs text-gray-500 animate-pulse">● LIVE</span>
                 </div>
 
                 <div className="flex items-end gap-2 mb-2">
-                    <Clock size={24} className="text-black mb-1 bg-yellow-400 rounded-full p-0.5" />
-                    <span className="text-4xl font-black text-white tracking-tighter" style={{ textShadow: `2px 2px 0px ${COLORS.red}` }}>{gregTime}</span>
+                    <Clock size={24} className="text-black mb-1 bg-[var(--color-yellow)] rounded-full p-0.5" />
+                    <span className="text-4xl font-black text-white tracking-tighter" style={{ textShadow: `2px 2px 0px ${COLORS.RED}` }}>{gregTime}</span>
                 </div>
 
                 <div className="space-y-1">
                     <div className="flex items-center justify-between border-b border-gray-800 pb-1">
-                        <span className="text-xs text-cyan-400 font-bold">GREGORIAN</span>
+                        <span className="text-xs text-[var(--color-blue)] font-bold">GREGORIAN</span>
                         <span className="text-sm font-mono text-gray-300">{gregDate}</span>
                     </div>
                     <div className="flex items-center justify-between pt-1">
-                        <span className="text-xs text-yellow-400 font-bold">SOLAR HIJRI</span>
+                        <span className="text-xs text-[var(--color-yellow)] font-bold">SOLAR HIJRI</span>
                         <span className="text-sm font-bold text-white font-sans">{persianDate}</span>
                     </div>
                 </div>
 
-                <div className="absolute top-0 left-0 w-full h-1 bg-red-500/20 animate-scanline" style={{ animationDuration: '3s' }} />
+                <div className="absolute top-0 left-0 w-full h-1 bg-[var(--color-red)]/20 animate-scanline" style={{ animationDuration: '3s' }} />
             </div>
         </DraggableItem>
     );
@@ -574,7 +574,7 @@ const DesktopUploadWidget = ({ onTransactionUpdate, onFileUpload, constraintsRef
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={(e) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); }}
-                className={`relative p-6 border-2 transition-all duration-100 group min-h-[140px] flex flex-col items-center justify-center ${isDragging ? 'bg-yellow-400/20 border-yellow-400' : 'bg-black/80 border-gray-700 hover:border-cyan-400'}`}
+                className={`relative p-6 border-2 transition-all duration-100 group min-h-[140px] flex flex-col items-center justify-center ${isDragging ? 'bg-[var(--color-yellow)]/20 border-[var(--color-yellow)]' : 'bg-black/80 border-gray-700 hover:border-[var(--color-blue)]'}`}
             >
                 <div className="absolute top-0 left-0 w-2 h-2 bg-white -translate-x-1 -translate-y-1" />
                 <div className="absolute top-0 right-0 w-2 h-2 bg-white translate-x-1 -translate-y-1" />
@@ -583,16 +583,16 @@ const DesktopUploadWidget = ({ onTransactionUpdate, onFileUpload, constraintsRef
 
                 {status === 'ANALYZING' && (
                     <div className="text-center w-full">
-                        <ScanLine size={32} className="mx-auto mb-2 text-cyan-400 animate-bounce" />
-                        <div className="text-xs font-black text-cyan-400 animate-pulse">NEURAL_SCANNING...</div>
-                        <div className="w-full h-1 bg-gray-800 mt-2 overflow-hidden"><motion.div className="h-full bg-yellow-400" initial={{ width: 0 }} animate={{ width: "100%" }} transition={{ duration: 2, repeat: Infinity }} /></div>
+                        <ScanLine size={32} className="mx-auto mb-2 text-[var(--color-blue)] animate-bounce" />
+                        <div className="text-xs font-black text-[var(--color-blue)] animate-pulse">NEURAL_SCANNING...</div>
+                        <div className="w-full h-1 bg-gray-800 mt-2 overflow-hidden"><motion.div className="h-full bg-[var(--color-yellow)]" initial={{ width: 0 }} animate={{ width: "100%" }} transition={{ duration: 2, repeat: Infinity }} /></div>
                     </div>
                 )}
-                {status === 'SUCCESS' && <div className="text-center"><div className="text-green-500 font-bold text-sm">UPLOAD_COMPLETE</div></div>}
-                {status === 'ERROR' && <div className="text-center"><div className="text-red-500 font-bold text-sm">SCAN_FAILED</div></div>}
+                {status === 'SUCCESS' && <div className="text-center"><div className="text-[var(--color-blue)] font-bold text-sm">UPLOAD_COMPLETE</div></div>}
+                {status === 'ERROR' && <div className="text-center"><div className="text-[var(--color-red)] font-bold text-sm">SCAN_FAILED</div></div>}
                 {status === 'IDLE' && (
                     <div className="text-center group-hover:scale-105 transition-transform pointer-events-none">
-                        <UploadCloud size={32} className="mx-auto mb-2 text-gray-500 group-hover:text-cyan-400" />
+                        <UploadCloud size={32} className="mx-auto mb-2 text-gray-500 group-hover:text-[var(--color-blue)]" />
                         <div className="font-bold text-sm text-gray-300">DROP_RECEIPT_OR_DATA</div>
                     </div>
                 )}
@@ -612,13 +612,13 @@ const StartMenu = ({ isOpen, onOpenApp, onShutdown }) => {
                     animate={{ opacity: 1, y: 0, skewX: -5 }}
                     exit={{ opacity: 0, y: 50 }}
                     className="absolute bottom-20 left-6 w-72 z-50 p-1"
-                    style={{ backgroundColor: COLORS.yellow }}
+                    style={{ backgroundColor: COLORS.YELLOW }}
                 >
                     <div className="bg-black p-1 h-full w-full" style={{ skewX: 5 }}>
                         <div className="bg-black p-4 border border-gray-800">
                             <div className="flex items-center gap-3 mb-6 border-b border-gray-800 pb-4">
-                                <div className="w-12 h-12 bg-red-600 flex items-center justify-center"><span className="font-black text-black text-xl">R</span></div>
-                                <div><div className="font-bold text-lg" style={{ color: COLORS.yellow }}>RAOUF</div><div className="text-xs tracking-widest" style={{ color: COLORS.blue }}>NETRUNNER // LVL 50</div></div>
+                                <div className="w-12 h-12 bg-[var(--color-red)] flex items-center justify-center"><span className="font-black text-black text-xl">R</span></div>
+                                <div><div className="font-bold text-lg" style={{ color: COLORS.YELLOW }}>RAOUF</div><div className="text-xs tracking-widest" style={{ color: COLORS.BLUE }}>NETRUNNER // LVL 50</div></div>
                             </div>
                             <div className="space-y-2">
                                 {[
@@ -628,14 +628,14 @@ const StartMenu = ({ isOpen, onOpenApp, onShutdown }) => {
                                     { id: 'files', label: 'DATA_SHARDS', icon: HardDrive },
                                     { id: 'textpad', label: 'TEXT_PAD', icon: FileEdit }
                                 ].map(app => (
-                                    <button key={app.id} onClick={() => onOpenApp(app.id)} className="w-full flex items-center justify-between p-3 group hover:bg-yellow-400 transition-colors">
-                                        <div className="flex items-center gap-3"><app.icon size={16} className="text-cyan-400 group-hover:text-black" /><span className="font-bold text-gray-300 group-hover:text-black">{app.label}</span></div>
-                                        <ChevronRight size={14} className="text-red-600 opacity-0 group-hover:opacity-100" />
+                                    <button key={app.id} onClick={() => onOpenApp(app.id)} className="w-full flex items-center justify-between p-3 group hover:bg-[var(--color-yellow)] transition-colors">
+                                        <div className="flex items-center gap-3"><app.icon size={16} className="text-[var(--color-blue)] group-hover:text-black" /><span className="font-bold text-gray-300 group-hover:text-black">{app.label}</span></div>
+                                        <ChevronRight size={14} className="text-[var(--color-red)] opacity-0 group-hover:opacity-100" />
                                     </button>
                                 ))}
                             </div>
                             <div className="mt-6 pt-4 border-t border-gray-800">
-                                <button onClick={onShutdown} className="w-full flex items-center gap-3 p-2 text-red-500 hover:text-red-400">
+                                <button onClick={onShutdown} className="w-full flex items-center gap-3 p-2 text-[var(--color-red)] hover:text-red-400">
                                     <Power size={16} /><span className="font-bold">JACK_OUT</span>
                                 </button>
                             </div>
@@ -676,13 +676,13 @@ const CalculatorApp = () => {
         }
     };
 
-    const btnClass = "h-12 border border-gray-800 bg-gray-900/50 text-cyan-400 hover:bg-yellow-400 hover:text-black font-bold text-lg transition-colors";
+    const btnClass = "h-12 border border-gray-800 bg-[var(--color-surface)]/50 text-[var(--color-blue)] hover:bg-[var(--color-yellow)] hover:text-black font-bold text-lg transition-colors";
 
     return (
         <div className="h-full flex flex-col p-4 bg-black">
-            <div className="bg-gray-900 border border-gray-700 p-4 mb-4 text-right font-mono">
+            <div className="bg-[var(--color-surface)] border border-gray-700 p-4 mb-4 text-right font-mono">
                 <div className="text-xs text-gray-500 h-4">{equation}</div>
-                <div className="text-3xl text-yellow-400 font-bold tracking-widest">{display}</div>
+                <div className="text-3xl text-[var(--color-yellow)] font-bold tracking-widest">{display}</div>
             </div>
             <div className="grid grid-cols-4 gap-2 flex-1">
                 {['7', '8', '9', '/', '4', '5', '6', '*', '1', '2', '3', '-', '0', '.', '=', '+'].map(btn => (
@@ -690,7 +690,7 @@ const CalculatorApp = () => {
                         {btn}
                     </button>
                 ))}
-                <button onClick={() => handlePress('C')} className={`${btnClass} col-span-4 border-red-500 text-red-500`}>CLEAR_MEMORY</button>
+                <button onClick={() => handlePress('C')} className={`${btnClass} col-span-4 border-[var(--color-red)] text-[var(--color-red)]`}>CLEAR_MEMORY</button>
             </div>
         </div>
     );
@@ -699,9 +699,9 @@ const CalculatorApp = () => {
 // 2. SETTINGS APP
 const SettingsApp = ({ config, onUpdateConfig }) => {
     return (
-        <div className="p-8 space-y-8 font-mono text-cyan-400">
+        <div className="p-8 space-y-8 font-mono text-[var(--color-blue)]">
             <section>
-                <h3 className="text-yellow-400 text-xl font-bold mb-4 border-b border-gray-800 pb-2">DISPLAY_CONFIG</h3>
+                <h3 className="text-[var(--color-yellow)] text-xl font-bold mb-4 border-b border-gray-800 pb-2">DISPLAY_CONFIG</h3>
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <span>BACKGROUND_FIT</span>
@@ -710,7 +710,7 @@ const SettingsApp = ({ config, onUpdateConfig }) => {
                                 <button
                                     key={mode}
                                     onClick={() => onUpdateConfig('bgFit', mode)}
-                                    className={`px-3 py-1 border ${config.bgFit === mode ? 'bg-yellow-400 text-black border-yellow-400' : 'border-gray-700 hover:border-white'}`}
+                                    className={`px-3 py-1 border ${config.bgFit === mode ? 'bg-[var(--color-yellow)] text-black border-[var(--color-yellow)]' : 'border-gray-700 hover:border-white'}`}
                                 >
                                     {mode.toUpperCase()}
                                 </button>
@@ -721,25 +721,25 @@ const SettingsApp = ({ config, onUpdateConfig }) => {
             </section>
 
             <section>
-                <h3 className="text-yellow-400 text-xl font-bold mb-4 border-b border-gray-800 pb-2">SYSTEM_AUDIO</h3>
+                <h3 className="text-[var(--color-yellow)] text-xl font-bold mb-4 border-b border-gray-800 pb-2">SYSTEM_AUDIO</h3>
                 <div className="flex items-center gap-4">
                     <span>MASTER_VOLUME</span>
                     <input
                         type="range"
                         min="0" max="100"
-                        className="flex-1 accent-yellow-400 h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer"
+                        className="flex-1 accent-[var(--color-yellow)] h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer"
                     />
                 </div>
             </section>
 
             <section>
-                <h3 className="text-yellow-400 text-xl font-bold mb-4 border-b border-gray-800 pb-2">USER_PROFILE</h3>
+                <h3 className="text-[var(--color-yellow)] text-xl font-bold mb-4 border-b border-gray-800 pb-2">USER_PROFILE</h3>
                 <div className="flex items-center gap-4 border border-gray-800 p-4">
-                    <div className="w-16 h-16 bg-red-600 flex items-center justify-center font-black text-2xl text-black">R</div>
+                    <div className="w-16 h-16 bg-[var(--color-red)] flex items-center justify-center font-black text-2xl text-black">R</div>
                     <div>
                         <div className="text-white font-bold">IDENTITY: RAOUF</div>
                         <div className="text-xs text-gray-500">CLASS: NETRUNNER</div>
-                        <div className="text-xs text-green-500">STATUS: ONLINE</div>
+                        <div className="text-xs text-[var(--color-blue)]">STATUS: ONLINE</div>
                     </div>
                 </div>
             </section>
@@ -760,7 +760,7 @@ const MusicPlayerApp = () => {
                 {[...Array(20)].map((_, i) => (
                     <motion.div
                         key={i}
-                        className="w-2 bg-yellow-400"
+                        className="w-2 bg-[var(--color-yellow)]"
                         animate={{ height: ["10%", "80%", "30%"] }}
                         transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse", delay: i * 0.05 }}
                     />
@@ -771,18 +771,18 @@ const MusicPlayerApp = () => {
                 <motion.div
                     animate={{ rotate: playing ? 360 : 0 }}
                     transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                    className="absolute inset-0 border-t-4 border-yellow-400 rounded-full"
+                    className="absolute inset-0 border-t-4 border-[var(--color-yellow)] rounded-full"
                 />
                 <div className="text-6xl text-gray-800 select-none">♪</div>
             </div>
 
-            <div className="text-cyan-400 font-mono text-lg mb-2 tracking-widest relative z-10">{tracks[track]}</div>
-            <div className="text-xs text-red-500 font-bold mb-4 relative z-10">{playing ? "PLAYING..." : "PAUSED"}</div>
+            <div className="text-[var(--color-blue)] font-mono text-lg mb-2 tracking-widest relative z-10">{tracks[track]}</div>
+            <div className="text-xs text-[var(--color-red)] font-bold mb-4 relative z-10">{playing ? "PLAYING..." : "PAUSED"}</div>
 
             {/* Progress Bar Mock */}
             <div className="w-full h-1 bg-gray-800 mb-8 relative z-10">
                 <motion.div
-                    className="h-full bg-yellow-400"
+                    className="h-full bg-[var(--color-yellow)]"
                     initial={{ width: "0%" }}
                     animate={{ width: playing ? "100%" : "0%" }}
                     transition={{ duration: 180, ease: "linear" }} // Mock 3 min song
@@ -790,11 +790,11 @@ const MusicPlayerApp = () => {
             </div>
 
             <div className="flex items-center gap-6 relative z-10">
-                <button onClick={() => setTrack(t => (t - 1 + tracks.length) % tracks.length)} className="p-3 border border-cyan-400 hover:bg-cyan-400 hover:text-black transition-colors"><ChevronRight className="rotate-180" /></button>
-                <button onClick={() => setPlaying(!playing)} className="p-4 border-2 border-yellow-400 bg-yellow-400/10 hover:bg-yellow-400 hover:text-black transition-colors rounded-full">
+                <button onClick={() => setTrack(t => (t - 1 + tracks.length) % tracks.length)} className="p-3 border border-[var(--color-blue)] hover:bg-[var(--color-blue)] hover:text-black transition-colors"><ChevronRight className="rotate-180" /></button>
+                <button onClick={() => setPlaying(!playing)} className="p-4 border-2 border-[var(--color-yellow)] bg-[var(--color-yellow)]/10 hover:bg-[var(--color-yellow)] hover:text-black transition-colors rounded-full">
                     {playing ? <Square size={24} fill="currentColor" /> : <ChevronRight size={24} fill="currentColor" />}
                 </button>
-                <button onClick={() => setTrack(t => (t + 1) % tracks.length)} className="p-3 border border-cyan-400 hover:bg-cyan-400 hover:text-black transition-colors"><ChevronRight /></button>
+                <button onClick={() => setTrack(t => (t + 1) % tracks.length)} className="p-3 border border-[var(--color-blue)] hover:bg-[var(--color-blue)] hover:text-black transition-colors"><ChevronRight /></button>
             </div>
         </div>
     );
@@ -980,7 +980,7 @@ export default function WinOS() {
 
     if (isMobile) {
         return (
-            <div className="fixed inset-0 bg-black flex flex-col items-center justify-center p-8 text-center font-mono text-red-500 z-[9999]">
+            <div className="fixed inset-0 bg-black flex flex-col items-center justify-center p-8 text-center font-mono text-[var(--color-red)] z-[9999]">
                 <ShieldAlert size={64} className="mb-4 animate-pulse" />
                 <h1 className="text-2xl font-black tracking-widest mb-2">SYSTEM ERROR</h1>
                 <p className="text-sm border flex items-center gap-2 px-2 py-1 mb-8 border-red-900 bg-red-900/10">ERROR_CODE: VIEWPORT_TOO_SMALL</p>
@@ -994,7 +994,7 @@ export default function WinOS() {
     if (shutDown) return <ShutdownScreen onReboot={handleReboot} />;
 
     return (
-        <div className="relative w-screen h-screen overflow-hidden font-sans bg-black selection:bg-yellow-400 selection:text-black"
+        <div className="relative w-screen h-screen overflow-hidden font-sans bg-black selection:bg-[var(--color-yellow)] selection:text-black"
             onClick={() => { setStartMenuOpen(false); handleCloseContextMenu(); }}
             onContextMenu={handleContextMenu}>
 
@@ -1022,7 +1022,7 @@ export default function WinOS() {
                         {/* CRT Lines */}
                         <div className="absolute inset-0 z-[100] opacity-10 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[size:100%_2px,3px_100%]" />
                         {/* Grid */}
-                        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: `linear-gradient(${COLORS.grid} 1px, transparent 1px), linear-gradient(90deg, ${COLORS.grid} 1px, transparent 1px)`, backgroundSize: '50px 50px', opacity: 0.15 }} />
+                        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: `linear-gradient(${COLORS.GRID} 1px, transparent 1px), linear-gradient(90deg, ${COLORS.GRID} 1px, transparent 1px)`, backgroundSize: '50px 50px', opacity: 0.15 }} />
                     </>
                 )}
                 {/* Vignettes */}
@@ -1043,10 +1043,10 @@ export default function WinOS() {
                     return (
                         <DraggableItem key={item.id} initialX={item.x || "20px"} initialY={item.defaultY} className="w-24" constraintsRef={desktopRef}>
                             <button onDoubleClick={() => openWindow(item.id)} className="group flex flex-col items-center gap-2 focus:outline-none w-full">
-                                <div className="w-14 h-14 bg-black/50 border border-gray-600 flex items-center justify-center group-hover:bg-yellow-400 group-hover:border-yellow-400 transition-all duration-100 shadow-[4px_4px_0px_0px_rgba(255,0,0,0.5)] group-hover:shadow-[4px_4px_0px_0px_rgba(0,240,255,0.8)]">
-                                    <app.icon size={28} className="text-cyan-400 group-hover:text-black" />
+                                <div className="w-14 h-14 bg-black/50 border border-gray-600 flex items-center justify-center group-hover:bg-[var(--color-yellow)] group-hover:border-[var(--color-yellow)] transition-all duration-100 shadow-[4px_4px_0px_0px_rgba(255,0,0,0.5)] group-hover:shadow-[4px_4px_0px_0px_rgba(0,240,255,0.8)]">
+                                    <app.icon size={28} className="text-[var(--color-blue)] group-hover:text-black" />
                                 </div>
-                                <span className="text-xs font-bold tracking-widest bg-black/80 px-2 py-0.5 text-gray-300 group-hover:text-yellow-400">{app.name}</span>
+                                <span className="text-xs font-bold tracking-widest bg-black/80 px-2 py-0.5 text-gray-300 group-hover:text-[var(--color-yellow)]">{app.name}</span>
                             </button>
                         </DraggableItem>
                     )
@@ -1081,9 +1081,9 @@ export default function WinOS() {
                                 {Component ? <Component {...(app.props || {})} /> :
                                     win.id === 'files' ? (
                                         <div className="p-4 bg-black h-full">
-                                            <h3 className="text-xs font-bold mb-6 text-red-500">/VAR/ROOT/USER/SHARDS</h3>
+                                            <h3 className="text-xs font-bold mb-6 text-[var(--color-red)]">/VAR/ROOT/USER/SHARDS</h3>
                                             <div className="flex gap-2 mb-4 border-b border-gray-800 pb-2">
-                                                <button onClick={() => document.getElementById('hidden-upload').click()} className="px-3 py-1 bg-yellow-400 text-black text-xs font-bold">IMPORT_SHARD</button>
+                                                <button onClick={() => document.getElementById('hidden-upload').click()} className="px-3 py-1 bg-[var(--color-yellow)] text-black text-xs font-bold">IMPORT_SHARD</button>
                                                 <input id="hidden-upload" type="file" className="hidden" onChange={(e) => e.target.files && handleFileUpload(e.target.files[0])} />
                                             </div>
                                             {files.length === 0 ? <div className="text-center mt-20 text-gray-600 font-mono">NO_DATA_FOUND</div> :
@@ -1092,9 +1092,9 @@ export default function WinOS() {
                                                         <div
                                                             key={i}
                                                             onDoubleClick={() => openWindow('img_view', f)}
-                                                            className="flex flex-col items-center gap-2 p-2 hover:bg-white/10 cursor-pointer border border-transparent hover:border-yellow-400 group"
+                                                            className="flex flex-col items-center gap-2 p-2 hover:bg-white/10 cursor-pointer border border-transparent hover:border-[var(--color-yellow)] group"
                                                         >
-                                                            <FileText size={32} className="text-cyan-400 group-hover:text-yellow-400" />
+                                                            <FileText size={32} className="text-[var(--color-blue)] group-hover:text-[var(--color-yellow)]" />
                                                             <span className="text-xs text-center truncate w-full text-gray-400">{f.name}</span>
                                                         </div>
                                                     ))}
@@ -1104,8 +1104,8 @@ export default function WinOS() {
                                         <div className="flex items-center justify-center h-full bg-black min-h-[400px]">
                                             {win.data ? (
                                                 <div className="text-center">
-                                                    <div className="mb-4 text-green-500 font-mono">DECRYPTED_SEGMENT__</div>
-                                                    <div className="p-4 border border-green-500 bg-green-500/10 text-green-400 font-mono max-w-md break-all">
+                                                    <div className="mb-4 text-[var(--color-blue)] font-mono">DECRYPTED_SEGMENT__</div>
+                                                    <div className="p-4 border border-[var(--color-blue)] bg-[var(--color-blue)]/10 text-[var(--color-blue)] font-mono max-w-md break-all">
                                                         {win.data.name} <br />
                                                         TYPE: {win.data.type || 'UNKNOWN_BIN'} <br />
                                                         SIZE: {Math.floor(Math.random() * 5000)} KB <br />
@@ -1114,8 +1114,8 @@ export default function WinOS() {
                                                 </div>
                                             ) : (
                                                 <div className="text-center">
-                                                    <Lock size={48} className="mx-auto mb-4 text-red-500" />
-                                                    <p className="text-red-500 font-mono font-bold">ENCRYPTED CONTENT</p>
+                                                    <Lock size={48} className="mx-auto mb-4 text-[var(--color-red)]" />
+                                                    <p className="text-[var(--color-red)] font-mono font-bold">ENCRYPTED CONTENT</p>
                                                     <p className="text-xs text-gray-500">DECRYPTION KEY REQUIRED</p>
                                                 </div>
                                             )}
@@ -1153,10 +1153,10 @@ export default function WinOS() {
             {/* TASKBAR */}
             <div className="absolute bottom-0 left-0 right-0 h-12 bg-black border-t border-gray-800 flex items-center justify-between px-2 z-50 select-none" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-4">
-                    <button onClick={() => setStartMenuOpen(!startMenuOpen)} className={`h-12 px-6 flex items-center justify-center transition-colors font-black text-lg tracking-wider ${startMenuOpen ? 'bg-red-600 text-black' : 'bg-yellow-400 hover:bg-yellow-300 text-black'}`} style={{ clipPath: 'polygon(0 0, 100% 0, 90% 100%, 0% 100%)' }}>START</button>
-                    <div className="flex items-center gap-2 bg-gray-900 px-4 py-1 border-l-4 border-cyan-400">
-                        <Search size={14} className="text-cyan-400" />
-                        <input type="text" placeholder="SEARCH_NET..." className="bg-transparent border-none outline-none text-xs w-48 text-yellow-400 placeholder:text-gray-700 font-mono uppercase" />
+                    <button onClick={() => setStartMenuOpen(!startMenuOpen)} className={`h-12 px-6 flex items-center justify-center transition-colors font-black text-lg tracking-wider ${startMenuOpen ? 'bg-[var(--color-red)] text-black' : 'bg-[var(--color-yellow)] hover:bg-yellow-300 text-black'}`} style={{ clipPath: 'polygon(0 0, 100% 0, 90% 100%, 0% 100%)' }}>START</button>
+                    <div className="flex items-center gap-2 bg-[var(--color-surface)] px-4 py-1 border-l-4 border-[var(--color-blue)]">
+                        <Search size={14} className="text-[var(--color-blue)]" />
+                        <input type="text" placeholder="SEARCH_NET..." className="bg-transparent border-none outline-none text-xs w-48 text-[var(--color-yellow)] placeholder:text-gray-700 font-mono uppercase" />
                     </div>
                 </div>
 
@@ -1164,8 +1164,8 @@ export default function WinOS() {
                     {windows.map(win => {
                         const appName = apps[win.id]?.name || win.id;
                         return (
-                            <button key={win.id} onClick={() => win.minimized ? toggleMinimize(win.id) : bringToFront(win.id)} className={`h-8 px-4 flex items-center gap-2 border-b-2 transition-all ${activeWindowId === win.id && !win.minimized ? 'bg-white/10 border-yellow-400' : 'bg-transparent border-transparent hover:bg-white/5'}`}>
-                                <span className={`text-xs font-bold uppercase ${activeWindowId === win.id ? 'text-yellow-400' : 'text-gray-500'}`}>
+                            <button key={win.id} onClick={() => win.minimized ? toggleMinimize(win.id) : bringToFront(win.id)} className={`h-8 px-4 flex items-center gap-2 border-b-2 transition-all ${activeWindowId === win.id && !win.minimized ? 'bg-white/10 border-[var(--color-yellow)]' : 'bg-transparent border-transparent hover:bg-white/5'}`}>
+                                <span className={`text-xs font-bold uppercase ${activeWindowId === win.id ? 'text-[var(--color-yellow)]' : 'text-gray-500'}`}>
                                     {appName}
                                 </span>
                             </button>
@@ -1174,9 +1174,9 @@ export default function WinOS() {
                 </div>
 
                 <div className="flex items-center gap-6 pr-6 text-xs font-mono font-bold">
-                    <div className="flex items-center gap-2 text-red-500"><Wifi size={14} /><span className="hidden md:inline">CONNECTED</span></div>
-                    <button onClick={() => setShowPersianDate(!showPersianDate)} className="flex items-center gap-2 text-cyan-400 hover:text-yellow-400 transition-colors">
-                        {showPersianDate ? <span className="text-yellow-400">{getPersianDate()}</span> : <span>{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
+                    <div className="flex items-center gap-2 text-[var(--color-red)]"><Wifi size={14} /><span className="hidden md:inline">CONNECTED</span></div>
+                    <button onClick={() => setShowPersianDate(!showPersianDate)} className="flex items-center gap-2 text-[var(--color-blue)] hover:text-[var(--color-yellow)] transition-colors">
+                        {showPersianDate ? <span className="text-[var(--color-yellow)]">{getPersianDate()}</span> : <span>{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
                     </button>
                 </div>
             </div>
