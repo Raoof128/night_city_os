@@ -76,6 +76,13 @@
   }
 }
 
+/* Privacy Mode Blur */
+body.privacy-active .privacy-blur {
+  filter: blur(6px);
+  user-select: none;
+  transition: filter 0.3s ease;
+}
+
 @keyframes glitch-anim-1 {
   0% {
     clip-path: inset(20% 0 80% 0);

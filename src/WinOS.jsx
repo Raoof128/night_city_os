@@ -270,15 +270,19 @@ const DesktopUploadWidget = ({ onTransactionUpdate, onFileUpload, constraintsRef
         if (!file) return;
         setStatus('ANALYZING');
         try {
-            // Check if it's an image for receipt scanning
-            if (file.type.startsWith('image/')) {
+            // Check if it's an image or audio for scanning
+            if (file.type.startsWith('image/') || file.type.startsWith('audio/')) {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = async () => {
                     const base64Data = reader.result.split(',')[1];
                     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
-                    // Enhanced prompt based on 2025 docs searching
-                    const prompt = "Analyze this image (receipt/statement). Extract the TOTAL amount, MERCHANT, and CATEGORY (Food, Transport, Tech, Utilities, Entertainment, Health, Other). Return ONLY a valid JSON object with keys: 'amount' (number), 'summary' (string, max 20 chars), 'category' (string).";
+
+                    const isAudio = file.type.startsWith('audio/');
+                    const prompt = isAudio
+                        ? "Listen to this voice note about expenses. Extract the TOTAL amount, MERCHANT/CONTEXT, and CATEGORY. Return ONLY a valid JSON object with keys: 'amount' (number), 'summary' (string, max 20 chars), 'category' (string)."
+                        : "Analyze this image (receipt/statement). Extract the TOTAL amount, MERCHANT, and CATEGORY (Food, Transport, Tech, Utilities, Entertainment, Health, Other). Return ONLY a valid JSON object with keys: 'amount' (number), 'summary' (string, max 20 chars), 'category' (string).";
+
                     const payload = { contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: file.type, data: base64Data } }] }], generationConfig: { responseMimeType: "application/json" } };
 
                     const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -456,17 +460,85 @@ export default function WinOS() {
     const [stealthMode, setStealthMode] = useState(false);
     const [notifications, setNotifications] = useState([]);
 
-    // Financial Data (Mock - could be persistent too)
+    // V2 Financial Data
     const [financeData, setFinanceData] = useState({
         balance: 1240500.00,
+        currency: 'EDDIES', // Primary Currency
         spent: 4230,
-        recent: [{ time: "10:42 AM", desc: "TRANSFER_TO_RAOUF", amount: 500 }]
+        recent: [{ time: "10:42 AM", desc: "TRANSFER_TO_RAOUF", amount: 500, category: "Income" }],
+        assets: [ // New Asset Tracking
+            { id: 1, name: "Arasaka Tower Apt", value: 850000, type: 'Real Estate' },
+            { id: 2, name: "Quadra Turbo-R", value: 125000, type: 'Vehicle' },
+            { id: 3, name: "Vintage Samurai Jacket", value: 5000, type: 'Collectible' }
+        ],
+        subscriptions: [] // Detected subs
     });
+
+    const [privacyMode, setPrivacyMode] = useState(false);
+
+    const [auditLog, setAuditLog] = useState([
+        { id: 1, event: "SYSTEM_BOOT", time: new Date().toLocaleTimeString(), type: 'info' }
+    ]);
+
+    const logEvent = (event, type = 'info') => {
+        setAuditLog(prev => [{ id: Date.now(), event, time: new Date().toLocaleTimeString(), type }, ...prev].slice(0, 50));
+    };
+
+    const [userRules, setUserRules] = useState({}); // For smart recategorization
+
+    // AI Categorization & Rules Engine
+    const categorizeTransaction = (desc, amount) => {
+        const lowerDesc = desc.toLowerCase();
+
+        // 1. Check User Learned Rules (Smart Recategorization)
+        for (const [key, category] of Object.entries(userRules)) {
+            if (lowerDesc.includes(key)) return category;
+        }
+
+        // 2. Security Rules (Anomaly Detection)
+        if (amount > 10000) {
+            logEvent(`HIGH_VALUE_TX_DETECTED: ${amount} €$`, 'warning');
+            addNotification("ANOMALY DETECTED: HIGH VALUE", "warning");
+        }
+
+        // 3. Built-in Rules
+        if (lowerDesc.includes('netflix') || lowerDesc.includes('spotify') || (lowerDesc.includes('cloud') && amount === 12.99)) {
+            return 'Subscription';
+        }
+        if (lowerDesc.includes('starbucks') || lowerDesc.includes('coffee')) return 'Food/Drink';
+        if (lowerDesc.includes('uber') || lowerDesc.includes('taxi')) return 'Transport';
+        if (lowerDesc.includes('steam') || lowerDesc.includes('psn')) return 'Entertainment';
+        return 'Other';
+    };
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
+
+    // Privacy Mode Hotkey Listener
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'p') {
+                e.preventDefault();
+                setPrivacyMode(prev => !prev);
+                const newState = !privacyMode;
+                logEvent(newState ? "PRIVACY_MODE_ENABLED" : "PRIVACY_MODE_DISABLED", "warning");
+                addNotification(newState ? "PRIVACY_MODE_ENABLED" : "PRIVACY_MODE_DISABLED", "info");
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [privacyMode]);
+
+    // Apply privacy class to body
+    useEffect(() => {
+        if (privacyMode) {
+            document.body.classList.add('privacy-active');
+        } else {
+            document.body.classList.remove('privacy-active');
+        }
+    }, [privacyMode]);
 
     const addNotification = (msg, type = 'info') => {
         const id = Date.now();
@@ -498,16 +570,22 @@ export default function WinOS() {
         setBooted(false);
     };
 
+    // Helper to learn new rule
+    const learnRule = (keyword, category) => {
+        setUserRules(prev => ({ ...prev, [keyword.toLowerCase()]: category }));
+        addNotification(`NEURAL NET UPDATED: ${keyword} -> ${category}`, "success");
+    };
+
     // --- APP REGISTRY ---
     const apps = {
-        tracker: { name: 'FINANCE', icon: Activity, component: FinancialTracker, props: { data: financeData } },
+        tracker: { name: 'FINANCE', icon: Activity, component: FinancialTracker, props: { data: financeData, onLearnRule: learnRule } },
         files: { name: 'SHARDS', icon: HardDrive, component: null }, // Handled inline thanks to its simplicity
         terminal: { name: 'CMD', icon: Terminal, component: TerminalApp, props: { financeData } },
         network: { name: 'NET_TRACE', icon: Share2, component: NetworkMapApp },
         textpad: { name: 'TEXT_PAD', icon: FileEdit, component: TextPadApp },
         calc: { name: 'CALCULATOR', icon: Grid, component: CalculatorApp },
         music: { name: 'MEDIA_AMP', icon: Bell, component: MusicPlayerApp },
-        settings: { name: 'SYS_CONFIG', icon: Settings, component: SettingsApp, props: { config: sysConfig, onUpdateConfig: (k, v) => setSysConfig(prev => ({ ...prev, [k]: v })) } },
+        settings: { name: 'SYS_CONFIG', icon: Settings, component: SettingsApp, props: { config: sysConfig, auditLog, onUpdateConfig: (k, v) => setSysConfig(prev => ({ ...prev, [k]: v })) } },
         img_view: { name: 'IMAGE_VIEWER', icon: Eye, component: null } // Special handler
     };
 
@@ -565,19 +643,28 @@ export default function WinOS() {
 
     // Receipt scanning / finance update handler
     const handleTransactionUpdate = (newData) => {
-        setFinanceData(prev => ({
-            ...prev,
-            spent: prev.spent + newData.amount,
-            balance: prev.balance - newData.amount,
-            recent: [{
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                desc: newData.summary || "UNKNOWN",
-                category: newData.category || "Other",
-                amount: newData.amount
-            }, ...prev.recent]
-        }));
+        const category = newData.category || categorizeTransaction(newData.summary || "", newData.amount);
+
+        setFinanceData(prev => {
+            // Check for recurring
+            const isSubscription = category === 'Subscription';
+            const newSubs = isSubscription ? [...prev.subscriptions, { service: newData.summary, amount: newData.amount, cycle: 'Monthly' }] : prev.subscriptions;
+
+            return {
+                ...prev,
+                spent: prev.spent + newData.amount,
+                balance: prev.balance - newData.amount,
+                subscriptions: newSubs,
+                recent: [{
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    desc: newData.summary || "UNKNOWN",
+                    category: category,
+                    amount: newData.amount
+                }, ...prev.recent]
+            };
+        });
         openWindow('tracker');
-        addNotification("SECURE DATA PARSED", "info");
+        addNotification(category === 'Subscription' ? "SUBSCRIPTION DETECTED" : "SECURE DATA PARSED", "info");
     };
 
     if (isMobile) {
@@ -761,7 +848,27 @@ export default function WinOS() {
                     </button>
                     <div className="flex items-center gap-2 bg-[var(--color-surface)]/50 border border-white/5 rounded-full px-4 py-1.5 focus-within:border-[var(--color-blue)] transition-colors">
                         <Search size={14} className="text-[var(--color-blue)]" />
-                        <input type="text" placeholder="SEARCH_NET..." className="bg-transparent border-none outline-none text-xs w-48 text-[var(--color-yellow)] placeholder:text-gray-700 font-mono uppercase" />
+                        <input
+                            type="text"
+                            placeholder="SEARCH_NET..."
+                            className="bg-transparent border-none outline-none text-xs w-48 text-[var(--color-yellow)] placeholder:text-gray-700 font-mono uppercase"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    const term = e.target.value.toLowerCase();
+                                    // Search Apps
+                                    const foundApp = Object.keys(apps).find(key =>
+                                        apps[key].name.toLowerCase().includes(term) || key.includes(term)
+                                    );
+                                    if (foundApp) {
+                                        openWindow(foundApp);
+                                        e.target.value = '';
+                                        logEvent(`SEARCH_EXEC: OPEN_APP ${apps[foundApp].name}`, 'info');
+                                    } else {
+                                        addNotification("NO RESULTS FOUND", "error");
+                                    }
+                                }
+                            }}
+                        />
                     </div>
                 </div>
 

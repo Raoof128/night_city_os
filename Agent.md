@@ -1,8 +1,8 @@
 # 🌃 Night City OS // Project Brief
 
-**Codename:** NC_OS_V4_GOLD
+**Codename:** NC_OS_V5_NEURAL
 **Owner:** Raouf (Netrunner/Admin)
-**Status:** STABLE RELEASE (Verified Build v4.0.0)
+**Status:** STABLE RELEASE (Verified Build v5.0.0)
 **Repository:** [https://github.com/Raoof128/night_city_os](https://github.com/Raoof128/night_city_os)
 
 ## ⚡ Executive Summary
@@ -17,7 +17,8 @@ Night City OS is a high-fidelity React-based Operating System simulation running
 - **Icons:** lucide-react
 - **AI Integration:** Google Gemini 2.5 Flash (via REST API) for:
     - Computer Vision (Receipt Scanning)
-    - Financial Reasoning (Spending Insights)
+    - Audio Processing (Voice Note Expenses)
+    - Financial Reasoning (Spending Insights & Anomaly Detection)
 
 ## 🏗️ Architecture (Modular V4)
 The OS features a fully modularized architecture to support scalability and maintainability.
@@ -29,7 +30,7 @@ The OS features a fully modularized architecture to support scalability and main
 - **Application Layer:** Each app is an isolated module in `src/apps/`:
     - `FinancialTracker.jsx`, `Calculator.jsx`, `Terminal.jsx`, etc.
 
-## 📦 Key Features (v3.5 Updated)
+## 📦 Key Features (v5.0 Updated)
 
 ### 1. The "Arasaka" Interface (Glassmorphism Upgrade)
 - **Palette:** Strict adherence to `#FCEE0A` (Yellow), `#FF003C` (Red), `#00F0FF` (Blue), and `#000000` (Void).
@@ -38,11 +39,13 @@ The OS features a fully modularized architecture to support scalability and main
 
 ### 2. Functional Applications
 - **cmd.exe (Terminal):** Functional CLI. Parses commands (`hack`, `balance`, `whoami`, `clear`, `date`). Maintains history state.
-- **Finance Tracker (v2.0):**
-    - **Dashboard:** Tabbed interface (Overview, Analytics, AI Insights).
-    - **Charts:** Animated Donut Charts and Trend lines using Framer Motion.
-    - **AI Advisor:** Simulation of Gemini 2.5 analyzing spending patterns to offer optimization advice.
-    - **Receipt Vision:** Drag & drop receipt analysis extracting category, merchant, and total.
+- **Finance Tracker (v2.5 Neural):**
+    - **Dashboard:** Tabbed interface (Overview, Assets, Analytics, Simulation, Insights).
+    - **Smart Intelligence:** Auto-categorization rules that learn from user input (Neural Training).
+    - **Multi-Currency:** Live switching between €$, USD, JPY, BTC.
+    - **Asset Management:** Tracking of physical assets and recurring subscriptions.
+    - **Security:** Anomaly detection (>10k) and Tax Tagging.
+    - **Input:** Drag & drop receipt analysis + Voice Note processing.
 - **Text Pad:** Fully functional scratchpad (`<textarea>`) that simulates saving state.
 - **Image Viewer:** Simulates decryption of "Data Shards" (files).
 - **Network Map:** SVG-based animated node topology visualization.
@@ -53,13 +56,19 @@ The OS features a fully modularized architecture to support scalability and main
     - **Features:** Reset Grid, Toggle Stealth Mode, Run Diagnostics.
     - **Logic:** Auto-closes on interaction or outside click.
 - **Draggable Everything:** Icons, Widgets (Calendar, Upload), and Windows use framer-motion drag controls.
-- **Notifications:** "Toast" system for system-wide alerts.
+- **Notifications & Audit:** "Toast" system for alerts + "Restricted" Audit Log in Settings.
+- **Natural Search:** Taskbar input supports natural language app launching.
 
-### 4. Developer Notes for Agents
-- **Architecture:** Do not add logic directly to `WinOS.jsx` if it fits in a standalone app component. Use `src/apps/` for new applications.
-- **API Keys:** The Gemini API key is injected at runtime via `.env`.
-- **State Management:**
-    - `windows` array manages open apps.
-    - `financeData` state is lifted to `WinOS` to allow the Upload Widget to update the Tracker App.
-    - Clicking a window triggers `bringToFront`.
-- **Build System:** Uses Vite with `import.meta.url` for path resolution compliance.
+## 🔮 V6.0 Roadmap // The "Brave New World" Update
+
+### 🌐 Social & Multiplayer
+- **Netrunner Relay:** P2P chat channel with other "Netrunners" (simulated or WebRTC).
+- **Leaderboards:** Global ranking based on "Savings Goal" progress.
+
+### 🎮 Gamification
+- **Hacking Minigames:** Breach Protocol mini-game to unlock "Encrypted" files.
+- **Cyberware Inventory:** RPG-style inventory system affecting OS stats (RAM, Speed).
+
+### ☁️ Cloud Sync
+- **Supabase Integration:** Real persistent user auth and data storage.
+- **Device Handover:** Seamless state transfer between Mobile and Desktop.

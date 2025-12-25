@@ -1,6 +1,6 @@
 
 
-const SettingsApp = ({ config, onUpdateConfig }) => {
+const SettingsApp = ({ config, onUpdateConfig, auditLog }) => {
     return (
         <div className="p-8 space-y-8 font-mono text-[var(--color-blue)]">
             <section>
@@ -44,6 +44,24 @@ const SettingsApp = ({ config, onUpdateConfig }) => {
                         <div className="text-xs text-gray-500">CLASS: NETRUNNER</div>
                         <div className="text-xs text-[var(--color-blue)]">STATUS: ONLINE</div>
                     </div>
+                </div>
+            </section>
+
+            <section>
+                <div className="flex justify-between items-center mb-4 border-b border-gray-800 pb-2">
+                    <h3 className="text-[var(--color-red)] text-xl font-bold">SECURITY_AUDIT_LOG</h3>
+                    <span className="text-[10px] bg-red-900/40 text-red-200 px-2 py-1 rounded">RESTRICTED_ACCESS</span>
+                </div>
+                <div className="h-64 overflow-y-auto custom-scrollbar border border-red-900/30 bg-black/40 p-2 font-mono text-xs">
+                    {(auditLog || []).map(log => (
+                        <div key={log.id} className="grid grid-cols-[80px_1fr] gap-2 mb-1 hover:bg-white/5 p-1 rounded">
+                            <span className="text-gray-500">{log.time}</span>
+                            <span className={`${log.type === 'warning' ? 'text-[var(--color-red)]' : 'text-[var(--color-blue)]'}`}>
+                                {log.type === 'warning' && '[ALERT] '}
+                                {log.event}
+                            </span>
+                        </div>
+                    ))}
                 </div>
             </section>
         </div>

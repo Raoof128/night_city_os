@@ -1,6 +1,25 @@
 # Changelog // Night City OS
 
 All notable changes to the "Night City OS" project will be documented in this file.
+## [v5.0.0] - The Neural Link Update - 2025-12-25
+### Added
+- **Core Intelligence:**
+  - **Auto-Categorization v2:** Context-aware transaction tagging (Loc/Merchant).
+  - **Smart Recategorization:** Neural Training UI allows users to teach the OS new rules.
+  - **Recurring Detection:** Auto-identification of subscriptions (Netflix, Spotify).
+  - **Voice Expenses:** Support for audio notes in DesktopUploadWidget (Speech-to-Text extraction).
+- **Advanced Finance:**
+  - **Multi-Currency:** Live conversion for €$, USD, JPY, BTC.
+  - **Asset Tracking:** New "Assets" tab for physical assets and subscription management.
+  - **Export Engine:** CSV Export functionality for transactions.
+  - **Tax Tagging:** Automated tax-deductible flagging.
+- **Security Suite:**
+  - **Privacy Mode:** Blur sensitive data with [CTRL+SHIFT+P].
+  - **Audit Logs:** System-wide security logging (Boot, Privacy, Anomaly).
+  - **Anomaly Detection:** Alerts for transactions > 10,000 €$.
+- **UX Polish:**
+  - **Neural Search:** Natural language app launching via Taskbar.
+
 ## [v4.0.0] - Gold Master - 2025-12-25
 ### Released
 - **Stable Build:** Achieved 100% lint compliance and successful production build.
