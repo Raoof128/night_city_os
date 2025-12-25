@@ -1,0 +1,68 @@
+# Changelog // Night City OS
+
+All notable changes to the "Night City OS" project will be documented in this file.
+## [v3.1.0] - Comprehensive OS Upgrade - 2025-12-25
+### Added
+- **Global Glitch CSS:** Implemented Cyberpunk 2077-style text/image glitch effects using `clip-path` and keyframes.
+- **New Core Apps:**
+  - **Calculator:** Functional arithmetic with precision handling.
+  - **Music Player:** "Cyber-Amp" with visualizers, progress bar, and playlist cycling.
+  - **Settings:** Configurable Background Fit (Cover/Contain/Fill) and system volume visuals.
+- **Persistence:** `usePersistentState` now saves Windows, Files, and Config to `localStorage` across reloads.
+- **Mobile Lockout:** "System Error" screen for devices < 768px width to preserve desktop immersion.
+
+### Fixed
+- **React Hooks:** Fixed conditional Hook execution bug in mobile check logic.
+- **Stability:** Added `try-catch` blocks to storage logic to prevent crashes from data corruption.
+- **Math:** Fixed floating point errors in Calculator.
+
+
+## [v3.0.0] - Final Cut - 2025-12-25
+
+### Added
+- **Text Pad App:** Fully functional note-taking app with "Saved" state simulation.
+- **Image Viewer:** Double-clicking shards now opens a "Decryption" viewer.
+- **Toast Notifications:** System-wide alert bubbles (e.g., "Transaction Verified", "Data Shard Received").
+- **Shutdown Sequence:** "Jack Out" now triggers a full system halt screen with manual reboot.
+- **Context Menu Actions:**
+  - "Display Settings" now toggles Stealth Mode (disables CRT/Grid noise).
+  - "System Integrity" runs a diagnostic scan.
+
+### Fixed
+- **Context Menu Bug:** Fixed issue where right-click menu would stay stuck open. Now auto-closes on interaction.
+- **Z-Index Issues:** Windows now correctly layer on top of each other when focused.
+
+## [v2.1.0] - Desktop Operations - 2025-12-25
+
+### Added
+- **Right-Click Context Menu:** Custom UI replacing the browser default.
+- **Grid Reset:** "RESET_GRID" daemon to snap all icons back to default positions.
+- **Draggable Desktop:** All icons and widgets (Calendar, Upload) are now draggable via framer-motion.
+
+## [v2.0.0] - Netrunner Update - 2025-12-25
+
+### Added
+- **Network Map App:** Animated SVG visualizer replacing the static "Net" icon.
+- **Dual-Sync Calendar:** Widget displaying Solar Hijri (Persian) and Gregorian dates.
+- **Active Window Management:** Implemented `bringToFront` logic for window layering.
+- **CRT Overlays:** Added global scanlines and vignette effects.
+
+### Changed
+- **Calendar Widget:** Moved to desktop top-left (later moved to right) and restyled with high-contrast Black clock icon.
+
+## [v1.3.0] - Night City Palette - 2025-12-25
+
+### Changed
+- **Visual Overhaul:** Switched from "Persian Blue" theme to Cyberpunk 2077 Official (Yellow/Red/Black).
+- **Background:** Added dynamic wallpaper support with overlaid CSS grids and gradients.
+
+### Added
+- **Gemini Vision Integration:** DesktopUploadWidget now accepts images, sends them to Gemini 2.5 Flash, and updates the Finance App state.
+- **Terminal 1.0:** Basic command parsing structure.
+
+## [v1.0.0] - Initial Concept - 2025-12-25
+
+### Initialized
+- Project kick-off.
+- Basic "WebOS" card concept (deprecated in favor of Desktop Window Manager).
+- Basic React + Tailwind setup.
