@@ -43,12 +43,17 @@ const MusicPlayerApp = () => {
                 />
             </div>
 
-            <div className="flex items-center gap-6 relative z-10">
+            <div className="flex items-center gap-6 relative z-10 mb-6">
                 <button onClick={() => setTrack(t => (t - 1 + tracks.length) % tracks.length)} className="p-3 border border-[var(--color-blue)] hover:bg-[var(--color-blue)] hover:text-black transition-colors"><ChevronRight className="rotate-180" /></button>
                 <button onClick={() => setPlaying(!playing)} className="p-4 border-2 border-[var(--color-yellow)] bg-[var(--color-yellow)]/10 hover:bg-[var(--color-yellow)] hover:text-black transition-colors rounded-full">
                     {playing ? <Square size={24} fill="currentColor" /> : <ChevronRight size={24} fill="currentColor" />}
                 </button>
                 <button onClick={() => setTrack(t => (t + 1) % tracks.length)} className="p-3 border border-[var(--color-blue)] hover:bg-[var(--color-blue)] hover:text-black transition-colors"><ChevronRight /></button>
+            </div>
+
+            <div className="flex items-center gap-2 w-2/3 relative z-10">
+                <span className="text-xs text-gray-500 font-bold">VOL</span>
+                <input type="range" className="w-full accent-[var(--color-yellow)] h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer" />
             </div>
         </div>
     );

@@ -171,16 +171,40 @@ export default function FinancialTracker({ data }) {
     const [activeTab, setActiveTab] = useState('overview');
 
     // Aggregate Categories for Chart
+    // Aggregate Categories for Chart
     const categoryData = useMemo(() => {
-        // Use data.categories if available, else mock
-        // Currently data.recent is the only source
-        return [
-            { label: 'Cyberware', value: 4500, color: 'var(--color-red)' },
-            { label: 'Food/Drink', value: 1200 + (data.spent * 0.1), color: 'var(--color-yellow)' }, // Make it slightly dynamic to use `data`
-            { label: 'Transport', value: 800, color: 'var(--color-blue)' },
-            { label: 'Data', value: 2000, color: '#ffffff' },
-        ];
-    }, [data.spent]); // Depend on spent to satisfy strict dep check and make it actually change
+        // Default categories
+        const defaultCats = {
+            'Cyberware': { value: 4500, color: 'var(--color-red)' },
+            'Food/Drink': { value: 1200, color: 'var(--color-yellow)' },
+            'Transport': { value: 800, color: 'var(--color-blue)' },
+            'Data': { value: 2000, color: '#ffffff' },
+            'Other': { value: 0, color: '#888888' }
+        };
+
+        // Aggregate from recent transactions
+        const aggregated = { ...defaultCats };
+
+        if (data.recent && Array.isArray(data.recent)) {
+            data.recent.forEach(tx => {
+                const cat = tx.category || 'Other';
+                // Simple mapping or direct use if key matches
+                const key = Object.keys(defaultCats).find(k => k.toLowerCase() === cat.toLowerCase()) || 'Other';
+
+                if (aggregated[key]) {
+                    aggregated[key].value += tx.amount;
+                } else {
+                    aggregated['Other'].value += tx.amount;
+                }
+            });
+        }
+
+        // Convert back to array
+        return Object.entries(aggregated)
+            .map(([label, info]) => ({ label, ...info }))
+            .filter(item => item.value > 0);
+
+    }, [data.recent]);
 
     return (
         <div className="h-full flex flex-col bg-transparent text-white font-sans selection:bg-[var(--color-yellow)] selection:text-black">
@@ -250,7 +274,7 @@ export default function FinancialTracker({ data }) {
                                                 </div>
                                                 <div>
                                                     <div className="font-bold text-sm text-gray-200 group-hover:text-white">{tx.desc}</div>
-                                                    <div className="text-xs text-gray-600 font-mono">{tx.time} <span className="text-gray-500 mx-1">//</span> {new Date().toLocaleDateString()}</div>
+                                                    <div className="text-xs text-gray-600 font-mono">{tx.time} <span className="text-gray-500 mx-1">{'//'}</span> {new Date().toLocaleDateString()}</div>
                                                 </div>
                                             </div>
                                             <span className="font-mono font-bold text-[var(--color-red)]">-{tx.amount.toLocaleString()} €$</span>

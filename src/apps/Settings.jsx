@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 const SettingsApp = ({ config, onUpdateConfig }) => {
     return (

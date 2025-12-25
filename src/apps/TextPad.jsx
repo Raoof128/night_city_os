@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const TextPadApp = () => {
     const [text, setText] = useState("// NOTES_BUFFER_V1\n// ENCRYPTED: YES\n\n- Buy more RAM for the cyberdeck.\n- Meeting with Fixer at 10 PM.\n");

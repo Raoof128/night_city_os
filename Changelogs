@@ -1,6 +1,12 @@
 # Changelog // Night City OS
 
 All notable changes to the "Night City OS" project will be documented in this file.
+## [v4.0.0] - Gold Master - 2025-12-25
+### Released
+- **Stable Build:** Achieved 100% lint compliance and successful production build.
+- **Repository Hygiene:** Implemented professional `.gitignore` to exclude system files (`.DS_Store`) and developer artifacts (`coverage/`, `.vscode/`, `.agent/`).
+- **Codebase Polish:** Final debug pass on `FinancialTracker` preventing UI glitches from invalid categories.
+
 ## [v3.5.0] - Modular Architecture & UI Polish - 2025-12-25
 ### Added
 - **Financial Tracker v2.0:**
