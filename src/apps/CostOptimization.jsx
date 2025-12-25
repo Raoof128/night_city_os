@@ -1,5 +1,3 @@
-import React from 'react';
-import { motion } from 'framer-motion';
 import { Layers, Search, RefreshCw, Star, Bot } from 'lucide-react';
 
 const OptimizationBot = ({ icon, title, description, actionText, onAction, busy, lastRunResult }) => {
@@ -32,7 +30,7 @@ const OptimizationBot = ({ icon, title, description, actionText, onAction, busy,
 };
 
 
-export default function CostOptimization({ data, onUpdateData, addNotification }) {
+export default function CostOptimization({ addNotification }) {
 
     const handleAction = (actionName, message) => {
         addNotification(message, 'info');

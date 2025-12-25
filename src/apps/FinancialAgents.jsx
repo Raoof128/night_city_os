@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Zap, ShieldCheck, TrendingUp, Scissors, FileText, Bot, AlertTriangle } from 'lucide-react';
 import CostOptimization from './CostOptimization';
-import { COLORS } from '../utils/theme';
 
 const AgentCard = ({ icon, title, description, status, action, onAction, busy, requiresAttention }) => {
     const Icon = icon;
