@@ -7,14 +7,16 @@ import {
     BrainCircuit,
     Receipt,
     Settings,
-    Bot
+    Bot,
+    LineChart
 } from 'lucide-react';
 const TabBar = ({ activeTab, setActiveTab }) => {
     const tabs = [
         { id: 'overview', label: 'OVERVIEW', icon: PieChart },
         { id: 'transactions', label: 'TRANSACTIONS', icon: Receipt },
         { id: 'assets', label: 'ASSETS', icon: Wallet },
-        { id: 'analytics', label: 'ANALYTICS', icon: TrendingUp },
+        { id: 'spending', label: 'SPENDING', icon: TrendingUp },
+        { id: 'forecasting', label: 'FORECASTING', icon: LineChart },
         { id: 'simulation', label: 'SIMULATION', icon: Target },
         { id: 'insights', label: 'AI_INSIGHTS', icon: BrainCircuit },
         { id: 'rules', label: 'RULES', icon: Settings },

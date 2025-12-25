@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FinancialAgents from './FinancialAgents';
+import Forecasting from './Forecasting';
 import TabBar from './TabBar';
 import {
     TrendingUp,
@@ -514,9 +515,9 @@ export default function FinancialTracker({ data, onLearnRule, onUpdateData, addN
                         </motion.div>
                     )}
 
-                    {activeTab === 'analytics' && (
+                    {activeTab === 'spending' && (
                         <motion.div
-                            key="analytics"
+                            key="spending"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
@@ -549,6 +550,17 @@ export default function FinancialTracker({ data, onLearnRule, onUpdateData, addN
                                     </div>
                                 </div>
                             </div>
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'forecasting' && (
+                        <motion.div
+                            key="forecasting"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                        >
+                            <Forecasting />
                         </motion.div>
                     )}
 
