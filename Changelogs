@@ -1,6 +1,24 @@
 # Changelog // Night City OS
 
 All notable changes to the "Night City OS" project will be documented in this file.
+## [v3.5.0] - Modular Architecture & UI Polish - 2025-12-25
+### Added
+- **Financial Tracker v2.0:**
+  - Tabbed interface (Overview, Analytics, AI Insights).
+  - Animated Donut Charts and Spend Trends.
+  - "Gemini Advisor" module for AI-driven financial recommendations.
+  - Enhanced Receipt Vision (Gemini 2.5) with category extraction.
+- **Glassmorphism UI:** New `WindowFrame` component with frosted glass effects and refined borders.
+- **Modular Apps:** Extracted all core apps (`Calculator`, `Settings`, `Terminal`, `MusicPlayer`) into dedicated files in `src/apps/`.
+
+### Changed
+- **Architecture:** Major refactor of `WinOS.jsx`, delegating app logic to standalone components.
+- **Theme System:** Centralized color tokens in `src/utils/theme.js`.
+
+### Fixed
+- **Build Config:** Resolved `__dirname` issues in `vite.config.js` by adopting `import.meta.url`.
+- **Linting:** Cleared unused variables and React imports for cleaner code.
+
 ## [v3.2.0] - Production Audit & Infrastructure - 2025-12-25
 ### Added
 - **CI/CD Pipeline:** Integrated GitHub Actions for automated linting, testing, and building.
