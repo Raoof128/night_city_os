@@ -10,6 +10,7 @@ All notable changes to the "Night City OS" project will be documented in this fi
   - **Settings:** Configurable Background Fit (Cover/Contain/Fill) and system volume visuals.
 - **Persistence:** `usePersistentState` now saves Windows, Files, and Config to `localStorage` across reloads.
 - **Mobile Lockout:** "System Error" screen for devices < 768px width to preserve desktop immersion.
+- **GitHub Deployment:** Initialized git repository and pushed to [Raoof128/night_city_os](https://github.com/Raoof128/night_city_os).
 
 ### Fixed
 - **React Hooks:** Fixed conditional Hook execution bug in mobile check logic.

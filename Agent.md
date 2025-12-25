@@ -2,7 +2,8 @@
 
 **Codename:** NC_OS_V3_FINAL  
 **Owner:** Raouf (Netrunner/Admin)  
-**Status:** PRODUCTION READY (v3.1 Robust)
+**Status:** PRODUCTION READY (v3.1 Robust)  
+**Repository:** [https://github.com/Raoof128/night_city_os](https://github.com/Raoof128/night_city_os)
 
 ## ⚡ Executive Summary
 Night City OS is a high-fidelity React-based Operating System simulation running directly in the browser. It emulates the aesthetic and functionality of a Cyberpunk 2077 "Cyberdeck" interface. It has evolved from a UI shell into a functional environment with active state management, drag physics, and simulated file systems.
