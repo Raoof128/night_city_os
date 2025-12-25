@@ -2,7 +2,7 @@
 
 **Codename:** NC_OS_V3_FINAL  
 **Owner:** Raouf (Netrunner/Admin)  
-**Status:** PRODUCTION READY (v3.1 Robust)  
+**Status:** PRODUCTION READY (v3.2 Production Audit Complete)  
 **Repository:** [https://github.com/Raoof128/night_city_os](https://github.com/Raoof128/night_city_os)
 
 ## ⚡ Executive Summary
@@ -11,18 +11,23 @@ Night City OS is a high-fidelity React-based Operating System simulation running
 ## 🛠️ Tech Stack & Dependencies
 - **Core:** React 18+ (Functional Components, Hooks)
 - **Animation Physics:** framer-motion (Spring physics for windows, drag interactions, toast animations)
-- **Styling:** Tailwind CSS (Utility-first) + Inline Styles for dynamic theming.
+- **Testing:** Vitest + React Testing Library (Unit & Integration)
+- **CI/CD:** GitHub Actions (Lint, Test, Build)
+- **Styling:** Tailwind CSS + CSS Variables (Dynamic Theming) + Google Fonts (Rajdhani, Share Tech Mono)
 - **Icons:** lucide-react
 - **AI Integration:** Google Gemini 2.5 Flash (via REST API) for Computer Vision (Receipt Scanning).
 
 ## 🏗️ Architecture (Single File Mandate)
-The entire OS lives within `WinOS.jsx`.
-- **System Layer:** Handles Boot Sequence, Shutdown/Reboot (`ShutdownScreen` component), Desktop Environment (Z-index, Dragging), and Global State (Time, Notifications).
-- **Persistence Layer:** `usePersistentState` hook (with error safety) saves Windows, Files, and Config to `localStorage`.
+The OS is designed with a hybrid monolithic-modular approach. Core layout remains in `WinOS.jsx` for state synchronization, while logic is externalized.
+- **System Layer:** Handles Boot Sequence, Shutdown/Reboot, Desktop Environment (Z-index, Dragging), and Global State.
+- **Persistence Layer:** `usePersistentState.js` (Custom Hook) with error safety.
+- **Modularity:**
+-   **Hooks:** `usePersistentState.js`, `useViewport.js`
+-   **Styles:** `tokens.js` (Design tokens), `index.css` (CSS Variables)
+-   **Utils:** `helpers.js` (Formatting, class merging)
 - **Window Manager:** A higher-order component (`WindowFrame`) that wraps apps.
 - **Z-Index Logic:** Implements `bringToFront(id)` to dynamically sort active windows.
-- **Context:** Handles minimizing, maximizing, closing, focusing, and drag movement.
-- **App Ecosystem:** Modular components (`TerminalApp`, `CalculatorApp`, `MusicPlayerApp`, `SettingsApp`, etc.) injected into windows.
+- **App Ecosystem:** Modular components injected into windows.
 
 ## 📦 Key Features (v3.0 Final)
 

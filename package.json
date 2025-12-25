@@ -1,7 +1,7 @@
 {
   "name": "night-city-os",
   "private": true,
-  "version": "3.1.0",
+  "version": "3.2.0",
   "type": "module",
   "description": "A high-fidelity React-based Operating System simulation inspired by Cyberpunk 2077.",
   "author": "Raouf (Raoof128)",

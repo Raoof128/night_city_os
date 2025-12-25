@@ -1,6 +1,20 @@
 # Changelog // Night City OS
 
 All notable changes to the "Night City OS" project will be documented in this file.
+## [v3.2.0] - Production Audit & Infrastructure - 2025-12-25
+### Added
+- **CI/CD Pipeline:** Integrated GitHub Actions for automated linting, testing, and building.
+- **Testing Suite:** Added Vitest and React Testing Library for component and utility validation.
+- **Pre-commit Hooks:** Enabled Husky and lint-staged to ensure code quality before commits.
+- **Legal & Compliance:** Added MIT License, Contributing Guide, Code of Conduct, and Security Policy.
+- **Advanced Theming:** Refactored global CSS to use CSS Variables synchronized with React state.
+- **Modular Hooks:** Extracted `usePersistentState` and `useViewport` into reusable logic modules.
+
+### Changed
+- **Architecture:** Transitioned from a monolithic structure to a modular organization (Hooks, Utils, Styles).
+- **Styling:** Switched to standard Google Fonts (Rajdhani, Share Tech Mono) for premium aesthetics.
+- **Directory Structure:** Reorganized assets and code under functional subdirectories.
+
 ## [v3.1.0] - Comprehensive OS Upgrade - 2025-12-25
 ### Added
 - **Global Glitch CSS:** Implemented Cyberpunk 2077-style text/image glitch effects using `clip-path` and keyframes.
