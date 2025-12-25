@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import TabBar from './TabBar';
 import {
     TrendingUp,
     Wallet,
@@ -25,19 +26,6 @@ const COLORS = {
 };
 
 // --- COMPONENTS ---
-
-const TabButton = ({ active, label, icon: Icon, onClick }) => (
-    <button
-        onClick={onClick}
-        className={`flex items-center gap-2 px-4 py-2 text-xs font-bold font-mono transition-all border-b-2 ${active
-            ? 'border-[var(--color-yellow)] text-[var(--color-yellow)] bg-[var(--color-yellow)]/10'
-            : 'border-transparent text-gray-500 hover:text-white hover:bg-white/5'
-            }`}
-    >
-        <Icon size={14} />
-        {label}
-    </button>
-);
 
 const StatCard = ({ label, value, subtext, icon: Icon, color = COLORS.BLUE }) => (
     <div className="bg-[var(--color-surface)]/50 border border-gray-800 p-4 relative overflow-hidden group hover:border-[var(--color-yellow)] transition-colors">
@@ -296,13 +284,29 @@ const MonteCarloSim = ({ currentBalance, monthlyBurn }) => {
 export default function FinancialTracker({ data, onLearnRule }) {
     const [activeTab, setActiveTab] = useState('overview');
     const [learnMode, setLearnMode] = useState(null); // { keyword: '', category: '' }
+    const [transactions, setTransactions] = useState(data.recent);
+    const [currency, setCurrency] = useState('€$');
+    const [showAddAssetForm, setShowAddAssetForm] = useState(false);
+    const [filter, setFilter] = useState({ description: '', category: '' });
+    const [forexRates] = useState({
+        '€$': 1,
+        'USD': 1.12,
+        'EUR': 1.0,
+        'GBP': 0.85,
+        'JPY': 140.5,
+        'AUD': 1.6,
+    });
 
     // Currency Conversion Helper
     const convert = (amount) => {
-        const rates = { '€$': 1, 'USD': 1.1, 'JPY': 140, 'BTC': 0.00002 };
-        const rate = rates[data.currency || '€$'] || 1;
-        const symbol = data.currency === 'BTC' ? '₿' : data.currency === 'JPY' ? '¥' : data.currency === 'USD' ? '$' : '€$';
-        return `${symbol}${(amount * rate).toLocaleString(undefined, { maximumFractionDigits: data.currency === 'BTC' ? 5 : 0 })}`;
+        const rate = forexRates[currency] || 1;
+        const symbol = currency === '€$' ? '€$' : currency;
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: currency === '€$' ? 'USD' : currency,
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(amount * rate);
     };
 
     // Aggregate Categories for Chart
@@ -351,29 +355,22 @@ export default function FinancialTracker({ data, onLearnRule }) {
 
                 {/* Currency & Sync Controls */}
                 <div className="flex items-center gap-4">
-                    <div className="flex bg-gray-900 rounded p-0.5 border border-gray-800">
-                        {['€$', 'USD', 'JPY', 'BTC'].map(cur => (
-                            <button
-                                key={cur}
-                                onClick={() => data.setCurrency && data.setCurrency(cur)}
-                                className={`px-2 py-0.5 text-[10px] font-bold ${data.currency === cur ? 'bg-[var(--color-gray)] text-[var(--color-yellow)]' : 'text-gray-600 hover:text-white'}`}
-                            >
-                                {cur}
-                            </button>
-                        ))}
-                    </div>
-                    <button className="flex items-center gap-2 px-3 py-1 bg-[var(--color-blue)]/10 text-[var(--color-blue)] border border-[var(--color-blue)]/50 hover:bg-[var(--color-blue)] hover:text-black transition-all text-xs font-bold rounded">
+                    <select
+                        value={currency}
+                        onChange={(e) => setCurrency(e.target.value)}
+                        className="bg-black border border-gray-700 text-xs p-2 text-white outline-none focus:border-[var(--color-blue)]"
+                    >
+                        {Object.keys(forexRates).map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                    <button
+                        onClick={() => alert('Syncing with 10,000+ institutions... (mocked)')}
+                        className="flex items-center gap-2 px-3 py-1 bg-[var(--color-blue)]/10 text-[var(--color-blue)] border border-[var(--color-blue)]/50 hover:bg-[var(--color-blue)] hover:text-black transition-all text-xs font-bold rounded"
+                    >
                         <Zap size={12} /> SYNC_BANKS
                     </button>
                 </div>
 
-                <div className="flex bg-black border border-gray-800">
-                    <TabButton active={activeTab === 'overview'} label="OVERVIEW" icon={PieChart} onClick={() => setActiveTab('overview')} />
-                    <TabButton active={activeTab === 'assets'} label="ASSETS" icon={Wallet} onClick={() => setActiveTab('assets')} />
-                    <TabButton active={activeTab === 'analytics'} label="ANALYTICS" icon={TrendingUp} onClick={() => setActiveTab('analytics')} />
-                    <TabButton active={activeTab === 'simulation'} label="SIMULATION" icon={Target} onClick={() => setActiveTab('simulation')} />
-                    <TabButton active={activeTab === 'insights'} label="AI_INSIGHTS" icon={BrainCircuit} onClick={() => setActiveTab('insights')} />
-                </div>
+                <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
             </div>
 
             {/* Content Area */}
@@ -437,11 +434,11 @@ export default function FinancialTracker({ data, onLearnRule }) {
                                         }} className="text-gray-500 text-xs font-bold hover:text-[var(--color-yellow)] flex items-center gap-1">
                                             <Share2 size={10} /> EXPORT_CSV
                                         </button>
-                                        <button className="text-[var(--color-yellow)] text-xs font-bold hover:underline">VIEW_ALL</button>
+                    <button className="text-[var(--color-yellow)] text-xs font-bold hover:underline" onClick={() => setActiveTab('transactions')}>VIEW_ALL</button>
                                     </div>
                                 </div>
                                 <div className="divide-y divide-gray-800">
-                                    {data.recent.map((tx, i) => (
+                                    {data.recent.slice(0, 5).map((tx, i) => (
                                         <div key={i} className="flex items-center justify-between p-3 hover:bg-white/5 transition-colors group cursor-pointer">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center border border-gray-700 group-hover:border-[var(--color-yellow)]">
@@ -449,13 +446,68 @@ export default function FinancialTracker({ data, onLearnRule }) {
                                                 </div>
                                                 <div>
                                                     <div className="font-bold text-sm text-gray-200 group-hover:text-white flex items-center gap-2">
+                                                        {tx.enriched && tx.logo && <img src={tx.logo} alt="" className="w-4 h-4" />}
                                                         {tx.desc}
                                                         {tx.isTaxDeductible && <span className="text-[9px] bg-[var(--color-blue)] text-black px-1 rounded font-black">TAX</span>}
                                                     </div>
                                                     <div className="text-xs text-gray-600 font-mono">{tx.time} <span className="text-gray-500 mx-1">{'//'}</span> {new Date().toLocaleDateString()}</div>
                                                 </div>
                                             </div>
-                                            <span className="font-mono font-bold text-[var(--color-red)] privacy-blur">-{convert(tx.amount)}</span>
+                                            <div className="flex items-center gap-4">
+                                                <span className={`text-xs font-bold ${tx.status === 'Pending' ? 'text-gray-500' : 'text-white'}`}>{tx.status || 'Posted'}</span>
+                                                <button onClick={() => alert('Splitting transaction... (mocked)')} className="text-xs font-bold text-[var(--color-blue)] hover:underline">Split</button>
+                                                <span className="font-mono font-bold text-[var(--color-red)] privacy-blur">-{convert(tx.amount)}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'transactions' && (
+                        <motion.div
+                            key="transactions"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="space-y-4"
+                        >
+                            <div className="flex justify-between items-center">
+                                <h3 className="text-lg font-bold text-white">All Transactions</h3>
+                                <div className="flex gap-2">
+                                    <input type="text" placeholder="Filter by description..." className="bg-black border border-gray-700 text-xs p-2 text-white outline-none focus:border-[var(--color-blue)]" value={filter.description} onChange={(e) => setFilter({ ...filter, description: e.target.value })} />
+                                    <select className="bg-black border border-gray-700 text-xs p-2 text-white outline-none focus:border-[var(--color-blue)]" value={filter.category} onChange={(e) => setFilter({ ...filter, category: e.target.value })}>
+                                        <option value="">All Categories</option>
+                                        <option value="Food/Drink">Food/Drink</option>
+                                        <option value="Transport">Transport</option>
+                                        <option value="Entertainment">Entertainment</option>
+                                        <option value="Subscription">Subscription</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="border border-gray-800 bg-[var(--color-surface)]/30">
+                                <div className="divide-y divide-gray-800">
+                                    {transactions.filter(tx => (filter.description === '' || tx.desc.toLowerCase().includes(filter.description.toLowerCase())) && (filter.category === '' || tx.category === filter.category)).map((tx, i) => (
+                                        <div key={i} className="flex items-center justify-between p-3 hover:bg-white/5 transition-colors group cursor-pointer">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center border border-gray-700 group-hover:border-[var(--color-yellow)]">
+                                                    <Zap size={14} className="text-gray-400 group-hover:text-[var(--color-yellow)]" />
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-sm text-gray-200 group-hover:text-white flex items-center gap-2">
+                                                        {tx.enriched && tx.logo && <img src={tx.logo} alt="" className="w-4 h-4" />}
+                                                        {tx.desc}
+                                                        {tx.isTaxDeductible && <span className="text-[9px] bg-[var(--color-blue)] text-black px-1 rounded font-black">TAX</span>}
+                                                    </div>
+                                                    <div className="text-xs text-gray-600 font-mono">{tx.time} <span className="text-gray-500 mx-1">{'//'}</span> {new Date().toLocaleDateString()}</div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-4">
+                                                <span className={`text-xs font-bold ${tx.status === 'Pending' ? 'text-gray-500' : 'text-white'}`}>{tx.status || 'Posted'}</span>
+                                                <button onClick={() => alert('Splitting transaction... (mocked)')} className="text-xs font-bold text-[var(--color-blue)] hover:underline">Split</button>
+                                                <span className="font-mono font-bold text-[var(--color-red)] privacy-blur">-{convert(tx.amount)}</span>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -536,8 +588,19 @@ export default function FinancialTracker({ data, onLearnRule }) {
                                             </div>
                                         </div>
                                     ))}
-                                    <button className="w-full py-2 border border-dashed border-gray-600 text-gray-400 text-xs font-bold hover:border-[var(--color-yellow)] hover:text-[var(--color-yellow)] transition-colors">+ REGISTER_NEW_ASSET</button>
+                                    <button className="w-full py-2 border border-dashed border-gray-600 text-gray-400 text-xs font-bold hover:border-[var(--color-yellow)] hover:text-[var(--color-yellow)] transition-colors" onClick={() => setShowAddAssetForm(true)}>+ REGISTER_NEW_ASSET</button>
                                 </div>
+                                {showAddAssetForm && (
+                                    <div className="mt-4 p-4 border border-gray-700">
+                                        <h4 className="text-sm font-bold text-white mb-2">Add New Asset</h4>
+                                        <div className="flex flex-col gap-2">
+                                            <input type="text" placeholder="Asset Name (e.g., Sneakers)" className="bg-black border border-gray-700 text-xs p-2 text-white outline-none focus:border-[var(--color-blue)]" />
+                                            <input type="text" placeholder="Asset Type (e.g., Collectible)" className="bg-black border border-gray-700 text-xs p-2 text-white outline-none focus:border-[var(--color-blue)]" />
+                                            <input type="number" placeholder="Value" className="bg-black border border-gray-700 text-xs p-2 text-white outline-none focus:border-[var(--color-blue)]" />
+                                            <button className="bg-[var(--color-blue)]/20 text-[var(--color-blue)] border border-[var(--color-blue)] px-2 py-1 text-xs font-bold hover:bg-[var(--color-blue)] hover:text-black transition-colors" onClick={() => alert('Adding new asset... (mocked)')}>Add Asset</button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Subscription Manager & Smart Rules */}
@@ -620,6 +683,18 @@ export default function FinancialTracker({ data, onLearnRule }) {
 
                             <AIInsight />
 
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'rules' && (
+                        <motion.div
+                            key="rules"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                        >
+                            <h3 className="text-lg font-bold text-white">Custom Rules Engine</h3>
+                            {/* Add your UI for creating and managing rules here */}
                         </motion.div>
                     )}
                 </AnimatePresence>
