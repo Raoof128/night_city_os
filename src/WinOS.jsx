@@ -471,7 +471,22 @@ export default function WinOS() {
             { id: 2, name: "Quadra Turbo-R", value: 125000, type: 'Vehicle' },
             { id: 3, name: "Vintage Samurai Jacket", value: 5000, type: 'Collectible' }
         ],
-        subscriptions: [] // Detected subs
+        subscriptions: [], // Detected subs
+        upcomingBills: [
+            { id: 1, name: 'ISP', amount: 79.99, dueDate: '2024-08-01' },
+            { id: 2, name: 'Gym', amount: 45.00, dueDate: '2024-08-05' },
+        ],
+        debts: [
+            { id: 1, name: 'Credit Card', amount: 2500, interestRate: 22.5 },
+        ],
+        portfolio: {
+            targetAllocation: { stocks: 0.8, bonds: 0.2 },
+            currentAllocation: { stocks: 0.85, bonds: 0.15 },
+        },
+        creditCards: [
+            { id: 1, name: 'Card A', rewards: { groceries: 0.05 } },
+            { id: 2, name: 'Card B', rewards: { gas: 0.04 } },
+        ]
     });
 
     const [privacyMode, setPrivacyMode] = useState(false);
@@ -608,7 +623,7 @@ export default function WinOS() {
 
     // --- APP REGISTRY ---
     const apps = {
-        tracker: { name: 'FINANCE', icon: Activity, component: FinancialTracker, props: { data: financeData, onLearnRule: learnRule } },
+        tracker: { name: 'FINANCE', icon: Activity, component: FinancialTracker, props: { data: financeData, onLearnRule: learnRule, onUpdateData: setFinanceData, addNotification } },
         files: { name: 'SHARDS', icon: HardDrive, component: null }, // Handled inline thanks to its simplicity
         terminal: { name: 'CMD', icon: Terminal, component: TerminalApp, props: { financeData } },
         network: { name: 'NET_TRACE', icon: Share2, component: NetworkMapApp },

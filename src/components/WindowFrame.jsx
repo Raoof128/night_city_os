@@ -25,6 +25,7 @@ const WindowFrame = ({ title, icon: Icon, children, onClose, onMinimize, isActiv
             }}
             exit={{ scale: 0.95, opacity: 0, duration: 0.1 }}
             onMouseDown={onFocus}
+            data-testid="window-frame"
             className={`flex flex-col transition-all duration-200 backdrop-blur-md`}
             style={{
                 zIndex: zIndex,

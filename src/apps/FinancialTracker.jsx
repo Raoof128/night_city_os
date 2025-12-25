@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import FinancialAgents from './FinancialAgents';
 import TabBar from './TabBar';
 import {
     TrendingUp,
@@ -280,7 +281,7 @@ const MonteCarloSim = ({ currentBalance, monthlyBurn }) => {
     );
 };
 
-export default function FinancialTracker({ data, onLearnRule }) {
+export default function FinancialTracker({ data, onLearnRule, onUpdateData, addNotification }) {
     const [activeTab, setActiveTab] = useState('overview');
     const [learnMode, setLearnMode] = useState(null); // { keyword: '', category: '' }
     const [transactions] = useState(data.recent);
@@ -693,6 +694,18 @@ export default function FinancialTracker({ data, onLearnRule }) {
                         >
                             <h3 className="text-lg font-bold text-white">Custom Rules Engine</h3>
                             {/* Add your UI for creating and managing rules here */}
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'agents' && (
+                        <motion.div
+                            key="agents"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                             className="h-full"
+                        >
+                           <FinancialAgents data={data} onUpdateData={onUpdateData} addNotification={addNotification} />
                         </motion.div>
                     )}
                 </AnimatePresence>
