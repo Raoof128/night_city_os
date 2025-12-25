@@ -486,29 +486,40 @@ export default function WinOS() {
 
     const [userRules, setUserRules] = useState({}); // For smart recategorization
 
-    // AI Categorization & Rules Engine
+    // AI Categorization & Rules Engine v2
     const categorizeTransaction = (desc, amount) => {
         const lowerDesc = desc.toLowerCase();
 
-        // 1. Check User Learned Rules (Smart Recategorization)
-        for (const [key, category] of Object.entries(userRules)) {
-            if (lowerDesc.includes(key)) return category;
+        // 1. Check User-Defined Rules (Custom Rules Engine)
+        for (const rule of Object.values(userRules)) {
+            if (lowerDesc.includes(rule.keyword)) {
+                return { category: rule.category, isTaxDeductible: rule.isTaxDeductible };
+            }
         }
 
-        // 2. Security Rules (Anomaly Detection)
-        if (amount > 10000) {
-            logEvent(`HIGH_VALUE_TX_DETECTED: ${amount} €$`, 'warning');
-            addNotification("ANOMALY DETECTED: HIGH VALUE", "warning");
+        // 2. Smart Recategorization (Learned from corrections)
+        // This is implicitly handled by the userRules state for now.
+
+        // 3. Recurring Detection
+        const recurringKeywords = ['netflix', 'spotify', 'subscription', 'monthly', 'plan'];
+        if (recurringKeywords.some(kw => lowerDesc.includes(kw))) {
+            return { category: 'Subscription', isRecurring: true };
         }
 
-        // 3. Built-in Rules
-        if (lowerDesc.includes('netflix') || lowerDesc.includes('spotify') || (lowerDesc.includes('cloud') && amount === 12.99)) {
-            return 'Subscription';
+        // 4. ML-like Heuristics (based on context)
+        if (lowerDesc.includes('dinner') || lowerDesc.includes('restaurant')) return { category: 'Food/Drink' };
+        if (lowerDesc.includes('groceries') || lowerDesc.includes('market')) return { category: 'Groceries' };
+        if (lowerDesc.includes('coffee') || lowerDesc.includes('starbucks')) return { category: 'Coffee' };
+        if (lowerDesc.includes('uber') || lowerDesc.includes('taxi') || lowerDesc.includes('transport')) return { category: 'Transport' };
+        if (lowerDesc.includes('game') || lowerDesc.includes('steam') || lowerDesc.includes('entertainment')) return { category: 'Entertainment' };
+
+        // 5. Anomaly Detection
+        if (amount > 500) {
+            addNotification(`High value transaction: ${amount}`, 'warning');
         }
-        if (lowerDesc.includes('starbucks') || lowerDesc.includes('coffee')) return 'Food/Drink';
-        if (lowerDesc.includes('uber') || lowerDesc.includes('taxi')) return 'Transport';
-        if (lowerDesc.includes('steam') || lowerDesc.includes('psn')) return 'Entertainment';
-        return 'Other';
+        // Duplicate charge detection could be implemented here by checking against recent transactions
+
+        return { category: 'Other' };
     };
 
     useEffect(() => {
@@ -539,6 +550,25 @@ export default function WinOS() {
             document.body.classList.remove('privacy-active');
         }
     }, [privacyMode]);
+
+    useEffect(() => {
+        const lastTransaction = financeData.recent[0];
+        if (lastTransaction) {
+            // Anomaly Detection
+            const hour = new Date(lastTransaction.time).getHours();
+            if (lastTransaction.amount > 500 || hour < 6 || hour > 23) {
+                addNotification(`Anomaly detected: ${lastTransaction.desc} for ${lastTransaction.amount}`, 'error');
+            }
+
+            // Merchant Enrichment (mock)
+            setTimeout(() => {
+                setFinanceData(prev => ({
+                    ...prev,
+                    recent: prev.recent.map(t => t.desc === lastTransaction.desc ? { ...t, enriched: true, logo: 'https://example.com/logo.png' } : t)
+                }));
+            }, 1000);
+        }
+    }, [financeData.recent]);
 
     const addNotification = (msg, type = 'info') => {
         const id = Date.now();
@@ -643,12 +673,10 @@ export default function WinOS() {
 
     // Receipt scanning / finance update handler
     const handleTransactionUpdate = (newData) => {
-        const category = newData.category || categorizeTransaction(newData.summary || "", newData.amount);
+        const { category, isRecurring, isTaxDeductible } = categorizeTransaction(newData.summary || "", newData.amount);
 
         setFinanceData(prev => {
-            // Check for recurring
-            const isSubscription = category === 'Subscription';
-            const newSubs = isSubscription ? [...prev.subscriptions, { service: newData.summary, amount: newData.amount, cycle: 'Monthly' }] : prev.subscriptions;
+            const newSubs = isRecurring ? [...prev.subscriptions, { service: newData.summary, amount: newData.amount, cycle: 'Monthly' }] : prev.subscriptions;
 
             return {
                 ...prev,
@@ -659,12 +687,13 @@ export default function WinOS() {
                     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                     desc: newData.summary || "UNKNOWN",
                     category: category,
-                    amount: newData.amount
+                    amount: newData.amount,
+                    isTaxDeductible: isTaxDeductible,
                 }, ...prev.recent]
             };
         });
         openWindow('tracker');
-        addNotification(category === 'Subscription' ? "SUBSCRIPTION DETECTED" : "SECURE DATA PARSED", "info");
+        addNotification(isRecurring ? "SUBSCRIPTION DETECTED" : "SECURE DATA PARSED", "info");
     };
 
     if (isMobile) {
