@@ -6,7 +6,6 @@ import {
     TrendingUp,
     Wallet,
     CreditCard,
-    PieChart,
     Activity,
     ArrowDownLeft,
     Sparkles,
@@ -284,7 +283,7 @@ const MonteCarloSim = ({ currentBalance, monthlyBurn }) => {
 export default function FinancialTracker({ data, onLearnRule }) {
     const [activeTab, setActiveTab] = useState('overview');
     const [learnMode, setLearnMode] = useState(null); // { keyword: '', category: '' }
-    const [transactions, setTransactions] = useState(data.recent);
+    const [transactions] = useState(data.recent);
     const [currency, setCurrency] = useState('€$');
     const [showAddAssetForm, setShowAddAssetForm] = useState(false);
     const [filter, setFilter] = useState({ description: '', category: '' });
@@ -300,7 +299,6 @@ export default function FinancialTracker({ data, onLearnRule }) {
     // Currency Conversion Helper
     const convert = (amount) => {
         const rate = forexRates[currency] || 1;
-        const symbol = currency === '€$' ? '€$' : currency;
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: currency === '€$' ? 'USD' : currency,

@@ -1,5 +1,3 @@
-import React from 'react';
-
 const Tabs = ({ active, label, icon: Icon, onClick }) => (
     <button
         onClick={onClick}
