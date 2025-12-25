@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Gauge, Flame, PiggyBank, BarChart, AreaChart, Map, GanttChartSquare, AlertTriangle, GitCommit } from 'lucide-react';
 
@@ -111,7 +110,7 @@ const ExpenseTrendChart = () => {
                  <span className="font-bold">ALERT</span>
              </div>
              <p className="text-sm text-gray-400 mt-2 font-mono">
-                 "Night Market" spending up <span className="text-[var(--color-red)] font-bold">23%</span> in Q4.
+                 &quot;Night Market&quot; spending up <span className="text-[var(--color-red)] font-bold">23%</span> in Q4.
                  <br/>
                  Possible lifestyle creep detected.
              </p>
