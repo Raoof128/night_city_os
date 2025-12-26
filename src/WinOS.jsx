@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback, useReducer } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback, useReducer, memo } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import {
     HardDrive,
@@ -55,6 +55,14 @@ import { useSound } from './hooks/useSound';
 import { ensureRoot, addNode, deleteNode, renameNode, updateFileContent, createFile, createFolder, findNode } from './utils/vfs';
 
 const isBrowser = typeof window !== 'undefined';
+const withAlpha = (hex, alpha) => {
+    const raw = hex.replace('#', '');
+    const bigint = parseInt(raw, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
 const DEFAULT_SYS_CONFIG = { bgFit: 'cover', wallpaper: 'night', volume: 0.4, muted: false, dragSensitivity: 0.2 };
 const DEFAULT_GAMIFICATION = {
     xp: 0,
@@ -448,9 +456,34 @@ export default function WinOS() {
         img_view: { name: 'IMAGE_VIEWER', icon: Eye, component: null }
     }), [activeTextFile, auditLog, currentSpace, currentUser, gamification, handleAddSpace, handleCreateTextFile, handleUpdateSpace, handleUpdateTextFile, learnRule, setCurrentSpaceId, setCurrentUser, setGamification, setSysConfig, spaces, sysConfig]);
 
-    const wallpaperStyle = sysConfig.wallpaper === 'void'
-        ? { backgroundImage: `radial-gradient(circle at 20% 20%, #0a0a0a 0, #000 50%)`, backgroundSize: '80px 80px', backgroundColor: '#000' }
-        : { backgroundImage: "url('/os_background.jpg')", backgroundSize: sysConfig.bgFit };
+    const wallpaperStyle = useMemo(() => (
+        sysConfig.wallpaper === 'void'
+            ? { backgroundImage: `radial-gradient(circle at 20% 20%, ${COLORS.VOID} 0, ${COLORS.VOID} 50%)`, backgroundSize: '80px 80px', backgroundColor: COLORS.VOID }
+            : { backgroundImage: "url('/os_background.jpg')", backgroundSize: sysConfig.bgFit }
+    ), [sysConfig.bgFit, sysConfig.wallpaper]);
+
+    const DesktopBackdrop = memo(({ wallpaper, stealth }) => (
+        <div className="absolute inset-0 z-0 pointer-events-none">
+            <div
+                className="absolute inset-0 bg-center transition-all duration-500"
+                style={wallpaper}
+            />
+            <div className="absolute inset-0" style={{ backgroundColor: withAlpha(COLORS.VOID, 0.4) }} />
+            {!stealth && (
+                <>
+                    <div className="absolute inset-0 z-[100] opacity-10" style={{
+                        backgroundImage: `linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.25) 50%), linear-gradient(90deg, ${withAlpha(COLORS.RED, 0.12)}, ${withAlpha(COLORS.BLUE, 0.06)}, ${withAlpha(COLORS.BLUE, 0.12)})`,
+                        backgroundSize: '100% 2px, 3px 100%'
+                    }} />
+                    <div className="absolute inset-0" style={{ backgroundImage: `linear-gradient(${COLORS.GRID} 1px, transparent 1px), linear-gradient(90deg, ${COLORS.GRID} 1px, transparent 1px)`, backgroundSize: '50px 50px', opacity: 0.15 }} />
+                </>
+            )}
+            <div className="absolute top-0 right-0 w-1/2 h-full" style={{ background: `linear-gradient(90deg, ${withAlpha(COLORS.RED, 0.2)} 0%, transparent 70%)` }} />
+            <div className="absolute bottom-0 left-0 w-full h-1/3" style={{ background: `linear-gradient(0deg, ${withAlpha(COLORS.BLUE, 0.1)} 0%, transparent 80%)` }} />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[10rem] font-black text-white/5 select-none pointer-events-none whitespace-nowrap z-0 glitch mix-blend-overlay" data-text="NIGHT CITY">NIGHT CITY</div>
+        </div>
+    ));
+    DesktopBackdrop.displayName = 'DesktopBackdrop';
 
     if (!booted) return <BootScreen onComplete={() => { setBooted(true); play('boot'); }} />;
     if (shutDown) return <ShutdownScreen onReboot={handleReboot} />;
@@ -470,22 +503,7 @@ export default function WinOS() {
                 {commandPaletteOpen && <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} commands={commands} />}
             </AnimatePresence>
 
-            <div className="absolute inset-0 z-0 pointer-events-none">
-                <div
-                    className="absolute inset-0 bg-center transition-all duration-500"
-                    style={wallpaperStyle}
-                />
-                <div className="absolute inset-0 bg-black/40" />
-                {!stealthMode && (
-                    <>
-                        <div className="absolute inset-0 z-[100] opacity-10 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[size:100%_2px,3px_100%]" />
-                        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: `linear-gradient(${COLORS.GRID} 1px, transparent 1px), linear-gradient(90deg, ${COLORS.GRID} 1px, transparent 1px)`, backgroundSize: '50px 50px', opacity: 0.15 }} />
-                    </>
-                )}
-                <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-red-900/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-blue-900/10 to-transparent" />
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[10rem] font-black text-white/5 select-none pointer-events-none whitespace-nowrap z-0 glitch mix-blend-overlay" data-text="NIGHT CITY">NIGHT CITY</div>
-            </div>
+            <DesktopBackdrop wallpaper={wallpaperStyle} stealth={stealthMode} />
 
             <div ref={desktopRef} className="relative z-10 w-full h-full p-6 pb-20" key={desktopKey} onClick={(e) => e.stopPropagation()}>
                 {isMobile ? (

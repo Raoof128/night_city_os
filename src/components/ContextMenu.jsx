@@ -7,7 +7,7 @@ const ContextMenu = ({ x, y, onClose, onReset, onToggleStealth, stealthMode, onS
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="absolute z-50 w-64 bg-black/90 backdrop-blur-sm border border-[var(--color-yellow)] shadow-[0_0_15px_rgba(255,224,0,0.2)]"
+            className="absolute z-[1200] w-64 bg-black/90 backdrop-blur-sm border border-[var(--color-yellow)] shadow-[0_0_15px_rgba(255,224,0,0.2)]"
             style={{ left: x, top: y }}
             onClick={(e) => e.stopPropagation()}
         >

@@ -44,6 +44,7 @@ All notable changes to the "Night City OS" project will be documented in this fi
 - **Utilities & Tests:** Introduced `codeHighlighter` helper and Vitest coverage for keyword wrapping.
 ### Fixed
 - Cleaned streaming and biometric timers to avoid runaway intervals when components unmount or relock.
+- Memoized desktop backdrop, enforced `COLORS` palette usage in gradients, and raised context menu layering above windows.
 
 ## [v5.0.0] - The Neural Link Update - 2025-12-25
 ### Added
