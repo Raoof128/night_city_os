@@ -2,6 +2,21 @@
 
 All notable changes to the "Night City OS" project will be documented in this file.
 
+## [v5.3.0] - The Kernel Update - 2025-12-27
+### Architecture
+- **OS Kernel:** Introduced a centralized "Kernel" architecture with a strictly typed `EventBus` and Redux-style `OSProvider` to replace the monolithic `WinOS.jsx` state.
+- **Global Error Boundary:** Added a "Blue Screen of Death" (Cyberpunk style) recovery screen to catch runtime UI crashes and offer "Hard Reset" options.
+- **Shell Refactor:** Decoupled `Shell.jsx`, `Desktop.jsx`, and `Taskbar.jsx` for better modularity and testability.
+
+### Window Manager
+- **8-Point Resizing:** Windows can now be resized from all 4 corners and 4 edges with custom cursors.
+- **Performance:** Drag and Resize operations now use split-state (local DOM events) to ensure 60fps performance without thrashing the global store.
+- **State Persistence:** Window size, position, and status (min/max) are persisted to `localStorage` and strictly validated on rehydration.
+
+### Fixed
+- **Boot Sequence:** Standardized the Boot -> Login -> Desktop lifecycle state machine.
+- **Lint Quality:** Achieved 0-warning lint status across the entire OS core.
+
 ## [v5.1.1] - Stability & Governance - 2025-12-27
 ### Added
 - Centralized validation + logging utilities to harden transaction ingestion and file uploads.

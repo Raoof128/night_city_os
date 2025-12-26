@@ -2,14 +2,15 @@
 
 **Codename:** NC_OS_V5_NEURAL
 **Owner:** Raouf (Netrunner/Admin)
-**Status:** STABLE RELEASE (Verified Build v5.2.0)
+**Status:** STABLE RELEASE (Kernel Refactor v5.3.0)
 **Repository:** [https://github.com/Raoof128/night_city_os](https://github.com/Raoof128/night_city_os)
 
 ## ⚡ Executive Summary
 Night City OS is a high-fidelity React-based Operating System simulation running directly in the browser. It emulates the aesthetic and functionality of a Cyberpunk 2077 "Cyberdeck" interface. It has evolved from a UI shell into a functional, modular environment with active state management, drag physics, simulated file systems, and advanced AI integration.
 
 ## 🛠️ Tech Stack & Dependencies
-- **Core:** React 18+ (Functional Components, Hooks)
+- **Core:** React 18+ (Context + Reducer Architecture)
+- **State Management:** Custom Redux-lite Store (`osReducer`) + Typed Event Bus.
 - **Animation Physics:** framer-motion (Spring physics for windows, drag interactions, toast animations, charts)
 - **Testing:** Vitest + React Testing Library (Unit & Integration)
 - **CI/CD:** GitHub Actions (Lint, Test, Build)
@@ -20,14 +21,16 @@ Night City OS is a high-fidelity React-based Operating System simulation running
     - Audio Processing (Voice Note Expenses)
     - Financial Reasoning (Spending Insights & Anomaly Detection)
 - **Validation & Telemetry:** Centralized input validation + prefixed logging (`src/utils/validation`, `src/utils/logger`) used for uploads and finance mutations.
-- **Persistence & VFS:** Window manager now runs on a reducer with persisted state, and files are stored in a recursive VFS (`src/utils/vfs`) with create/rename/delete support.
+- **Persistence & VFS:** Window manager runs on a reducer with persisted state snapshots; files are stored in a recursive VFS (`src/utils/vfs`) with create/rename/delete support.
 
-## 🏗️ Architecture (Modular V4)
-The OS features a fully modularized architecture to support scalability and maintainability.
-- **System Layer (`WinOS.jsx`):** Orchestrates the Desktop Environment, Window Management, Z-Index Sorting, and Global State.
-- **Persistence Layer:** `usePersistentState.js` handles local storage synchronization.
+## 🏗️ Architecture (Modular V5 Kernel)
+The OS features a fully modularized kernel architecture to support scalability and maintainability.
+- **Kernel Layer (`src/os/kernel`):** Centralized `EventBus` for system-wide messaging (Boot, Error, Window Ops).
+- **Store Layer (`src/os/store`):** Single source of truth via `OSProvider` and `osReducer`, handling Windows, Boot State, and Theme.
+- **Shell Layer (`Shell.jsx`):** Orchestrates the Boot -> Desktop -> Shutdown lifecycle.
 - **Component Library:**
-    - **`WindowFrame`:** A reusable, glassmorphism-styled container handling drag, minimize, maximize, and close actions.
+    - **`WindowFrame`:** High-performance, 8-point resizable container with local state optimization.
+    - **`Desktop` & `Taskbar`:** Decoupled functional components.
     - **`utils/theme`:** Centralized design tokens.
 - **Application Layer:** Each app is an isolated module in `src/apps/`:
     - `FinancialTracker.jsx`, `Calculator.jsx`, `Terminal.jsx`, etc.
