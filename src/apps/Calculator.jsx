@@ -12,7 +12,11 @@ const CalculatorApp = () => {
             try {
                 const result = Function('"use strict";return (' + equation + display + ')')();
                 // Fix floating point precision issues (e.g. 0.1 + 0.2)
-                const preciseResult = parseFloat(parseFloat(result).toPrecision(12));
+                // Use 15 significant digits to strip floating point noise while preserving
+                // as much precision as possible for large numbers.
+                const preciseResult = Number.isInteger(result)
+                    ? result
+                    : parseFloat(result.toPrecision(15));
                 setDisplay(String(preciseResult));
                 setEquation('');
             } catch (e) {
