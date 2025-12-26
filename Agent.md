@@ -76,6 +76,7 @@ The OS features a fully modularized architecture to support scalability and main
 - **Env:** Provide `VITE_GEMINI_API_KEY` via `.env.local` when exercising AI receipt scanning.
 - **State hygiene:** Persistent slices are stored in `localStorage`; clear storage to simulate a cold boot.
 - **Permissions:** Finance mutations respect `spaces` roles; approvals enforced over configured thresholds.
+- **Audio Engine:** `useSound` lazily creates and unlocks the Web Audio context on user interaction and is covered by `tests/unit/useSound.test.js`. Keep volume/mute wiring intact when adding new events.
 - **Docs:** Mermaid diagrams are GitHub-compatible; validate new diagrams locally before committing.
 - **Strategic Ops:** Uses Recharts + `decimal.js` for high-precision planning (vaults, debt, FIRE). Keep projections deterministic by passing sanitized params into `strategicOps` utils.
 - **Lint discipline:** CI blocks warnings; clear unused imports before committing.

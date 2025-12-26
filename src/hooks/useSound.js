@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 const createTone = (audioContext, frequency = 440, duration = 0.1, volume = 0.2) => {
     const oscillator = audioContext.createOscillator();
@@ -15,29 +15,49 @@ const createTone = (audioContext, frequency = 440, duration = 0.1, volume = 0.2)
 export const useSound = (masterVolume = 0.4, muted = false) => {
     const contextRef = useRef(null);
 
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-        if (!contextRef.current) {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (AudioContext) {
-                contextRef.current = new AudioContext();
-            }
-        }
+    const ensureContext = useCallback(() => {
+        if (typeof window === 'undefined') return null;
+        if (contextRef.current) return contextRef.current;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return null;
+        contextRef.current = new AudioContext();
+        return contextRef.current;
     }, []);
+
+    useEffect(() => {
+        const ctx = ensureContext();
+        if (!ctx) return undefined;
+        const unlock = () => {
+            if (ctx.state === 'suspended' && typeof ctx.resume === 'function') {
+                ctx.resume().catch(() => {});
+            }
+        };
+        window.addEventListener('pointerdown', unlock, { once: true });
+        window.addEventListener('keydown', unlock, { once: true });
+        return () => {
+            window.removeEventListener('pointerdown', unlock);
+            window.removeEventListener('keydown', unlock);
+        };
+    }, [ensureContext]);
 
     const play = useMemo(() => {
         return (type = 'beep') => {
-            if (muted || !contextRef.current) return;
-            const ctx = contextRef.current;
+            if (muted) return;
+            const ctx = ensureContext();
+            if (!ctx) return;
             const base = {
                 beep: { freq: 640, duration: 0.08 },
                 boot: { freq: 420, duration: 0.25 },
                 error: { freq: 120, duration: 0.25 },
                 type: { freq: 880, duration: 0.02 }
             }[type] || { freq: 520, duration: 0.1 };
-            createTone(ctx, base.freq, base.duration, masterVolume);
+            try {
+                createTone(ctx, base.freq, base.duration, masterVolume);
+            } catch (err) {
+                // Fail silently; audio support might be blocked.
+            }
         };
-    }, [masterVolume, muted]);
+    }, [ensureContext, masterVolume, muted]);
 
     return { play };
 };
