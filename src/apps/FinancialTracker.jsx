@@ -14,6 +14,7 @@ import SpaceSwitcher from './components/SpaceSwitcher';
 import SpaceSettingsModal from './components/SpaceSettingsModal';
 import SplitTransactionModal from './components/SplitTransactionModal';
 import { checkNudges } from '../utils/gamificationEngine';
+import { checkPermission, ACTIONS } from '../utils/spaces';
 import {
     TrendingUp,
     Wallet,
@@ -25,7 +26,9 @@ import {
     Zap,
     Share2,
     AlertTriangle,
-    Settings
+    Settings,
+    Check,
+    XCircle
 } from 'lucide-react';
 
 export default function FinancialTracker({
@@ -68,6 +71,25 @@ export default function FinancialTracker({
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
         }).format(amount * rate);
+    };
+
+    const handleApprove = (tx) => {
+        const newSpent = (data.spent || 0) + tx.amount;
+        const newBalance = (data.balance || 0) - tx.amount;
+        const updatedRecent = data.recent.map(t => t === tx ? { ...t, status: 'Posted' } : t);
+
+        onUpdateSpace({
+            ...currentSpace,
+            data: { ...currentSpace.data, spent: newSpent, balance: newBalance, recent: updatedRecent }
+        });
+    };
+
+    const handleReject = (tx) => {
+        const updatedRecent = data.recent.map(t => t === tx ? { ...t, status: 'Rejected' } : t);
+        onUpdateSpace({
+            ...currentSpace,
+            data: { ...currentSpace.data, recent: updatedRecent }
+        });
     };
 
     // Aggregate Categories for Chart
@@ -261,7 +283,14 @@ export default function FinancialTracker({
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4">
-                                                <span className={`text-xs font-bold ${tx.status === 'Pending' ? 'text-gray-500' : 'text-white'}`}>{tx.status || 'Posted'}</span>
+                                                {tx.status === 'Pending Approval' && checkPermission(currentSpace, currentUser.id, ACTIONS.APPROVE_TRANSACTIONS) ? (
+                                                    <div className="flex gap-2">
+                                                            <button onClick={(e) => { e.stopPropagation(); handleApprove(tx); }} className="text-[10px] font-bold text-[var(--color-green)] border border-[var(--color-green)] px-1 hover:bg-[var(--color-green)] hover:text-black flex items-center gap-1"><Check size={10}/> APP</button>
+                                                            <button onClick={(e) => { e.stopPropagation(); handleReject(tx); }} className="text-[10px] font-bold text-[var(--color-red)] border border-[var(--color-red)] px-1 hover:bg-[var(--color-red)] hover:text-black flex items-center gap-1"><XCircle size={10}/> REJ</button>
+                                                    </div>
+                                                ) : (
+                                                    <span className={`text-xs font-bold ${tx.status === 'Pending Approval' ? 'text-[var(--color-yellow)] animate-pulse' : (tx.status === 'Rejected' ? 'text-[var(--color-red)]' : 'text-white')}`}>{tx.status || 'Posted'}</span>
+                                                )}
                                                 <button onClick={() => setSplitTx(tx)} className="text-xs font-bold text-[var(--color-blue)] hover:underline">Split</button>
                                                 <span className="font-mono font-bold text-[var(--color-red)] privacy-blur">-{convert(tx.amount)}</span>
                                             </div>
@@ -278,9 +307,16 @@ export default function FinancialTracker({
                                     transaction={splitTx}
                                     onClose={() => setSplitTx(null)}
                                     onSplit={(txId, splits) => {
-                                        // In a real app, this would call an API
-                                        // For now we just log and close
-                                        console.log('Split created:', { txId, splits });
+                                        const updatedRecent = data.recent.map(tx => {
+                                            if (tx === splitTx) {
+                                                 return { ...tx, splitData: splits };
+                                            }
+                                            return tx;
+                                        });
+                                        onUpdateSpace({
+                                            ...currentSpace,
+                                            data: { ...currentSpace.data, recent: updatedRecent }
+                                        });
                                         setSplitTx(null);
                                     }}
                                 />
@@ -335,8 +371,15 @@ export default function FinancialTracker({
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4">
-                                                <span className={`text-xs font-bold ${tx.status === 'Pending' ? 'text-gray-500' : 'text-white'}`}>{tx.status || 'Posted'}</span>
-                                                <button onClick={() => alert('Splitting transaction... (mocked)')} className="text-xs font-bold text-[var(--color-blue)] hover:underline">Split</button>
+                                                {tx.status === 'Pending Approval' && checkPermission(currentSpace, currentUser.id, ACTIONS.APPROVE_TRANSACTIONS) ? (
+                                                    <div className="flex gap-2">
+                                                            <button onClick={(e) => { e.stopPropagation(); handleApprove(tx); }} className="text-[10px] font-bold text-[var(--color-green)] border border-[var(--color-green)] px-1 hover:bg-[var(--color-green)] hover:text-black flex items-center gap-1"><Check size={10}/> APP</button>
+                                                            <button onClick={(e) => { e.stopPropagation(); handleReject(tx); }} className="text-[10px] font-bold text-[var(--color-red)] border border-[var(--color-red)] px-1 hover:bg-[var(--color-red)] hover:text-black flex items-center gap-1"><XCircle size={10}/> REJ</button>
+                                                    </div>
+                                                ) : (
+                                                    <span className={`text-xs font-bold ${tx.status === 'Pending Approval' ? 'text-[var(--color-yellow)] animate-pulse' : (tx.status === 'Rejected' ? 'text-[var(--color-red)]' : 'text-white')}`}>{tx.status || 'Posted'}</span>
+                                                )}
+                                                <button onClick={() => setSplitTx(tx)} className="text-xs font-bold text-[var(--color-blue)] hover:underline">Split</button>
                                                 <span className="font-mono font-bold text-[var(--color-red)] privacy-blur">-{convert(tx.amount)}</span>
                                             </div>
                                         </div>

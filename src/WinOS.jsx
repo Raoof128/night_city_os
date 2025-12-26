@@ -27,6 +27,8 @@ import DraggableItem from './components/DraggableItem';
 import DesktopCalendarWidget from './components/DesktopCalendarWidget';
 import DesktopUploadWidget from './components/DesktopUploadWidget';
 import StartMenu from './components/StartMenu';
+import MobileAppGrid from './components/MobileAppGrid';
+import CommandPalette from './components/CommandPalette';
 import FinancialTracker from './apps/FinancialTracker';
 import CalculatorApp from './apps/Calculator';
 import SettingsApp from './apps/Settings';
@@ -220,15 +222,23 @@ export default function WinOS() {
         return () => clearInterval(timer);
     }, []);
 
-    // Privacy Mode Hotkey Listener
+    // Privacy Mode & Command Palette Hotkey Listener
+    const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
     useEffect(() => {
         const handleKeyDown = (e) => {
+            // Privacy Mode: Cmd+Shift+P
             if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'p') {
                 e.preventDefault();
                 setPrivacyMode(prev => !prev);
                 const newState = !privacyMode;
                 logEvent(newState ? "PRIVACY_MODE_ENABLED" : "PRIVACY_MODE_DISABLED", "warning");
                 addNotification(newState ? "PRIVACY_MODE_ENABLED" : "PRIVACY_MODE_DISABLED", "info");
+            }
+            // Command Palette: Cmd+K
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                setCommandPaletteOpen(prev => !prev);
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -350,6 +360,21 @@ export default function WinOS() {
         { id: 'settings', defaultY: '240px', x: '120px' },
     ];
 
+    const commands = [
+        ...Object.entries(apps).map(([id, app]) => ({
+            name: `OPEN ${app.name}`,
+            icon: app.icon,
+            action: () => openWindow(id),
+            shortcut: 'APP'
+        })),
+        { name: 'TOGGLE STEALTH MODE', icon: Eye, action: () => setStealthMode(p => !p), shortcut: 'MOD+S' },
+        { name: 'TOGGLE PRIVACY MODE', icon: Lock, action: () => setPrivacyMode(p => !p), shortcut: 'MOD+SHIFT+P' },
+        { name: 'JACK OUT (SHUTDOWN)', icon: ShieldAlert, action: handleShutdown, shortcut: 'SYS_HALT' },
+        { name: 'RESET DESKTOP', icon: Grid, action: handleResetDesktop, shortcut: 'RESET' },
+        { name: 'ADD TRANSACTION', icon: Activity, action: () => openWindow('tracker'), shortcut: 'FIN' },
+        { name: 'SCAN RECEIPT', icon: Search, action: () => { openWindow('tracker'); addNotification("DROP RECEIPT ON WIDGET", "info"); }, shortcut: 'SCAN' }
+    ];
+
     const bringToFront = (id) => {
         setWindows(prev => {
             const others = prev.filter(w => w.id !== id);
@@ -440,18 +465,6 @@ export default function WinOS() {
         }
     };
 
-    if (isMobile) {
-        return (
-            <div className="fixed inset-0 bg-black flex flex-col items-center justify-center p-8 text-center font-mono text-[var(--color-red)] z-[9999]">
-                <ShieldAlert size={64} className="mb-4 animate-pulse" />
-                <h1 className="text-2xl font-black tracking-widest mb-2">SYSTEM ERROR</h1>
-                <p className="text-sm border flex items-center gap-2 px-2 py-1 mb-8 border-red-900 bg-red-900/10">ERROR_CODE: VIEWPORT_TOO_SMALL</p>
-                <p className="text-gray-500 text-xs">This Neural Interface requires a standard desktop resolution to function safely.</p>
-                <div className="mt-8 text-xs text-yellow-500">PLEASE ACCESS VIA TERMINAL (DESKTOP)</div>
-            </div>
-        );
-    }
-
     if (!booted) return <BootScreen onComplete={() => setBooted(true)} />;
     if (shutDown) return <ShutdownScreen onReboot={handleReboot} />;
 
@@ -465,6 +478,11 @@ export default function WinOS() {
                 {notifications.map(n => (
                     <Toast key={n.id} message={n.msg} type={n.type} onClose={() => setNotifications(prev => prev.filter(item => item.id !== n.id))} />
                 ))}
+            </AnimatePresence>
+
+            {/* COMMAND PALETTE */}
+            <AnimatePresence>
+                {commandPaletteOpen && <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} commands={commands} />}
             </AnimatePresence>
 
             {/* BACKGROUND LAYER */}
@@ -498,26 +516,34 @@ export default function WinOS() {
             {/* DESKTOP AREA (Keyed for Reset) */}
             <div ref={desktopRef} className="relative z-10 w-full h-full p-6 pb-20" key={desktopKey} onClick={(e) => e.stopPropagation()}>
 
-                {/* DRAGGABLE ICONS */}
-                {desktopIcons.map((item) => {
-                    const app = apps[item.id];
-                    if (!app) return null;
-                    return (
-                        <DraggableItem key={item.id} initialX={item.x || "20px"} initialY={item.defaultY} className="w-24" constraintsRef={desktopRef}>
-                            <button onDoubleClick={() => openWindow(item.id)} className="group flex flex-col items-center gap-2 focus:outline-none w-full">
-                                <div className="w-16 h-16 bg-black/40 backdrop-blur-sm border border-gray-600 rounded-xl flex items-center justify-center group-hover:bg-[var(--color-yellow)] group-hover:border-[var(--color-yellow)] transition-all duration-200 shadow-lg group-hover:shadow-[0_0_20px_rgba(255,224,0,0.4)] relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 skew-x-12 translate-x-full group-hover:animate-shine pointer-events-none" />
-                                    <app.icon size={30} className="text-[var(--color-blue)] group-hover:text-black transition-colors" />
-                                </div>
-                                <span className="text-xs font-bold tracking-widest bg-black/80 px-2 py-0.5 rounded text-gray-300 group-hover:text-[var(--color-yellow)] shadow-sm">{app.name}</span>
-                            </button>
-                        </DraggableItem>
-                    )
-                })}
+                {/* MOBILE GRID or DESKTOP ICONS */}
+                {isMobile ? (
+                    <MobileAppGrid apps={apps} onOpenApp={openWindow} />
+                ) : (
+                    desktopIcons.map((item) => {
+                        const app = apps[item.id];
+                        if (!app) return null;
+                        return (
+                            <DraggableItem key={item.id} initialX={item.x || "20px"} initialY={item.defaultY} className="w-24" constraintsRef={desktopRef}>
+                                <button onDoubleClick={() => openWindow(item.id)} className="group flex flex-col items-center gap-2 focus:outline-none w-full">
+                                    <div className="w-16 h-16 bg-black/40 backdrop-blur-sm border border-gray-600 rounded-xl flex items-center justify-center group-hover:bg-[var(--color-yellow)] group-hover:border-[var(--color-yellow)] transition-all duration-200 shadow-lg group-hover:shadow-[0_0_20px_rgba(255,224,0,0.4)] relative overflow-hidden">
+                                        <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 skew-x-12 translate-x-full group-hover:animate-shine pointer-events-none" />
+                                        <app.icon size={30} className="text-[var(--color-blue)] group-hover:text-black transition-colors" />
+                                    </div>
+                                    <span className="text-xs font-bold tracking-widest bg-black/80 px-2 py-0.5 rounded text-gray-300 group-hover:text-[var(--color-yellow)] shadow-sm">{app.name}</span>
+                                </button>
+                            </DraggableItem>
+                        )
+                    })
+                )}
 
-                {/* WIDGETS */}
-                <DesktopCalendarWidget constraintsRef={desktopRef} />
-                <DesktopUploadWidget onTransactionUpdate={handleTransactionUpdate} onFileUpload={handleFileUpload} constraintsRef={desktopRef} />
+                {/* WIDGETS (Desktop Only) */}
+                {!isMobile && (
+                    <>
+                        <DesktopCalendarWidget constraintsRef={desktopRef} />
+                        <DesktopUploadWidget onTransactionUpdate={handleTransactionUpdate} onFileUpload={handleFileUpload} constraintsRef={desktopRef} />
+                    </>
+                )}
 
                 {/* WINDOWS LAYER */}
                 <AnimatePresence>
@@ -540,6 +566,7 @@ export default function WinOS() {
                                 initialPos={{ x: (200 + index * 40) + 'px', y: (100 + index * 40) + 'px' }}
                                 zIndex={100 + index}
                                 constraintsRef={desktopRef}
+                                isMobile={isMobile}
                             >
                                 {Component ? <Component {...(app.props || {})} /> :
                                     win.id === 'files' ? (
@@ -616,36 +643,40 @@ export default function WinOS() {
             {/* TASKBAR */}
             <div className="absolute bottom-0 left-0 right-0 h-12 bg-black/90 backdrop-blur-md border-t border-gray-800 flex items-center justify-between px-2 z-50 select-none" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-4">
-                    <button onClick={() => setStartMenuOpen(!startMenuOpen)} className={`h-12 px-6 flex items-center justify-center transition-all font-black text-lg tracking-wider ${startMenuOpen ? 'bg-[var(--color-red)] text-black' : 'bg-[var(--color-yellow)] hover:bg-white hover:text-black text-black'}`} style={{ clipPath: 'polygon(0 0, 100% 0, 90% 100%, 0% 100%)' }}>
-                        START
-                    </button>
-                    <div className="flex items-center gap-2 bg-[var(--color-surface)]/50 border border-white/5 rounded-full px-4 py-1.5 focus-within:border-[var(--color-blue)] transition-colors">
-                        <Search size={14} className="text-[var(--color-blue)]" />
-                        <input
-                            type="text"
-                            placeholder="SEARCH_NET..."
-                            className="bg-transparent border-none outline-none text-xs w-48 text-[var(--color-yellow)] placeholder:text-gray-700 font-mono uppercase"
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    const term = e.target.value.toLowerCase();
-                                    // Search Apps
-                                    const foundApp = Object.keys(apps).find(key =>
-                                        apps[key].name.toLowerCase().includes(term) || key.includes(term)
-                                    );
-                                    if (foundApp) {
-                                        openWindow(foundApp);
-                                        e.target.value = '';
-                                        logEvent(`SEARCH_EXEC: OPEN_APP ${apps[foundApp].name}`, 'info');
-                                    } else {
-                                        addNotification("NO RESULTS FOUND", "error");
-                                    }
-                                }
-                            }}
-                        />
-                    </div>
+                    {!isMobile && (
+                        <>
+                            <button onClick={() => setStartMenuOpen(!startMenuOpen)} className={`h-12 px-6 flex items-center justify-center transition-all font-black text-lg tracking-wider ${startMenuOpen ? 'bg-[var(--color-red)] text-black' : 'bg-[var(--color-yellow)] hover:bg-white hover:text-black text-black'}`} style={{ clipPath: 'polygon(0 0, 100% 0, 90% 100%, 0% 100%)' }}>
+                                START
+                            </button>
+                            <div className="flex items-center gap-2 bg-[var(--color-surface)]/50 border border-white/5 rounded-full px-4 py-1.5 focus-within:border-[var(--color-blue)] transition-colors">
+                                <Search size={14} className="text-[var(--color-blue)]" />
+                                <input
+                                    type="text"
+                                    placeholder="SEARCH_NET..."
+                                    className="bg-transparent border-none outline-none text-xs w-48 text-[var(--color-yellow)] placeholder:text-gray-700 font-mono uppercase"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            const term = e.target.value.toLowerCase();
+                                            // Search Apps
+                                            const foundApp = Object.keys(apps).find(key =>
+                                                apps[key].name.toLowerCase().includes(term) || key.includes(term)
+                                            );
+                                            if (foundApp) {
+                                                openWindow(foundApp);
+                                                e.target.value = '';
+                                                logEvent(`SEARCH_EXEC: OPEN_APP ${apps[foundApp].name}`, 'info');
+                                            } else {
+                                                addNotification("NO RESULTS FOUND", "error");
+                                            }
+                                        }
+                                    }}
+                                />
+                            </div>
+                        </>
+                    )}
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className={`flex items-center gap-1 ${isMobile ? 'overflow-x-auto max-w-[200px]' : ''}`}>
                     {windows.map(win => {
                         const appName = apps[win.id]?.name || win.id;
                         return (

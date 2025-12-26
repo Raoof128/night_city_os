@@ -1,6 +1,6 @@
 
 import { motion } from 'framer-motion';
-import { X, Divide } from 'lucide-react';
+import { X, Divide, MessageSquare } from 'lucide-react';
 import { useState } from 'react';
 import { MOCK_USERS } from '../../utils/spaces';
 
@@ -11,6 +11,16 @@ export default function SplitTransactionModal({ transaction, space, onClose, onS
         space.members.map(m => m.userId)
     );
     const [customShares, setCustomShares] = useState({});
+
+    // Comments
+    const [comment, setComment] = useState('');
+    const [comments, setComments] = useState([]);
+
+    const handleAddComment = () => {
+        if (!comment.trim()) return;
+        setComments([...comments, { id: Date.now(), text: comment, author: 'Me', time: 'Now' }]);
+        setComment('');
+    };
 
     // Calculate shares
     const amount = transaction.amount;
@@ -128,6 +138,32 @@ export default function SplitTransactionModal({ transaction, space, onClose, onS
                                 </div>
                             );
                         })}
+                    </div>
+
+                    {/* COMMENTS SECTION */}
+                    <div className="border-t border-gray-800 pt-4">
+                        <h3 className="text-xs font-bold text-gray-500 mb-2 flex items-center gap-2">
+                            <MessageSquare size={12} /> COMMENTS
+                        </h3>
+                        <div className="bg-gray-900/50 p-2 max-h-32 overflow-y-auto mb-2 space-y-2">
+                            {comments.length === 0 && <div className="text-xs text-gray-600 italic">No comments yet.</div>}
+                            {comments.map(c => (
+                                <div key={c.id} className="text-xs border-l-2 border-[var(--color-blue)] pl-2">
+                                    <span className="font-bold text-[var(--color-blue)]">{c.author}</span> <span className="text-[10px] text-gray-600 ml-1">[{c.time}]</span>
+                                    <div className="text-gray-300">{c.text}</div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex gap-2">
+                            <input
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                placeholder="Add note..."
+                                className="flex-1 bg-black border border-gray-700 text-xs p-2 text-white outline-none focus:border-[var(--color-blue)]"
+                                onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
+                            />
+                            <button onClick={handleAddComment} className="bg-gray-800 text-white px-3 text-xs font-bold hover:bg-[var(--color-blue)] hover:text-black transition-colors">SEND</button>
+                        </div>
                     </div>
 
                     <button
