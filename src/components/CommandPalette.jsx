@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Command, Zap } from 'lucide-react';
+import { Command } from 'lucide-react';
 
 const CommandPalette = ({ isOpen, onClose, commands }) => {
     const [query, setQuery] = useState('');

@@ -2,7 +2,7 @@
 
 **Codename:** NC_OS_V5_NEURAL
 **Owner:** Raouf (Netrunner/Admin)
-**Status:** STABLE RELEASE (Verified Build v5.0.0)
+**Status:** STABLE RELEASE (Verified Build v5.2.0)
 **Repository:** [https://github.com/Raoof128/night_city_os](https://github.com/Raoof128/night_city_os)
 
 ## ⚡ Executive Summary
@@ -19,6 +19,8 @@ Night City OS is a high-fidelity React-based Operating System simulation running
     - Computer Vision (Receipt Scanning)
     - Audio Processing (Voice Note Expenses)
     - Financial Reasoning (Spending Insights & Anomaly Detection)
+- **Validation & Telemetry:** Centralized input validation + prefixed logging (`src/utils/validation`, `src/utils/logger`) used for uploads and finance mutations.
+- **Persistence & VFS:** Window manager now runs on a reducer with persisted state, and files are stored in a recursive VFS (`src/utils/vfs`) with create/rename/delete support.
 
 ## 🏗️ Architecture (Modular V4)
 The OS features a fully modularized architecture to support scalability and maintainability.
@@ -68,6 +70,29 @@ The OS features a fully modularized architecture to support scalability and main
 - **Draggable Everything:** Icons, Widgets (Calendar, Upload), and Windows use framer-motion drag controls.
 - **Notifications & Audit:** "Toast" system for alerts + "Restricted" Audit Log in Settings.
 - **Natural Search:** Taskbar input supports natural language app launching.
+
+## 🧪 Engineering Runbook
+- **Quality gates:** `npm run lint`, `npm run test -- --run`, `npm run build`.
+- **Env:** Provide `VITE_GEMINI_API_KEY` via `.env.local` when exercising AI receipt scanning.
+- **State hygiene:** Persistent slices are stored in `localStorage`; clear storage to simulate a cold boot.
+- **Permissions:** Finance mutations respect `spaces` roles; approvals enforced over configured thresholds.
+- **Audio Engine:** `useSound` lazily creates and unlocks the Web Audio context on user interaction and is covered by `tests/unit/useSound.test.js`. Keep volume/mute wiring intact when adding new events.
+- **Docs:** Mermaid diagrams are GitHub-compatible; validate new diagrams locally before committing.
+- **Documentation Discipline:** Whenever system behavior changes (audio, window manager, finance), update README, ARCHITECTURE, CONTRIBUTING, SECURITY, and Changelogs in the same PR.
+- **Cybersec Workspace:** New apps (Construct, Icebreaker, SysMon, Vault) must stay wired into `WinOS` and Start Menu; preserve neon palette and hover/click SFX.
+- **Stability:** Streaming intervals in Construct and biometric timers in Vault must clear on unmount/lock transitions to avoid runaway timers.
+- **Palette & Layers:** Prefer `COLORS` tokens for UI fills/gradients and keep overlays (context menu, toast) above windows; memoize static backdrops to reduce re-renders.
+- **Strategic Ops:** Uses Recharts + `decimal.js` for high-precision planning (vaults, debt, FIRE). Keep projections deterministic by passing sanitized params into `strategicOps` utils.
+- **Lint discipline:** CI blocks warnings; clear unused imports before committing.
+- **Dependencies:** New chart/math deps are vendored locally (`recharts`, `decimal.js`)—ensure `npm install` is run after cloning.
+- **Round-ups:** Siphon math uses Decimal ceiling via `calculateRoundups`; keep inputs numeric to avoid NaN.
+- **Audio:** Web Audio-based `useSound` drives SFX (boot, clicks, errors); master volume/mute is controlled via Settings.
+- **Settings:** Wallpaper toggle (Night/Void), drag sensitivity, and volume sliders are persisted in `os_config`.
+
+## 🛡️ Security Notes
+- Do not store secrets in the repo. Env keys are user-provided at runtime.
+- Validation utilities must wrap new inputs before persistence to avoid corrupting saved state.
+- Keep UI strings escaped and avoid unsafe HTML injection patterns.
 
 ## 🔮 V6.0 Roadmap // The "Brave New World" Update
 

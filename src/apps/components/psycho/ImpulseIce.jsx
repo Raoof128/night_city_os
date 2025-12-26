@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Unlock, ShieldAlert } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Lock, ShieldAlert } from 'lucide-react';
 
 const ImpulseIce = () => {
     const [iceActive, setIceActive] = useState(true);

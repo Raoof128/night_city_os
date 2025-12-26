@@ -8,14 +8,15 @@ export default function ShoppingListWidget({ space, currentUser, onUpdateSpace }
 
     // Ensure at least one list exists via side-effect handling, not render mutation
     useEffect(() => {
-        if (!space.data?.shoppingLists || space.data.shoppingLists.length === 0) {
+        if (!space?.data) return;
+        if (!space.data.shoppingLists || space.data.shoppingLists.length === 0) {
             const newList = { id: 1, name: 'General', items: [] };
             onUpdateSpace({
                 ...space,
                 data: { ...space.data, shoppingLists: [newList] }
             });
         }
-    }, [space.data?.shoppingLists]);
+    }, [onUpdateSpace, space]);
 
     // Fallback while effect runs to prevent crash
     const currentList = lists.length > 0 ? lists[0] : { id: 0, items: [] };

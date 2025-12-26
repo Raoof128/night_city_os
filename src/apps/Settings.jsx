@@ -20,6 +20,32 @@ const SettingsApp = ({ config, onUpdateConfig, auditLog }) => {
                             ))}
                         </div>
                     </div>
+                    <div className="flex items-center justify-between">
+                        <span>WALLPAPER</span>
+                        <div className="flex gap-2">
+                            {['night', 'void'].map(mode => (
+                                <button
+                                    key={mode}
+                                    onClick={() => onUpdateConfig('wallpaper', mode)}
+                                    className={`px-3 py-1 border ${config.wallpaper === mode ? 'bg-[var(--color-yellow)] text-black border-[var(--color-yellow)]' : 'border-gray-700 hover:border-white'}`}
+                                >
+                                    {mode.toUpperCase()}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <span>DRAG_SENSITIVITY</span>
+                        <input
+                            type="range"
+                            min="0.05"
+                            max="0.8"
+                            step="0.05"
+                            value={config.dragSensitivity || 0.2}
+                            onChange={(e) => onUpdateConfig('dragSensitivity', parseFloat(e.target.value))}
+                            className="flex-1 ml-4 accent-[var(--color-yellow)] h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer"
+                        />
+                    </div>
                 </div>
             </section>
 
@@ -30,8 +56,16 @@ const SettingsApp = ({ config, onUpdateConfig, auditLog }) => {
                     <input
                         type="range"
                         min="0" max="100"
+                        value={(config.volume || 0) * 100}
+                        onChange={(e) => onUpdateConfig('volume', parseInt(e.target.value, 10) / 100)}
                         className="flex-1 accent-[var(--color-yellow)] h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer"
                     />
+                    <button
+                        onClick={() => onUpdateConfig('muted', !config.muted)}
+                        className={`px-3 py-1 border ${config.muted ? 'border-red-500 text-red-400' : 'border-[var(--color-blue)] text-[var(--color-blue)]'} hover:bg-white/5`}
+                    >
+                        {config.muted ? 'UNMUTE' : 'MUTE'}
+                    </button>
                 </div>
             </section>
 

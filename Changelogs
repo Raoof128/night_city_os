@@ -2,6 +2,22 @@
 
 All notable changes to the "Night City OS" project will be documented in this file.
 
+## [v5.1.1] - Stability & Governance - 2025-12-27
+### Added
+- Centralized validation + logging utilities to harden transaction ingestion and file uploads.
+- Documentation refresh across README, Architecture, and Security guides to reflect 5.1 safeguards and operational workflows.
+- Validation-focused unit coverage to protect receipt ingestion and finance mutations.
+- Strategic Operations module: mission-style goal engine (vaults, debt liquidation, burn limiters) with FIRE/legacy simulations and round-up daemons.
+- Recharts + `decimal.js` pulled in for precision projections and visualizations.
+### Changed
+- Finance, shopping, and psycho widgets cleaned for lint compliance, clearer labels, and safer state hydration.
+- Package metadata aligned to v5.1.1 to track stability release.
+- README architecture diagram updated to render correctly in GitHub Mermaid.
+- Lint budget tightened (zero-warning policy) across new Strategic Ops module.
+### Fixed
+- Window manager effect dependencies and shopping list initialization to prevent stale updates and rendering edge cases.
+- Round-up daemon now uses deterministic Decimal-based ceiling for siphon math.
+
 ## [v5.1.0] - The Social Update - 2025-12-26
 ### Added
 - **Shared Spaces:**
@@ -20,6 +36,15 @@ All notable changes to the "Night City OS" project will be documented in this fi
 ## [Unreleased]
 ### Fixed
 - **Calculator:** Improved floating point precision handling. Fixed regression where large integers were losing precision (e.g. `1234567890123`) while maintaining fix for `0.1 + 0.2` epsilon errors.
+### Added
+- **Audio Engine:** `useSound` now lazily instantiates the Web Audio context, auto-resumes on user interaction, and includes regression coverage in `tests/unit/useSound.test.js` to guard playback events.
+- **Documentation:** README, ARCHITECTURE, CONTRIBUTING, and SECURITY refreshed with audio engine guidance and testing expectations.
+- **Cybersec Workspace:** Added Construct AI chat (Silverhand persona), Icebreaker neon code editor + sandbox, SysMon canvas monitor, and Vault biometric-protected secrets store wired into the window manager and start menu.
+- **Cursor & Audio Polish:** Crosshair/red hover cursor plus new SFX (hover blip, window hum) mapped through `useSound`.
+- **Utilities & Tests:** Introduced `codeHighlighter` helper and Vitest coverage for keyword wrapping.
+### Fixed
+- Cleaned streaming and biometric timers to avoid runaway intervals when components unmount or relock.
+- Memoized desktop backdrop, enforced `COLORS` palette usage in gradients, and raised context menu layering above windows.
 
 ## [v5.0.0] - The Neural Link Update - 2025-12-25
 ### Added
@@ -144,3 +169,12 @@ All notable changes to the "Night City OS" project will be documented in this fi
 - Project kick-off.
 - Basic "WebOS" card concept (deprecated in favor of Desktop Window Manager).
 - Basic React + Tailwind setup.
+## [v5.2.0] - The Construct - 2025-12-28
+### Added
+- Window manager refactored to a reducer with persisted z-order, minimize/maximize, and position restore.
+- Recursive VFS with create/rename/delete and TextPad save/update hooked into localStorage; files window supports inline actions.
+- Web Audio-based `useSound` hook for boot/click/error SFX with Settings-driven volume/mute and drag sensitivity controls.
+### Changed
+- Settings daemon now manages wallpaper theme (Night/Void), master volume, and drag calibration; window/desktop drag use memoized frames for perf.
+### Fixed
+- Session restore now rehydrates windows, files, and settings across reloads for a consistent boot state.

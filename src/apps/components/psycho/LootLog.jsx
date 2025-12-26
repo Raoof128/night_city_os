@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ThumbsUp, Trash2, Sparkles } from 'lucide-react';
+import { ThumbsUp, Sparkles } from 'lucide-react';
 
 const LootLog = () => {
     const [logs, setLogs] = useState([

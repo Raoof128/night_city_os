@@ -22,6 +22,14 @@ Pull requests are the best way to propose changes to the codebase. We actively w
 ## Any contributions you make will be under the MIT Software License
 In short, when you submit code changes, your submissions are understood to be under the same [MIT License](LICENSE) that covers the project.
 
+## Development workflow
+- **Tooling**: Use Node.js 20+. Install dependencies with `npm install`.
+- **Quality gates**: Run `npm run lint`, `npm run test -- --run`, and `npm run build` before submitting a PR.
+- **Formatting**: Prettier enforces spacing and style; run `npm run format` for quick cleanups.
+- **Security**: Never commit API keys or secrets. Validate new inputs through `src/utils/validation.js` and add tests under `tests/unit/`.
+- **Audio**: `useSound` is covered by `tests/unit/useSound.test.js`; keep gesture unlock logic intact and add tones via the hook rather than ad-hoc oscillators.
+- **Docs**: Every feature change should update README, ARCHITECTURE, SECURITY, and the engineering notes in Agent.md.
+
 ## Report bugs using Github's [issues](https://github.com/Raoof128/night_city_os/issues)
 We use GitHub issues to track public bugs. Report a bug by [opening a new issue](); it's that easy!
 

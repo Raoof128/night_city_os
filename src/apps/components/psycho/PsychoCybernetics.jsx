@@ -32,7 +32,7 @@ const PsychoCybernetics = () => {
                 <div className="text-right hidden sm:block">
                      <div className="text-[10px] text-gray-500 font-mono mb-1">SYSTEM MESSAGE</div>
                      <div className="text-xs text-[var(--color-blue)] font-bold bg-black/50 px-3 py-1 border border-[var(--color-blue)]/30">
-                        "The City wants you broke. We keep you liquid."
+                        &ldquo;The City wants you broke. We keep you liquid.&rdquo;
                      </div>
                 </div>
             </div>
@@ -78,7 +78,7 @@ const PsychoCybernetics = () => {
                                     <div className="h-full w-[40%] bg-[var(--color-red)] animate-pulse" />
                                 </div>
                                 <div className="text-[10px] text-gray-500 mt-1 italic">
-                                    "Recommend: 5-minute breathing exercise before next purchase."
+                                    &ldquo;Recommend: 5-minute breathing exercise before next purchase.&rdquo;
                                 </div>
                             </div>
 

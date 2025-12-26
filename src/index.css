@@ -17,6 +17,7 @@
   body {
     @apply m-0 overflow-hidden bg-black text-white antialiased;
     font-family: var(--font-cyber);
+    cursor: crosshair;
   }
 
   /* Selection styling */
@@ -24,6 +25,10 @@
     background-color: var(--color-yellow);
     color: black;
   }
+}
+
+button, a, [role="button"], .interactive {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" stroke="%23FF003C" stroke-width="2" fill="none"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="3" fill="%23FF003C"/></svg>') 12 12, crosshair;
 }
 
 @layer components {
