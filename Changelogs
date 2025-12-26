@@ -1,6 +1,26 @@
 # Changelog // Night City OS
 
 All notable changes to the "Night City OS" project will be documented in this file.
+
+## [v5.1.0] - The Social Update - 2025-12-26
+### Added
+- **Shared Spaces:**
+  - **Multi-User Support:** Create and switch between Personal, Family, and Roommate spaces.
+  - **Role-Based Access Control:** Admin (Manage Everything), Editor (Edit Data), Viewer (Read Only).
+  - **Member Management:** Add/Remove members via the new Space Settings modal.
+- **Collaborative Finance:**
+  - **Bill Splitting:** Split transactions between space members with visual feedback.
+  - **Shared Goals:** Track savings targets collectively (e.g., "Arasaka Cyberdeck").
+  - **Collaborative Shopping List:** Real-time synced checklist for household needs.
+  - **Group Challenges:** Gamified widget for tracking "No Spend" or "Savings Race" challenges.
+- **Security & Governance:**
+  - **Approval Workflows:** Transactions exceeding a configurable threshold (default 1000) require Admin approval.
+  - **Spending Limits:** Allowance/Teen mode support via permission checks.
+  - **Audit Logging:** Permission denials and approvals are logged.
+## [Unreleased]
+### Fixed
+- **Calculator:** Improved floating point precision handling. Fixed regression where large integers were losing precision (e.g. `1234567890123`) while maintaining fix for `0.1 + 0.2` epsilon errors.
+
 ## [v5.0.0] - The Neural Link Update - 2025-12-25
 ### Added
 - **Core Intelligence:**

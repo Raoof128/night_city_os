@@ -54,6 +54,10 @@ A functional command-line interface with history tracking.
 A dashboard for managing your "Eddies" (Currency) and suspicious transactions.
 - **AI Vision Integration**: Drag & drop a receipt image onto the desktop. The OS uses **Google Gemini 2.5 Flash** to extract the merchant name and total spent automatically.
 
+### 🤝 Shared Spaces (NEW)
+Collaborative finance suite for families and roommates.
+- **Features**: Bill splitting, shared goals, role-based permissions, and gamified saving challenges.
+
 ### 🎵 Cyber-Amp
 Visualizer-driven music player with track cycling, vinyl animations, and progress tracking.
 
