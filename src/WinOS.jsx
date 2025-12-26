@@ -16,7 +16,11 @@ import {
     Settings,
     ShieldAlert,
     Trash2,
-    Pencil
+    Pencil,
+    Cpu,
+    Code2,
+    ShieldCheck,
+    Monitor
 } from 'lucide-react';
 import { COLORS } from './utils/theme';
 import WindowFrame from './components/WindowFrame';
@@ -36,6 +40,10 @@ import SettingsApp from './apps/Settings';
 import TerminalApp from './apps/Terminal';
 import NetworkMapApp from './apps/NetworkMap';
 import TextPadApp from './apps/TextPad';
+import IcebreakerApp from './apps/Icebreaker';
+import ConstructApp from './apps/Construct';
+import SysMon from './apps/SysMon';
+import VaultApp from './apps/Vault';
 import MusicPlayerApp from './apps/MusicPlayer';
 import { generateDailyQuests } from './utils/gamificationEngine';
 import { MOCK_USERS, migrateDataToSpace, checkPermission, ACTIONS } from './utils/spaces';
@@ -291,6 +299,10 @@ export default function WinOS() {
         { id: 'calc', defaultY: '40px', x: '120px' },
         { id: 'music', defaultY: '140px', x: '120px' },
         { id: 'settings', defaultY: '240px', x: '120px' },
+        { id: 'construct', defaultY: '340px', x: '120px' },
+        { id: 'icebreaker', defaultY: '440px', x: '120px' },
+        { id: 'sysmon', defaultY: '540px', x: '120px' },
+        { id: 'vault', defaultY: '540px' },
     ]), []);
 
     const commands = [
@@ -317,7 +329,7 @@ export default function WinOS() {
         setStartMenuOpen(false);
         dispatch({ type: 'OPEN', id: appId, data });
         bringToFront(appId);
-        play('beep');
+        play('hum');
     };
 
     const closeWindow = (id) => {
@@ -426,6 +438,10 @@ export default function WinOS() {
         terminal: { name: 'CMD', icon: Terminal, component: TerminalApp, props: { financeData: currentSpace ? currentSpace.data : {} } },
         network: { name: 'NET_TRACE', icon: Share2, component: NetworkMapApp },
         textpad: { name: 'TEXT_PAD', icon: FileEdit, component: TextPadApp, props: { activeFile: activeTextFile, onSaveFile: handleUpdateTextFile, onCreateFile: handleCreateTextFile } },
+        icebreaker: { name: 'ICEBREAKER', icon: Code2, component: IcebreakerApp },
+        construct: { name: 'CONSTRUCT', icon: Cpu, component: ConstructApp },
+        sysmon: { name: 'SYS_MON', icon: Monitor, component: SysMon },
+        vault: { name: 'VAULT', icon: ShieldCheck, component: VaultApp },
         calc: { name: 'CALCULATOR', icon: Grid, component: CalculatorApp },
         music: { name: 'MEDIA_AMP', icon: Bell, component: MusicPlayerApp },
         settings: { name: 'SYS_CONFIG', icon: Settings, component: SettingsApp, props: { config: sysConfig, auditLog, onUpdateConfig: (k, v) => setSysConfig(prev => ({ ...prev, [k]: v })) } },
@@ -477,7 +493,7 @@ export default function WinOS() {
                 ) : (
                     desktopIcons.map((item) => (
                         <DraggableItem key={item.id} initialX={item.x || "20px"} initialY={item.defaultY} className="w-24" constraintsRef={desktopRef} dragElastic={sysConfig.dragSensitivity}>
-                            <button onDoubleClick={() => openWindow(item.id)} className="group flex flex-col items-center gap-2 focus:outline-none w-full">
+                            <button onMouseEnter={() => play('hover')} onDoubleClick={() => openWindow(item.id)} className="group flex flex-col items-center gap-2 focus:outline-none w-full">
                                 <div className="w-16 h-16 bg-black/40 backdrop-blur-sm border border-gray-600 rounded-xl flex items-center justify-center group-hover:bg-[var(--color-yellow)] group-hover:border-[var(--color-yellow)] transition-all duration-200 shadow-lg group-hover:shadow-[0_0_20px_rgba(255,224,0,0.4)] relative overflow-hidden">
                                     <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 skew-x-12 translate-x-full group-hover:animate-shine pointer-events-none" />
                                     {React.createElement({
@@ -488,7 +504,11 @@ export default function WinOS() {
                                         textpad: FileEdit,
                                         calc: Grid,
                                         music: Bell,
-                                        settings: Settings
+                                        settings: Settings,
+                                        construct: Cpu,
+                                        icebreaker: Code2,
+                                        sysmon: Monitor,
+                                        vault: ShieldCheck
                                     }[item.id] || Eye, { size: 30, className: "text-[var(--color-blue)] group-hover:text-black transition-colors" })}
                                 </div>
                                 <span className="text-xs font-bold tracking-widest bg-black/80 px-2 py-0.5 rounded text-gray-300 group-hover:text-[var(--color-yellow)] shadow-sm">{(item.id || '').toUpperCase()}</span>

@@ -49,7 +49,9 @@ export const useSound = (masterVolume = 0.4, muted = false) => {
                 beep: { freq: 640, duration: 0.08 },
                 boot: { freq: 420, duration: 0.25 },
                 error: { freq: 120, duration: 0.25 },
-                type: { freq: 880, duration: 0.02 }
+                type: { freq: 880, duration: 0.02 },
+                hover: { freq: 980, duration: 0.03 },
+                hum: { freq: 220, duration: 0.4 }
             }[type] || { freq: 520, duration: 0.1 };
             try {
                 createTone(ctx, base.freq, base.duration, masterVolume);

@@ -13,9 +13,10 @@ Night City OS is a production-grade, browser-based operating system simulation i
 - **Modular desktop**: Window manager with drag physics, minimization, z-index orchestration, and mobile-aware layout.
 - **Finance suite**: Shared spaces, permissions, anomaly detection, receipt scanning, and gamified savings quests.
 - **Strategic Ops**: Mission-style goal engine (vaults, debt liquidation, burn-rate limiters) with FIRE/legacy projections and micro-siphoning.
+- **Cybersec workspace**: Construct AI chat (Silverhand persona), Icebreaker code editor + sandbox, SysMon canvas monitor, and Vault secure store.
 - **Productivity tools**: Terminal, calculator, scratchpad, music amp, network map, image viewer, and start menu search.
 - **Resilience first**: Persistent state via `localStorage`, guarded input validation, and defensive logging around user uploads and transactions.
-- **Audio engine**: Web Audio-backed SFX for boot/error/click flows with gesture-unlock safeguards.
+- **Audio engine**: Web Audio-backed SFX (hover blips, window hums, error bursts) with gesture-unlock safeguards.
 - **Theming**: Arasaka palette with CRT overlays, neon grids, and toggleable stealth/privacy modes.
 
 ---
@@ -121,7 +122,12 @@ These values remain in the browser; do not commit secrets to the repository.
 - **Receipt scanner**: Drop images on the Desktop Upload widget; validated, categorized transactions appear in Finance.
 - **Taskbar search**: Natural language search to open apps.
 - **Shared spaces**: Role-based finance management with approval workflows and audit logging.
-- **Audio SFX**: First user interaction unlocks Web Audio; volume/mute honored in Settings.
+- **Cybersec apps**:
+  - **CONSTRUCT**: Silverhand-style AI chat with streaming responses.
+  - **ICEBREAKER**: Syntax-highlighted code editor with RUN sandbox and neon line numbers.
+  - **SYS_MON**: Canvas-based rolling waveforms for memory and net traffic.
+  - **VAULT**: Biometric/PIN hold unlock with persistent secret list (mock-encrypted).
+- **Audio SFX**: First user interaction unlocks Web Audio; hover blips + window hums honor volume/mute in Settings.
 
 For feature-by-feature guidance, see [`docs/USER_MANUAL.md`](docs/USER_MANUAL.md).
 

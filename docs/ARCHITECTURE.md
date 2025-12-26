@@ -20,6 +20,10 @@ flowchart LR
         Terminal
         Calculator
         MusicPlayer
+        Construct[Construct AI]
+        Icebreaker[Icebreaker Editor]
+        SysMon[System Monitor]
+        Vault[Vault]
         NetworkMap
         TextPad
         Settings
@@ -52,6 +56,8 @@ flowchart LR
   - `sysConfig`: background fit + visual toggles.
   - `gamification`: XP, badges, and rotating quests.
   - `audio`: master volume + mute preferences honored by `useSound`.
+  - `vault`: encrypted secrets stored by Vault after biometric unlock.
+  - `icebreaker`: user code persisted between sessions for the Icebreaker sandbox.
   - `spaces`: collaborative finance spaces, members, and approvals.
   - `strategicOps`: vault/debt/burn targets, round-up toggles, FIRE/legacy parameters.
 - **Ephemeral slices**:
@@ -113,7 +119,8 @@ sequenceDiagram
 ## 6. Audio Engine
 - **Hook**: `hooks/useSound` centralizes audio context creation, volume/mute handling, and tone generation.
 - **Safety**: Context is created lazily and unlocked via user gestures to avoid autoplay violations; playback is try/catch wrapped for browsers that block audio.
-- **Consumers**: `WinOS.jsx` calls `play` on boot, errors, and interactions. Extend sounds by adding new tone presets in `useSound`.
+- **Consumers**: `WinOS.jsx` calls `play` on boot, errors, hover, and window creation. Extend sounds by adding new tone presets in `useSound`.
+- **Palette**: Hover blips (`hover`), window hums (`hum`), and error bursts (`error`) follow palette-compliant oscillator frequencies.
 
 ---
 
@@ -121,6 +128,7 @@ sequenceDiagram
 - **Unit tests**: Utilities (spaces, helpers, validation) validated via Vitest under `tests/unit/`.
 - **Component tests**: PsychoCybernetics and finance utilities validated for regression coverage.
 - **Audio tests**: `tests/unit/useSound.test.js` stubs AudioContext to assert playback, mute behavior, and gesture-based resume.
+- **Code highlighter**: `tests/unit/codeHighlighter.test.js` validates neon keyword wrapping for Icebreaker.
 - **CI**: GitHub Actions runs lint → tests → build on pushes/PRs to `main`.
 
 ---

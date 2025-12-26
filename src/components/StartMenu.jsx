@@ -9,7 +9,8 @@ import {
     Share2,
     FileEdit,
     Bell,
-    Settings
+    Settings,
+    Lock
 } from 'lucide-react';
 import { COLORS } from '../utils/theme';
 
@@ -46,6 +47,10 @@ const StartMenu = ({ isOpen, onOpenApp, onShutdown }) => {
                                     { id: 'network', label: 'NET_TRACE', icon: Share2 },
                                     { id: 'files', label: 'DATA_SHARDS', icon: HardDrive },
                                     { id: 'textpad', label: 'TEXT_PAD', icon: FileEdit },
+                                    { id: 'icebreaker', label: 'ICEBREAKER', icon: Grid },
+                                    { id: 'construct', label: 'CONSTRUCT', icon: Power },
+                                    { id: 'sysmon', label: 'SYS_MON', icon: Activity },
+                                    { id: 'vault', label: 'VAULT', icon: Lock },
                                     { id: 'calc', label: 'CALCULATOR', icon: Grid },
                                     { id: 'music', label: 'MEDIA_AMP', icon: Bell },
                                     { id: 'settings', label: 'SYS_CONFIG', icon: Settings }
