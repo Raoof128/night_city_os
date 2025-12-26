@@ -5,9 +5,9 @@
 @tailwind utilities;
 
 :root {
-  --color-yellow: #FCEE0A;
-  --color-blue: #00F0FF;
-  --color-red: #FF003C;
+  --color-yellow: #fcee0a;
+  --color-blue: #00f0ff;
+  --color-red: #ff003c;
   --color-surface: #131313;
   --font-cyber: 'Rajdhani', sans-serif;
   --font-mono: 'Share Tech Mono', monospace;
@@ -27,7 +27,6 @@
 }
 
 @layer components {
-
   /* Premium Custom Scrollbar */
   .custom-scrollbar {
     scrollbar-width: thin;
