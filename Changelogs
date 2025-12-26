@@ -2,6 +2,17 @@
 
 All notable changes to the "Night City OS" project will be documented in this file.
 
+## [v5.1.1] - Stability & Governance - 2025-12-27
+### Added
+- Centralized validation + logging utilities to harden transaction ingestion and file uploads.
+- Documentation refresh across README, Architecture, and Security guides to reflect 5.1 safeguards and operational workflows.
+- Validation-focused unit coverage to protect receipt ingestion and finance mutations.
+### Changed
+- Finance, shopping, and psycho widgets cleaned for lint compliance, clearer labels, and safer state hydration.
+- Package metadata aligned to v5.1.1 to track stability release.
+### Fixed
+- Window manager effect dependencies and shopping list initialization to prevent stale updates and rendering edge cases.
+
 ## [v5.1.0] - The Social Update - 2025-12-26
 ### Added
 - **Shared Spaces:**

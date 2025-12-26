@@ -1,22 +1,8 @@
 
-import { Trophy, TrendingDown, Users } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 
 export default function ChallengesWidget({ space, currentUser, onUpdateSpace }) {
     const challenges = space.data?.challenges || [];
-
-    // Mock functionality to add a default challenge if none exist
-    if (challenges.length === 0) {
-        // In a real app, this would be done via a creation modal
-        const defaultChallenge = {
-            id: 1,
-            title: 'NO_SPEND_WEEKEND',
-            type: 'spending_reduction',
-            target: 0,
-            participants: space.members.map(m => ({ userId: m.userId, score: Math.floor(Math.random() * 100) }))
-        };
-        // Side-effect in render is bad, but we are just rendering static data for now unless updated
-        // To be safe, we just render a "Create Challenge" placeholder or the mock data virtually
-    }
 
     const handleCreateChallenge = () => {
          const newChallenge = {
@@ -62,13 +48,12 @@ export default function ChallengesWidget({ space, currentUser, onUpdateSpace }) 
 
                             <div className="space-y-2 mt-3">
                                 {challenge.participants.map((p, i) => {
-                                    // Mock user lookup
-                                    const userName = `User ${p.userId.substr(0,4)}`;
                                     const isMe = p.userId === currentUser.id;
 
                                     return (
                                         <div key={p.userId} className="flex items-center gap-2">
                                             <div className="text-[10px] font-mono w-4 text-gray-500">{i + 1}</div>
+                                            <div className="text-[10px] font-mono text-gray-300 min-w-[80px]">{`User ${p.userId.substr(0, 4)}`}</div>
                                             <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
                                                 <div
                                                     className={`h-full ${isMe ? 'bg-[var(--color-yellow)]' : 'bg-gray-600'}`}

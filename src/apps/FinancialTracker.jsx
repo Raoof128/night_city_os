@@ -17,7 +17,6 @@ import SplitTransactionModal from './components/SplitTransactionModal';
 import { checkNudges } from '../utils/gamificationEngine';
 import { checkPermission, ACTIONS } from '../utils/spaces';
 import {
-    TrendingUp,
     Wallet,
     CreditCard,
     Activity,

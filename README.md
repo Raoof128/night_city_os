@@ -2,104 +2,142 @@
 
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-yellow?style=for-the-badge&logo=github)](https://github.com/Raoof128/night_city_os)
 [![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react)](https://reactjs.org/)
-[![Vite](https://img.shields.io/badge/Vite-Latest-646CFF?style=for-the-badge&logo=vite)](https://vitejs.dev/)
+[![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 
-> "Wake up, Samurai. We have a city to burn."
-
-Night City OS is a high-fidelity, interactive "Cyberdeck" simulation built with React. It transforms your browser into a futuristic operating system inspired by the world of Cyberpunk 2077, featuring draggable windows, functional apps, and AI-powered data processing.
+Night City OS is a production-grade, browser-based operating system simulation inspired by Cyberpunk 2077. It ships with draggable glassmorphism windows, functional finance tooling, AI-powered receipt parsing, animated network visualizations, and a configurable desktop environment.
 
 ---
 
-## ⚡ Quick Start
+## 🚀 Highlights
+- **Modular desktop**: Window manager with drag physics, minimization, z-index orchestration, and mobile-aware layout.
+- **Finance suite**: Shared spaces, permissions, anomaly detection, receipt scanning, and gamified savings quests.
+- **Productivity tools**: Terminal, calculator, scratchpad, music amp, network map, image viewer, and start menu search.
+- **Resilience first**: Persistent state via `localStorage`, guarded input validation, and defensive logging around user uploads and transactions.
+- **Theming**: Arasaka palette with CRT overlays, neon grids, and toggleable stealth/privacy modes.
 
-### 1. Installation
-```bash
-git clone https://github.com/Raoof128/night_city_os.git
-cd night_city_os
-npm install
+---
+
+## 🗺️ Architecture Overview
+
+```mermaid
+flowchart TD
+    User([User]) --> UI[WinOS Shell]
+    UI --> WM[Window Manager]
+    UI --> Widgets[Desktop Widgets]
+    WM --> Apps[Applications Registry]
+    Apps --> Finance[FinancialTracker]
+    Apps --> TerminalApp[Terminal]
+    Apps --> Media[MusicPlayer]
+    Apps --> SettingsApp[Settings]
+    Finance --> Storage[usePersistentState (localStorage)]
+    SettingsApp --> Theme[Theme Tokens]
+    Widgets --> Upload[DesktopUploadWidget]
+    Upload --> Validation[Validation Utilities]
+    Validation --> Finance
+    subgraph Security & Telemetry
+        Validation -. guards .-> Logger[(Logger)]
+        Logger -. audit .-> Audit[Audit Log]
+    end
+    Storage -. sync .-> UI
 ```
 
-### 2. Run Locally
-```bash
-npm run dev
-```
-
-### 3. Production Build
-```bash
-npm run build
-```
+Additional design details live in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ---
 
-## 🏗 System Architecture
-
-The project is designed as a **Single-File Monolith** for maximum portability and rapid state sync. The core logic resides in `src/WinOS.jsx`.
-
-### Core Layers:
-- **System Layer**: Manages the boot sequence, global z-index sorting, and thermal-link shutdown.
-- **Window Manager**: A specialized component wrapper handling drag-and-drop physics (via `framer-motion`), minimizing, and state persistence.
-- **Persistence Layer**: Custom `localStorage` synchronization for windows, files, and system configurations.
-- **App Ecosystem**: A modular suite of reactive components injected into the OS environment.
+## 🧱 Tech Stack
+- **Framework**: React 18 + Vite
+- **Styling**: Tailwind CSS, custom design tokens, glassmorphism overlays
+- **Animation**: framer-motion
+- **Testing**: Vitest + React Testing Library
+- **Tooling**: ESLint, Prettier, Husky, lint-staged, GitHub Actions CI
 
 ---
 
-## 📦 Key Applications
+## 🏁 Quickstart
+1. **Install prerequisites**
+   - Node.js 20+
+   - npm 9+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+3. **Run the OS locally**
+   ```bash
+   npm run dev
+   ```
+4. **Production build**
+   ```bash
+   npm run build
+   ```
+5. **Preview the production bundle**
+   ```bash
+   npm run preview
+   ```
 
-### 🛠 Terminal (`cmd.exe`)
-A functional command-line interface with history tracking.
-- **Commands**: `hack`, `balance`, `clear`, `whoami`, `date`.
-
-### 💰 Finance Tracker
-A dashboard for managing your "Eddies" (Currency) and suspicious transactions.
-- **AI Vision Integration**: Drag & drop a receipt image onto the desktop. The OS uses **Google Gemini 2.5 Flash** to extract the merchant name and total spent automatically.
-
-### 🤝 Shared Spaces (NEW)
-Collaborative finance suite for families and roommates.
-- **Features**: Bill splitting, shared goals, role-based permissions, and gamified saving challenges.
-
-### 🎵 Cyber-Amp
-Visualizer-driven music player with track cycling, vinyl animations, and progress tracking.
-
-### 🖥 Network Map
-SVG-based animated node topology visualizer. Tracks active traces and ICE breaches in real-time.
-
----
-
-## 🎨 Design Aesthetics
-
-- **Official Palette**: High-contrast Yellow (#FCEE0A), Cyan-Blue (#00F0FF), and Arasaka Red (#FF003C).
-- **Glitch Engine**: Custom CSS keyframes and `clip-path` animations simulate signal corruption.
-- **Stealth Mode**: Toggleable CRT scanlines and grid overlays for tactical visibility.
-- **CRT Vision**: Global scanline overlays and vignette effects for that analog-future feel.
-
----
-
-## ⚙️ Configuration
-
-### Gemini AI Integration
-To enable automated receipt scanning, add your API key to a `.env` file:
+### Environment variables
+Create a `.env.local` (or `.env`) file for client-side keys:
 ```env
 VITE_GEMINI_API_KEY=your_google_ai_key
 ```
+These values remain in the browser; do not commit secrets to the repository.
 
-### System Integrity
-The OS includes a **Mobile Safeguard**. If accessed on a screen narrower than 768px, the system triggers a "Critical Error: Incompatible Hardware" lockout to preserve visual immersion.
+### Quality gates
+| Command | Purpose |
+| --- | --- |
+| `npm run lint` | ESLint with React + hooks rules. |
+| `npm run format` | Prettier formatting for JS/JSX/CSS. |
+| `npm run test -- --run` | Vitest unit/integration test run. |
+| `npm run test:coverage` | Coverage report. |
+| `npm run build` | Production bundle validation. |
+
+---
+
+## 🧭 Repository Layout
+```
+.
+├── src/               # Application source
+│   ├── WinOS.jsx      # Desktop shell and window manager
+│   ├── apps/          # Modular applications (Finance, Terminal, etc.)
+│   ├── components/    # Shared UI building blocks
+│   ├── hooks/         # Reusable hooks (persistence, viewport)
+│   └── utils/         # Theming, validation, logging, helpers
+├── tests/             # Vitest suite + setup
+├── docs/              # Architecture and user manuals
+├── public/            # Static assets served by Vite
+└── .github/workflows/ # CI configuration
+```
+
+---
+
+## 🧩 Applications & Controls
+- **Command palette**: `Cmd/Ctrl + K`
+- **Privacy mode**: `Cmd/Ctrl + Shift + P`
+- **Stealth mode**: Toggle via right-click context menu
+- **Receipt scanner**: Drop images on the Desktop Upload widget; validated, categorized transactions appear in Finance.
+- **Taskbar search**: Natural language search to open apps.
+- **Shared spaces**: Role-based finance management with approval workflows and audit logging.
+
+For feature-by-feature guidance, see [`docs/USER_MANUAL.md`](docs/USER_MANUAL.md).
+
+---
+
+## 🔒 Security & Data Handling
+- All state persists in `localStorage`; avoid storing personal secrets or credentials.
+- Client-side validation guards file uploads and transaction inputs to prevent corrupt state.
+- Environment keys (e.g., Gemini) must be provided by the user at runtime and never checked into git.
+- See [`SECURITY.md`](SECURITY.md) for reporting guidelines and supported versions.
 
 ---
 
 ## 🤝 Contributing
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Fork and branch from `main`.
+2. Run linting and tests before opening a PR.
+3. Update documentation alongside code changes.
+4. Follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ---
 
 ## 📜 License
-Internal Use / Educational Purpose. Inspired by CD PROJEKT RED's Cyberpunk 2077.
-
----
-*Maintained by [Raouf](https://github.com/Raoof128)*
+MIT License © Night City OS maintainers. See [`LICENSE`](LICENSE) for details.

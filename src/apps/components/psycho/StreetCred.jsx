@@ -1,5 +1,4 @@
-import { motion } from 'framer-motion';
-import { Users, TrendingUp, Award, Crown } from 'lucide-react';
+import { Users, TrendingUp, Crown } from 'lucide-react';
 
 const StreetCred = () => {
     return (
@@ -18,7 +17,7 @@ const StreetCred = () => {
                 </div>
                 <div>
                     <div className="text-xs text-gray-500 font-mono">CURRENT RANK</div>
-                    <div className="text-xl font-black text-white italic">"STREET_SAMURAI"</div>
+                    <div className="text-xl font-black text-white italic">&ldquo;STREET_SAMURAI&rdquo;</div>
                     <div className="text-[10px] text-[var(--color-green)]">TOP 10% OF NETRUNNERS IN SYDNEY</div>
                 </div>
             </div>
@@ -30,7 +29,7 @@ const StreetCred = () => {
                     <div className="flex items-start gap-2">
                         <Users size={12} className="text-[var(--color-blue)] mt-1" />
                         <p className="text-xs text-gray-300">
-                            <span className="text-[var(--color-blue)] font-bold">78%</span> of users with your profile reduced 'Dining' spend by 20% after activating the 'Weekday ICE' protocol.
+                            <span className="text-[var(--color-blue)] font-bold">78%</span> of users with your profile reduced &lsquo;Dining&rsquo; spend by 20% after activating the &lsquo;Weekday ICE&rsquo; protocol.
                         </p>
                     </div>
                 </div>
@@ -39,7 +38,7 @@ const StreetCred = () => {
                      <div className="flex items-start gap-2">
                         <TrendingUp size={12} className="text-[var(--color-red)] mt-1" />
                         <p className="text-xs text-gray-300">
-                            Rent in "Combat Zone" is <span className="text-[var(--color-red)] font-bold">15% higher</span> than your current district. Stay put.
+                            Rent in &ldquo;Combat Zone&rdquo; is <span className="text-[var(--color-red)] font-bold">15% higher</span> than your current district. Stay put.
                         </p>
                     </div>
                 </div>

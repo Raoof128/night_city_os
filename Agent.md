@@ -2,7 +2,7 @@
 
 **Codename:** NC_OS_V5_NEURAL
 **Owner:** Raouf (Netrunner/Admin)
-**Status:** STABLE RELEASE (Verified Build v5.0.0)
+**Status:** STABLE RELEASE (Verified Build v5.1.1)
 **Repository:** [https://github.com/Raoof128/night_city_os](https://github.com/Raoof128/night_city_os)
 
 ## ⚡ Executive Summary
@@ -19,6 +19,7 @@ Night City OS is a high-fidelity React-based Operating System simulation running
     - Computer Vision (Receipt Scanning)
     - Audio Processing (Voice Note Expenses)
     - Financial Reasoning (Spending Insights & Anomaly Detection)
+- **Validation & Telemetry:** Centralized input validation + prefixed logging (`src/utils/validation`, `src/utils/logger`) used for uploads and finance mutations.
 
 ## 🏗️ Architecture (Modular V4)
 The OS features a fully modularized architecture to support scalability and maintainability.
@@ -68,6 +69,17 @@ The OS features a fully modularized architecture to support scalability and main
 - **Draggable Everything:** Icons, Widgets (Calendar, Upload), and Windows use framer-motion drag controls.
 - **Notifications & Audit:** "Toast" system for alerts + "Restricted" Audit Log in Settings.
 - **Natural Search:** Taskbar input supports natural language app launching.
+
+## 🧪 Engineering Runbook
+- **Quality gates:** `npm run lint`, `npm run test -- --run`, `npm run build`.
+- **Env:** Provide `VITE_GEMINI_API_KEY` via `.env.local` when exercising AI receipt scanning.
+- **State hygiene:** Persistent slices are stored in `localStorage`; clear storage to simulate a cold boot.
+- **Permissions:** Finance mutations respect `spaces` roles; approvals enforced over configured thresholds.
+
+## 🛡️ Security Notes
+- Do not store secrets in the repo. Env keys are user-provided at runtime.
+- Validation utilities must wrap new inputs before persistence to avoid corrupting saved state.
+- Keep UI strings escaped and avoid unsafe HTML injection patterns.
 
 ## 🔮 V6.0 Roadmap // The "Brave New World" Update
 

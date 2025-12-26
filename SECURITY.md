@@ -2,23 +2,29 @@
 
 ## Supported Versions
 
-Currently, only the latest version of Night City OS is supported for security updates.
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 3.1.x   | :white_check_mark: |
-| < 3.1   | :x:                |
+| Version  | Supported          |
+| -------- | ------------------ |
+| 5.1.x    | ✅                 |
+| 5.0.x    | ✅                 |
+| < 5.0    | ⚠️ Security fixes are not guaranteed |
 
 ## Reporting a Vulnerability
+1. **Do not open a public issue.** This protects users while we patch.
+2. Email the maintainer at `security@nightcity.os` (placeholder) or open a private advisory on GitHub.
+3. Provide a minimal reproduction, impact assessment, and affected browser versions.
+4. We acknowledge reports within 48 hours and share a remediation ETA after triage.
 
-We take the security of our project seriously. If you believe you've found a security vulnerability, please report it to us by following these steps:
+## Scope & Threat Model
+- Night City OS runs entirely in the browser; there is **no backend**. State is stored in `localStorage`.
+- AI integrations (e.g., Gemini) depend on user-provided keys injected via Vite environment variables. Keys must never be committed to git.
+- File uploads stay client-side; we only persist sanitized metadata, not file contents.
 
-1. **Do not open a public issue.** This could expose users to risk.
-2. Send an email to the project maintainer at `security@nightcity.os` (placeholder) or open a private security advisory on GitHub.
-3. We will acknowledge your report within 48 hours and provide a timeline for a fix.
+## Hardening Guidelines
+- Keep dependencies updated via `npm audit` and GitHub Dependabot.
+- Run `npm run lint` and `npm run test -- --run` before releases to ensure guardrails remain intact.
+- Validate all new inputs through utilities in `src/utils/validation.js` and cover them with tests.
+- Avoid storing sensitive personal data in the OS; treat the environment as an immersive simulation, not a secure vault.
 
-## Environment Security
-
-Night City OS runs entirely in the browser. However, please be aware:
-- **API Keys**: User-provided Gemini API keys are handled via Vite environment variables and should never be committed to source control.
-- **LocalStorage**: System state is persisted in `localStorage`. Avoid storing sensitive personal information.
+## Incident Response
+- On confirmed issues, we will publish a security advisory and patch release.
+- Users should clear `localStorage` and update to the patched version once available.

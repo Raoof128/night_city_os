@@ -13,7 +13,6 @@ const HoloGoals = () => {
              {goals.map(goal => {
                  const percent = Math.min(100, (goal.current / goal.target) * 100);
                  const isSolid = percent > 80;
-                 const isWireframe = percent > 30;
 
                  return (
                     <div key={goal.id} className="bg-black/40 border border-gray-800 p-4 relative group">

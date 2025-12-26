@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import {
     HardDrive,
@@ -38,19 +38,19 @@ import TextPadApp from './apps/TextPad';
 import MusicPlayerApp from './apps/MusicPlayer';
 import { generateDailyQuests } from './utils/gamificationEngine';
 import { MOCK_USERS, migrateDataToSpace, checkPermission, ACTIONS } from './utils/spaces';
+import { usePersistentState } from './hooks/usePersistentState';
+import { formatPersianDate } from './utils/helpers';
+import { createFileDescriptor, validateTransactionPayload } from './utils/validation';
+import logger from './utils/logger';
 
 // --- UTILS ---
-const getPersianDate = () => {
-    try {
-        return new Intl.DateTimeFormat('fa-IR', {
-            calendar: 'persian',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        }).format(new Date());
-    } catch (e) {
-        return new Date().toLocaleDateString();
-    }
+const isBrowser = typeof window !== 'undefined';
+const DEFAULT_SYS_CONFIG = { bgFit: 'cover' };
+const DEFAULT_GAMIFICATION = {
+    xp: 0,
+    badges: ['first_login'],
+    quests: [],
+    lastLogin: null
 };
 
 
@@ -59,35 +59,13 @@ const getPersianDate = () => {
 // --- MAIN UPGRADED COMPONENT ---
 export default function WinOS() {
     // --- MOBILE WARNING ---
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [isMobile, setIsMobile] = useState(isBrowser ? window.innerWidth < 768 : false);
     useEffect(() => {
+        if (!isBrowser) return;
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
-
-
-
-    // --- PERSISTENCE HOOK ---
-    const usePersistentState = (key, defaultValue) => {
-        const [state, setState] = useState(() => {
-            try {
-                const saved = localStorage.getItem(key);
-                return saved ? JSON.parse(saved) : defaultValue;
-            } catch (e) {
-                console.warn("Storage corruption detected, resetting " + key);
-                return defaultValue;
-            }
-        });
-        useEffect(() => {
-            try {
-                localStorage.setItem(key, JSON.stringify(state));
-            } catch (e) {
-                console.error("Storage write failed", e);
-            }
-        }, [key, state]);
-        return [state, setState];
-    };
 
     const desktopRef = useRef(null);
     const [booted, setBooted] = useState(false);
@@ -96,14 +74,9 @@ export default function WinOS() {
     // Persistent States
     const [windows, setWindows] = usePersistentState('os_windows', []);
     const [files, setFiles] = usePersistentState('os_files', []);
-    const [sysConfig, setSysConfig] = usePersistentState('os_config', { bgFit: 'cover' }); // cover, contain, fill
+    const [sysConfig, setSysConfig] = usePersistentState('os_config', DEFAULT_SYS_CONFIG); // cover, contain, fill
 
-    const [gamification, setGamification] = usePersistentState('os_gamification', {
-        xp: 0,
-        badges: ['first_login'],
-        quests: [],
-        lastLogin: null
-    });
+    const [gamification, setGamification] = usePersistentState('os_gamification', DEFAULT_GAMIFICATION);
 
     useEffect(() => {
         const today = new Date().toLocaleDateString();
@@ -115,7 +88,7 @@ export default function WinOS() {
             }));
             addNotification("DAILY QUESTS UPDATED", "success");
         }
-    }, [gamification.lastLogin, setGamification]);
+    }, [addNotification, gamification.lastLogin, setGamification]);
 
     const handleUpdateGamification = (updates) => {
         setGamification(prev => ({ ...prev, ...updates }));
@@ -137,37 +110,35 @@ export default function WinOS() {
 
     // Initial Migration / Setup
     useEffect(() => {
-        if (spaces.length === 0) {
-            // Migration for legacy users or fresh install
-            const defaultSpace = migrateDataToSpace({
-                balance: 1240500.00,
-                spent: 4230,
-                recent: [{ time: "10:42 AM", desc: "TRANSFER_TO_RAOUF", amount: 500, category: "Income" }],
-                assets: [
-                    { id: 1, name: "Arasaka Tower Apt", value: 850000, type: 'Real Estate' },
-                    { id: 2, name: "Quadra Turbo-R", value: 125000, type: 'Vehicle' },
-                    { id: 3, name: "Vintage Samurai Jacket", value: 5000, type: 'Collectible' }
-                ],
-                subscriptions: []
-            }, currentUser.id);
-            setSpaces([defaultSpace]);
-            setCurrentSpaceId(defaultSpace.id);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        if (spaces.length > 0) return;
+
+        const defaultSpace = migrateDataToSpace({
+            balance: 1240500.00,
+            spent: 4230,
+            recent: [{ time: "10:42 AM", desc: "TRANSFER_TO_RAOUF", amount: 500, category: "Income" }],
+            assets: [
+                { id: 1, name: "Arasaka Tower Apt", value: 850000, type: 'Real Estate' },
+                { id: 2, name: "Quadra Turbo-R", value: 125000, type: 'Vehicle' },
+                { id: 3, name: "Vintage Samurai Jacket", value: 5000, type: 'Collectible' }
+            ],
+            subscriptions: []
+        }, currentUser.id);
+        setSpaces([defaultSpace]);
+        setCurrentSpaceId(defaultSpace.id);
+    }, [currentUser.id, setCurrentSpaceId, setSpaces, spaces.length]);
 
     const currentSpace = spaces.find(s => s.id === currentSpaceId) || spaces[0];
 
     // Helper to update spaces state
-    const handleUpdateSpace = (updatedSpace) => {
+    const handleUpdateSpace = useCallback((updatedSpace) => {
         setSpaces(prev => prev.map(s => s.id === updatedSpace.id ? updatedSpace : s));
-    };
+    }, [setSpaces]);
 
     // Helper to add new space
-    const handleAddSpace = (newSpace) => {
+    const handleAddSpace = useCallback((newSpace) => {
         setSpaces(prev => [...prev, newSpace]);
         setCurrentSpaceId(newSpace.id);
-    };
+    }, [setCurrentSpaceId, setSpaces]);
 
     const [privacyMode, setPrivacyMode] = useState(false);
 
@@ -175,9 +146,9 @@ export default function WinOS() {
         { id: 1, event: "SYSTEM_BOOT", time: new Date().toLocaleTimeString(), type: 'info' }
     ]);
 
-    const logEvent = (event, type = 'info') => {
+    const logEvent = useCallback((event, type = 'info') => {
         setAuditLog(prev => [{ id: Date.now(), event, time: new Date().toLocaleTimeString(), type }, ...prev].slice(0, 50));
-    };
+    }, []);
 
     const [userRules, setUserRules] = useState({}); // For smart recategorization
 
@@ -226,6 +197,7 @@ export default function WinOS() {
     const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
     useEffect(() => {
+        if (!isBrowser) return undefined;
         const handleKeyDown = (e) => {
             // Privacy Mode: Cmd+Shift+P
             if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'p') {
@@ -243,7 +215,7 @@ export default function WinOS() {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [privacyMode]);
+    }, [addNotification, logEvent, privacyMode]);
 
     // Apply privacy class to body
     useEffect(() => {
@@ -255,36 +227,43 @@ export default function WinOS() {
     }, [privacyMode]);
 
     useEffect(() => {
-        if (!currentSpace || !currentSpace.data || !currentSpace.data.recent) return;
+        if (!currentSpace?.data?.recent?.length) return;
 
-        const lastTransaction = currentSpace.data.recent[0];
-        if (lastTransaction) {
-            // Anomaly Detection
-            const hour = new Date(lastTransaction.time).getHours();
-            if (lastTransaction.amount > 500 || hour < 6 || hour > 23) {
-                addNotification(`Anomaly detected: ${lastTransaction.desc} for ${lastTransaction.amount}`, 'error');
-            }
+        const [lastTransaction] = currentSpace.data.recent;
+        if (!lastTransaction) return;
 
-            // Merchant Enrichment (mock) - ONLY IF NOT ALREADY ENRICHED
-            if (!lastTransaction.enriched) {
-                setTimeout(() => {
-                    handleUpdateSpace({
-                        ...currentSpace,
-                        data: {
-                            ...currentSpace.data,
-                            recent: currentSpace.data.recent.map(t => t.desc === lastTransaction.desc ? { ...t, enriched: true, logo: 'https://example.com/logo.png' } : t)
-                        }
-                    });
-                }, 1000);
-            }
+        const parsedDate = new Date(lastTransaction.time);
+        const hour = Number.isNaN(parsedDate.getTime()) ? new Date().getHours() : parsedDate.getHours();
+
+        if (lastTransaction.amount > 500 || hour < 6 || hour > 23) {
+            addNotification(`Anomaly detected: ${lastTransaction.desc} for ${lastTransaction.amount}`, 'error');
+            logEvent('ANOMALY_FLAGGED', 'warning');
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentSpace?.data?.recent]);
 
-    const addNotification = (msg, type = 'info') => {
+        let enrichmentTimeout;
+        if (!lastTransaction.enriched) {
+            enrichmentTimeout = setTimeout(() => {
+                handleUpdateSpace({
+                    ...currentSpace,
+                    data: {
+                        ...currentSpace.data,
+                        recent: currentSpace.data.recent.map(t => t.desc === lastTransaction.desc ? { ...t, enriched: true, logo: 'https://example.com/logo.png' } : t)
+                    }
+                });
+            }, 1000);
+        }
+
+        return () => {
+            if (enrichmentTimeout) {
+                clearTimeout(enrichmentTimeout);
+            }
+        };
+    }, [addNotification, currentSpace, handleUpdateSpace, logEvent]);
+
+    const addNotification = useCallback((msg, type = 'info') => {
         const id = Date.now();
         setNotifications(prev => [...prev, { id, msg, type }]);
-    };
+    }, []);
 
     const handleContextMenu = (e) => {
         e.preventDefault();
@@ -297,6 +276,7 @@ export default function WinOS() {
         setDesktopKey(prev => prev + 1);
         handleCloseContextMenu();
         addNotification("GRID LAYOUT RESET", "info");
+        logEvent('DESKTOP_RESET', 'info');
     };
 
     const handleShutdown = () => {
@@ -304,11 +284,13 @@ export default function WinOS() {
         setShutDown(true);
         // Clear window state on proper shutdown
         setWindows([]);
+        logEvent('SYSTEM_SHUTDOWN', 'warning');
     };
 
     const handleReboot = () => {
         setShutDown(false);
         setBooted(false);
+        logEvent('SYSTEM_REBOOT', 'info');
     };
 
     // Helper to learn new rule
@@ -349,7 +331,7 @@ export default function WinOS() {
         img_view: { name: 'IMAGE_VIEWER', icon: Eye, component: null } // Special handler
     };
 
-    const desktopIcons = [
+    const desktopIcons = useMemo(() => ([
         { id: 'tracker', defaultY: '40px' },
         { id: 'files', defaultY: '140px' },
         { id: 'terminal', defaultY: '240px' },
@@ -358,7 +340,7 @@ export default function WinOS() {
         { id: 'calc', defaultY: '40px', x: '120px' }, // Second column
         { id: 'music', defaultY: '140px', x: '120px' },
         { id: 'settings', defaultY: '240px', x: '120px' },
-    ];
+    ]), []);
 
     const commands = [
         ...Object.entries(apps).map(([id, app]) => ({
@@ -406,47 +388,63 @@ export default function WinOS() {
     };
 
     const handleFileUpload = (file) => {
-        const newFile = {
-            name: file.name || `shard_${Math.floor(Math.random() * 99)}.dat`,
-            date: new Date().toLocaleDateString(),
-            type: file.type
-        };
-        setFiles(prev => [...prev, newFile]);
-        openWindow('files');
-        addNotification("DATA SHARD RECEIVED", "info");
+        try {
+            const descriptor = createFileDescriptor(file);
+            setFiles(prev => [...prev, descriptor]);
+            openWindow('files');
+            addNotification("DATA SHARD RECEIVED", "info");
+            logEvent('FILE_SHARD_STORED', 'info');
+        } catch (error) {
+            logger.error('File upload failed', error);
+            addNotification("UPLOAD_FAILED: INVALID FILE", "error");
+        }
     };
 
     // Receipt scanning / finance update handler
     const handleTransactionUpdate = (newData) => {
-        if (!currentSpace) return;
+        if (!currentSpace) {
+            logger.warn('Transaction update ignored: no active space selected.');
+            addNotification("NO ACTIVE SPACE", "error");
+            return;
+        }
 
         // 1. Permission Check
         if (!checkPermission(currentSpace, currentUser.id, ACTIONS.EDIT_DATA)) {
             addNotification("ACCESS DENIED: INSUFFICIENT PERMISSIONS", "error");
+            logEvent('PERMISSION_DENIED_TRANSACTION', 'error');
             return;
         }
 
-        const { category, isRecurring, isTaxDeductible } = categorizeTransaction(newData.summary || "", newData.amount);
+        let validatedPayload;
+        try {
+            validatedPayload = validateTransactionPayload(newData);
+        } catch (error) {
+            logger.error('Transaction validation failed', error);
+            addNotification(error.message, 'error');
+            return;
+        }
+
+        const { category, isRecurring, isTaxDeductible } = categorizeTransaction(validatedPayload.summary, validatedPayload.amount);
 
         // 2. Approval Logic
         const threshold = currentSpace.settings?.approvalThreshold || Infinity;
-        const needsApproval = newData.amount > threshold;
+        const needsApproval = validatedPayload.amount > threshold;
         const status = needsApproval ? 'Pending Approval' : 'Posted';
 
         // Only update balance if approved immediately
-        const newSpent = needsApproval ? (currentSpace.data.spent || 0) : (currentSpace.data.spent || 0) + newData.amount;
-        const newBalance = needsApproval ? (currentSpace.data.balance || 0) : (currentSpace.data.balance || 0) - newData.amount;
+        const newSpent = needsApproval ? (currentSpace.data.spent || 0) : (currentSpace.data.spent || 0) + validatedPayload.amount;
+        const newBalance = needsApproval ? (currentSpace.data.balance || 0) : (currentSpace.data.balance || 0) - validatedPayload.amount;
 
         const updatedData = {
             ...currentSpace.data,
             spent: newSpent,
             balance: newBalance,
-            subscriptions: isRecurring ? [...(currentSpace.data.subscriptions || []), { service: newData.summary, amount: newData.amount, cycle: 'Monthly' }] : (currentSpace.data.subscriptions || []),
+            subscriptions: isRecurring ? [...(currentSpace.data.subscriptions || []), { service: validatedPayload.summary, amount: validatedPayload.amount, cycle: 'Monthly' }] : (currentSpace.data.subscriptions || []),
             recent: [{
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                desc: newData.summary || "UNKNOWN",
+                desc: validatedPayload.summary || "UNKNOWN",
                 category: category,
-                amount: newData.amount,
+                amount: validatedPayload.amount,
                 isTaxDeductible: isTaxDeductible,
                 status: status
             }, ...(currentSpace.data.recent || [])]
@@ -463,6 +461,7 @@ export default function WinOS() {
         } else {
             addNotification(isRecurring ? "SUBSCRIPTION DETECTED" : "SECURE DATA PARSED", "info");
         }
+        logEvent(needsApproval ? 'TRANSACTION_PENDING_APPROVAL' : 'TRANSACTION_POSTED', 'info');
     };
 
     if (!booted) return <BootScreen onComplete={() => setBooted(true)} />;
@@ -693,7 +692,7 @@ export default function WinOS() {
                 <div className="flex items-center gap-6 pr-6 text-xs font-mono font-bold">
                     <div className="flex items-center gap-2 text-[var(--color-red)]"><Wifi size={14} /><span className="hidden md:inline">CONNECTED</span></div>
                     <button onClick={() => setShowPersianDate(!showPersianDate)} className="flex items-center gap-2 text-[var(--color-blue)] hover:text-[var(--color-yellow)] transition-colors bg-white/5 px-3 py-1 rounded">
-                        {showPersianDate ? <span className="text-[var(--color-yellow)]">{getPersianDate()}</span> : <span>{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
+                        {showPersianDate ? <span className="text-[var(--color-yellow)]">{formatPersianDate()}</span> : <span>{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
                     </button>
                 </div>
             </div>
