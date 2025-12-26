@@ -15,6 +15,7 @@ const TabBar = ({ activeTab, setActiveTab }) => {
         { id: 'assets', label: 'ASSETS', icon: Wallet },
         { id: 'analytics', label: 'ANALYTICS', icon: TrendingUp },
         { id: 'simulation', label: 'SIMULATION', icon: Target },
+        { id: 'psycho', label: 'MINDSET', icon: BrainCircuit },
         { id: 'insights', label: 'AI_INSIGHTS', icon: BrainCircuit },
         { id: 'rules', label: 'RULES', icon: Settings },
     ];
