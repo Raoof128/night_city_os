@@ -25,7 +25,7 @@ flowchart LR
         Settings
     end
     subgraph Shared
-        Hooks[hooks/usePersistentState]
+        Hooks[hooks/{usePersistentState,useSound}]
         Utils[utils/{theme,validation,logger,helpers}]
         Widgets[DesktopCalendarWidget,DesktopUploadWidget]
     end
@@ -51,6 +51,7 @@ flowchart LR
   - `files`: virtual shards uploaded via desktop widgets.
   - `sysConfig`: background fit + visual toggles.
   - `gamification`: XP, badges, and rotating quests.
+  - `audio`: master volume + mute preferences honored by `useSound`.
   - `spaces`: collaborative finance spaces, members, and approvals.
   - `strategicOps`: vault/debt/burn targets, round-up toggles, FIRE/legacy parameters.
 - **Ephemeral slices**:
@@ -104,18 +105,27 @@ sequenceDiagram
 - **Client-only execution**: No backend; all data stays in the browser sandbox.
 - **Input validation**: All uploads and finance mutations are checked before persistence to avoid corrupting saved state.
 - **Telemetry**: `logger` prefixes output (`[NC/*]`) for easy filtering in browser consoles; `auditLog` captures key security events.
+- **Audio unlock**: `useSound` lazily instantiates Web Audio and resumes on first pointer/keyboard gesture to respect browser autoplay rules.
 - **Secrets**: API keys are user-supplied via Vite env vars and must never enter source control.
 
 ---
 
-## 6. Testing Strategy
+## 6. Audio Engine
+- **Hook**: `hooks/useSound` centralizes audio context creation, volume/mute handling, and tone generation.
+- **Safety**: Context is created lazily and unlocked via user gestures to avoid autoplay violations; playback is try/catch wrapped for browsers that block audio.
+- **Consumers**: `WinOS.jsx` calls `play` on boot, errors, and interactions. Extend sounds by adding new tone presets in `useSound`.
+
+---
+
+## 7. Testing Strategy
 - **Unit tests**: Utilities (spaces, helpers, validation) validated via Vitest under `tests/unit/`.
 - **Component tests**: PsychoCybernetics and finance utilities validated for regression coverage.
+- **Audio tests**: `tests/unit/useSound.test.js` stubs AudioContext to assert playback, mute behavior, and gesture-based resume.
 - **CI**: GitHub Actions runs lint → tests → build on pushes/PRs to `main`.
 
 ---
 
-## 7. Extensibility Playbook
+## 8. Extensibility Playbook
 - **Add an app**: create a component under `src/apps/`, register it in the `apps` map inside `WinOS.jsx`, and provide an icon + title.
 - **Add persistent data**: use `usePersistentState` for any state that must survive reloads and supply clear defaults.
 - **Extend validation**: centralize new input guards in `src/utils/validation.js` and cover them with tests in `tests/unit/`.
@@ -123,7 +133,7 @@ sequenceDiagram
 
 ---
 
-## 8. Performance Notes
+## 9. Performance Notes
 - Framer-motion handles drag physics; limit simultaneous animations to preserve smoothness.
 - Large images are not stored in memory; file descriptors only track metadata to keep localStorage footprint small.
 - Command palette and context menus are unmounted via `AnimatePresence` to prevent hidden DOM bloat.

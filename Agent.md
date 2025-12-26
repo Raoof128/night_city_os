@@ -78,6 +78,7 @@ The OS features a fully modularized architecture to support scalability and main
 - **Permissions:** Finance mutations respect `spaces` roles; approvals enforced over configured thresholds.
 - **Audio Engine:** `useSound` lazily creates and unlocks the Web Audio context on user interaction and is covered by `tests/unit/useSound.test.js`. Keep volume/mute wiring intact when adding new events.
 - **Docs:** Mermaid diagrams are GitHub-compatible; validate new diagrams locally before committing.
+- **Documentation Discipline:** Whenever system behavior changes (audio, window manager, finance), update README, ARCHITECTURE, CONTRIBUTING, SECURITY, and Changelogs in the same PR.
 - **Strategic Ops:** Uses Recharts + `decimal.js` for high-precision planning (vaults, debt, FIRE). Keep projections deterministic by passing sanitized params into `strategicOps` utils.
 - **Lint discipline:** CI blocks warnings; clear unused imports before committing.
 - **Dependencies:** New chart/math deps are vendored locally (`recharts`, `decimal.js`)—ensure `npm install` is run after cloning.

@@ -24,6 +24,7 @@
 - Run `npm run lint` and `npm run test -- --run` before releases to ensure guardrails remain intact.
 - Validate all new inputs through utilities in `src/utils/validation.js` and cover them with tests.
 - Avoid storing sensitive personal data in the OS; treat the environment as an immersive simulation, not a secure vault.
+- Respect browser autoplay policies: the Web Audio engine unlocks only after user gestures and never auto-captures microphone input.
 
 ## Incident Response
 - On confirmed issues, we will publish a security advisory and patch release.

@@ -38,6 +38,7 @@ All notable changes to the "Night City OS" project will be documented in this fi
 - **Calculator:** Improved floating point precision handling. Fixed regression where large integers were losing precision (e.g. `1234567890123`) while maintaining fix for `0.1 + 0.2` epsilon errors.
 ### Added
 - **Audio Engine:** `useSound` now lazily instantiates the Web Audio context, auto-resumes on user interaction, and includes regression coverage in `tests/unit/useSound.test.js` to guard playback events.
+- **Documentation:** README, ARCHITECTURE, CONTRIBUTING, and SECURITY refreshed with audio engine guidance and testing expectations.
 
 ## [v5.0.0] - The Neural Link Update - 2025-12-25
 ### Added
