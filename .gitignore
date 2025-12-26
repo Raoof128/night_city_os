@@ -147,3 +147,6 @@ Temporary Items
 
 # Project specific
 .agent
+
+# Test results
+test-results/
