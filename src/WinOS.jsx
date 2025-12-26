@@ -35,6 +35,7 @@ import NetworkMapApp from './apps/NetworkMap';
 import TextPadApp from './apps/TextPad';
 import MusicPlayerApp from './apps/MusicPlayer';
 import { generateDailyQuests } from './utils/gamificationEngine';
+import { MOCK_USERS, migrateDataToSpace, checkPermission, ACTIONS } from './utils/spaces';
 
 // --- UTILS ---
 const getPersianDate = () => {
@@ -127,19 +128,44 @@ export default function WinOS() {
     const [stealthMode, setStealthMode] = useState(false);
     const [notifications, setNotifications] = useState([]);
 
-    // V2 Financial Data
-    const [financeData, setFinanceData] = useState({
-        balance: 1240500.00,
-        currency: 'EDDIES', // Primary Currency
-        spent: 4230,
-        recent: [{ time: "10:42 AM", desc: "TRANSFER_TO_RAOUF", amount: 500, category: "Income" }],
-        assets: [ // New Asset Tracking
-            { id: 1, name: "Arasaka Tower Apt", value: 850000, type: 'Real Estate' },
-            { id: 2, name: "Quadra Turbo-R", value: 125000, type: 'Vehicle' },
-            { id: 3, name: "Vintage Samurai Jacket", value: 5000, type: 'Collectible' }
-        ],
-        subscriptions: [] // Detected subs
-    });
+    // --- SHARED SPACES & COLLAB FINANCE ---
+    const [currentUser, setCurrentUser] = usePersistentState('os_current_user', MOCK_USERS[0]); // Default to Admin
+    const [spaces, setSpaces] = usePersistentState('os_spaces', []);
+    const [currentSpaceId, setCurrentSpaceId] = usePersistentState('os_current_space_id', null);
+
+    // Initial Migration / Setup
+    useEffect(() => {
+        if (spaces.length === 0) {
+            // Migration for legacy users or fresh install
+            const defaultSpace = migrateDataToSpace({
+                balance: 1240500.00,
+                spent: 4230,
+                recent: [{ time: "10:42 AM", desc: "TRANSFER_TO_RAOUF", amount: 500, category: "Income" }],
+                assets: [
+                    { id: 1, name: "Arasaka Tower Apt", value: 850000, type: 'Real Estate' },
+                    { id: 2, name: "Quadra Turbo-R", value: 125000, type: 'Vehicle' },
+                    { id: 3, name: "Vintage Samurai Jacket", value: 5000, type: 'Collectible' }
+                ],
+                subscriptions: []
+            }, currentUser.id);
+            setSpaces([defaultSpace]);
+            setCurrentSpaceId(defaultSpace.id);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const currentSpace = spaces.find(s => s.id === currentSpaceId) || spaces[0];
+
+    // Helper to update spaces state
+    const handleUpdateSpace = (updatedSpace) => {
+        setSpaces(prev => prev.map(s => s.id === updatedSpace.id ? updatedSpace : s));
+    };
+
+    // Helper to add new space
+    const handleAddSpace = (newSpace) => {
+        setSpaces(prev => [...prev, newSpace]);
+        setCurrentSpaceId(newSpace.id);
+    };
 
     const [privacyMode, setPrivacyMode] = useState(false);
 
@@ -219,7 +245,9 @@ export default function WinOS() {
     }, [privacyMode]);
 
     useEffect(() => {
-        const lastTransaction = financeData.recent[0];
+        if (!currentSpace || !currentSpace.data || !currentSpace.data.recent) return;
+
+        const lastTransaction = currentSpace.data.recent[0];
         if (lastTransaction) {
             // Anomaly Detection
             const hour = new Date(lastTransaction.time).getHours();
@@ -227,15 +255,21 @@ export default function WinOS() {
                 addNotification(`Anomaly detected: ${lastTransaction.desc} for ${lastTransaction.amount}`, 'error');
             }
 
-            // Merchant Enrichment (mock)
-            setTimeout(() => {
-                setFinanceData(prev => ({
-                    ...prev,
-                    recent: prev.recent.map(t => t.desc === lastTransaction.desc ? { ...t, enriched: true, logo: 'https://example.com/logo.png' } : t)
-                }));
-            }, 1000);
+            // Merchant Enrichment (mock) - ONLY IF NOT ALREADY ENRICHED
+            if (!lastTransaction.enriched) {
+                setTimeout(() => {
+                    handleUpdateSpace({
+                        ...currentSpace,
+                        data: {
+                            ...currentSpace.data,
+                            recent: currentSpace.data.recent.map(t => t.desc === lastTransaction.desc ? { ...t, enriched: true, logo: 'https://example.com/logo.png' } : t)
+                        }
+                    });
+                }, 1000);
+            }
         }
-    }, [financeData.recent]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentSpace?.data?.recent]);
 
     const addNotification = (msg, type = 'info') => {
         const id = Date.now();
@@ -280,14 +314,23 @@ export default function WinOS() {
             icon: Activity,
             component: FinancialTracker,
             props: {
-                data: financeData,
+                data: currentSpace ? currentSpace.data : {},
+                // Spaces Logic
+                currentSpace,
+                spaces,
+                currentUser,
+                onSwitchSpace: setCurrentSpaceId,
+                onAddSpace: handleAddSpace,
+                onUpdateSpace: handleUpdateSpace,
+                onSwitchUser: setCurrentUser,
+                // Existing
                 onLearnRule: learnRule,
                 gamification,
                 onUpdateGamification: handleUpdateGamification
             }
         },
         files: { name: 'SHARDS', icon: HardDrive, component: null }, // Handled inline thanks to its simplicity
-        terminal: { name: 'CMD', icon: Terminal, component: TerminalApp, props: { financeData } },
+        terminal: { name: 'CMD', icon: Terminal, component: TerminalApp, props: { financeData: currentSpace ? currentSpace.data : {} } },
         network: { name: 'NET_TRACE', icon: Share2, component: NetworkMapApp },
         textpad: { name: 'TEXT_PAD', icon: FileEdit, component: TextPadApp },
         calc: { name: 'CALCULATOR', icon: Grid, component: CalculatorApp },
@@ -350,27 +393,51 @@ export default function WinOS() {
 
     // Receipt scanning / finance update handler
     const handleTransactionUpdate = (newData) => {
+        if (!currentSpace) return;
+
+        // 1. Permission Check
+        if (!checkPermission(currentSpace, currentUser.id, ACTIONS.EDIT_DATA)) {
+            addNotification("ACCESS DENIED: INSUFFICIENT PERMISSIONS", "error");
+            return;
+        }
+
         const { category, isRecurring, isTaxDeductible } = categorizeTransaction(newData.summary || "", newData.amount);
 
-        setFinanceData(prev => {
-            const newSubs = isRecurring ? [...prev.subscriptions, { service: newData.summary, amount: newData.amount, cycle: 'Monthly' }] : prev.subscriptions;
+        // 2. Approval Logic
+        const threshold = currentSpace.settings?.approvalThreshold || Infinity;
+        const needsApproval = newData.amount > threshold;
+        const status = needsApproval ? 'Pending Approval' : 'Posted';
 
-            return {
-                ...prev,
-                spent: prev.spent + newData.amount,
-                balance: prev.balance - newData.amount,
-                subscriptions: newSubs,
-                recent: [{
-                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    desc: newData.summary || "UNKNOWN",
-                    category: category,
-                    amount: newData.amount,
-                    isTaxDeductible: isTaxDeductible,
-                }, ...prev.recent]
-            };
+        // Only update balance if approved immediately
+        const newSpent = needsApproval ? (currentSpace.data.spent || 0) : (currentSpace.data.spent || 0) + newData.amount;
+        const newBalance = needsApproval ? (currentSpace.data.balance || 0) : (currentSpace.data.balance || 0) - newData.amount;
+
+        const updatedData = {
+            ...currentSpace.data,
+            spent: newSpent,
+            balance: newBalance,
+            subscriptions: isRecurring ? [...(currentSpace.data.subscriptions || []), { service: newData.summary, amount: newData.amount, cycle: 'Monthly' }] : (currentSpace.data.subscriptions || []),
+            recent: [{
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                desc: newData.summary || "UNKNOWN",
+                category: category,
+                amount: newData.amount,
+                isTaxDeductible: isTaxDeductible,
+                status: status
+            }, ...(currentSpace.data.recent || [])]
+        };
+
+        handleUpdateSpace({
+            ...currentSpace,
+            data: updatedData
         });
+
         openWindow('tracker');
-        addNotification(isRecurring ? "SUBSCRIPTION DETECTED" : "SECURE DATA PARSED", "info");
+        if (needsApproval) {
+            addNotification("TRANSACTION PENDING APPROVAL", "warning");
+        } else {
+            addNotification(isRecurring ? "SUBSCRIPTION DETECTED" : "SECURE DATA PARSED", "info");
+        }
     };
 
     if (isMobile) {
