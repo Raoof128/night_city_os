@@ -2,6 +2,7 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TabBar from './TabBar';
+import PsychoCybernetics from './components/psycho/PsychoCybernetics';
 import StatCard from './components/StatCard';
 import DonutChart from './components/DonutChart';
 import AIInsight from './components/AIInsight';
@@ -429,6 +430,10 @@ export default function FinancialTracker({
                         >
                             <MonteCarloSim currentBalance={data.balance} monthlyBurn={data.spent} />
                         </motion.div>
+                    )}
+
+                    {activeTab === 'psycho' && (
+                         <PsychoCybernetics />
                     )}
 
                     {activeTab === 'assets' && (
