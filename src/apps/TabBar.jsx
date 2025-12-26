@@ -6,7 +6,8 @@ import {
     Target,
     BrainCircuit,
     Receipt,
-    Settings
+    Settings,
+    Trophy
 } from 'lucide-react';
 const TabBar = ({ activeTab, setActiveTab }) => {
     const tabs = [
@@ -16,6 +17,7 @@ const TabBar = ({ activeTab, setActiveTab }) => {
         { id: 'analytics', label: 'ANALYTICS', icon: TrendingUp },
         { id: 'simulation', label: 'SIMULATION', icon: Target },
         { id: 'insights', label: 'AI_INSIGHTS', icon: BrainCircuit },
+        { id: 'career', label: 'CAREER', icon: Trophy },
         { id: 'rules', label: 'RULES', icon: Settings },
     ];
 

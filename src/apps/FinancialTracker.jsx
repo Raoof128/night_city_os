@@ -6,6 +6,8 @@ import StatCard from './components/StatCard';
 import DonutChart from './components/DonutChart';
 import AIInsight from './components/AIInsight';
 import MonteCarloSim from './components/MonteCarloSim';
+import GamificationHub from './components/GamificationHub';
+import { checkNudges } from '../utils/gamificationEngine';
 import {
     TrendingUp,
     Wallet,
@@ -15,12 +17,14 @@ import {
     Sparkles,
     Target,
     Zap,
-    Share2
+    Share2,
+    AlertTriangle
 } from 'lucide-react';
 
-export default function FinancialTracker({ data, onLearnRule }) {
+export default function FinancialTracker({ data, onLearnRule, gamification, onUpdateGamification }) {
     const [activeTab, setActiveTab] = useState('overview');
     const [learnMode, setLearnMode] = useState(null); // { keyword: '', category: '' }
+    const activeNudges = useMemo(() => checkNudges(data), [data]);
     const [transactions] = useState(data.recent);
     const [currency, setCurrency] = useState('€$');
     const [showAddAssetForm, setShowAddAssetForm] = useState(false);
@@ -120,6 +124,22 @@ export default function FinancialTracker({ data, onLearnRule }) {
                             exit={{ opacity: 0, y: -10 }}
                             className="space-y-6"
                         >
+                            {/* Behavioral Nudges */}
+                            {activeNudges.length > 0 && (
+                                <div className="bg-[var(--color-blue)]/10 border border-[var(--color-blue)] p-3 flex flex-col gap-2 relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-[var(--color-blue)]" />
+                                    {activeNudges.map(nudge => (
+                                        <div key={nudge.id} className="flex items-start gap-3">
+                                            <AlertTriangle size={16} className="text-[var(--color-blue)] mt-1 flex-shrink-0" />
+                                            <div>
+                                                <div className="text-xs font-bold text-[var(--color-blue)]">{nudge.title}</div>
+                                                <div className="text-xs text-gray-300">{nudge.message}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
                             {/* Key Stats */}
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <StatCard
@@ -419,6 +439,17 @@ export default function FinancialTracker({ data, onLearnRule }) {
 
                             <AIInsight />
 
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'career' && (
+                        <motion.div
+                            key="career"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                        >
+                            <GamificationHub gamification={gamification} onUpdateGamification={onUpdateGamification} />
                         </motion.div>
                     )}
 

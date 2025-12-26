@@ -34,6 +34,7 @@ import TerminalApp from './apps/Terminal';
 import NetworkMapApp from './apps/NetworkMap';
 import TextPadApp from './apps/TextPad';
 import MusicPlayerApp from './apps/MusicPlayer';
+import { generateDailyQuests } from './utils/gamificationEngine';
 
 // --- UTILS ---
 const getPersianDate = () => {
@@ -93,6 +94,29 @@ export default function WinOS() {
     const [windows, setWindows] = usePersistentState('os_windows', []);
     const [files, setFiles] = usePersistentState('os_files', []);
     const [sysConfig, setSysConfig] = usePersistentState('os_config', { bgFit: 'cover' }); // cover, contain, fill
+
+    const [gamification, setGamification] = usePersistentState('os_gamification', {
+        xp: 0,
+        badges: ['first_login'],
+        quests: [],
+        lastLogin: null
+    });
+
+    useEffect(() => {
+        const today = new Date().toLocaleDateString();
+        if (gamification.lastLogin !== today) {
+            setGamification(prev => ({
+                ...prev,
+                quests: generateDailyQuests(),
+                lastLogin: today
+            }));
+            addNotification("DAILY QUESTS UPDATED", "success");
+        }
+    }, [gamification.lastLogin, setGamification]);
+
+    const handleUpdateGamification = (updates) => {
+        setGamification(prev => ({ ...prev, ...updates }));
+    };
 
     const [activeWindowId, setActiveWindowId] = useState(null);
     const [startMenuOpen, setStartMenuOpen] = useState(false);
@@ -251,7 +275,17 @@ export default function WinOS() {
 
     // --- APP REGISTRY ---
     const apps = {
-        tracker: { name: 'FINANCE', icon: Activity, component: FinancialTracker, props: { data: financeData, onLearnRule: learnRule } },
+        tracker: {
+            name: 'FINANCE',
+            icon: Activity,
+            component: FinancialTracker,
+            props: {
+                data: financeData,
+                onLearnRule: learnRule,
+                gamification,
+                onUpdateGamification: handleUpdateGamification
+            }
+        },
         files: { name: 'SHARDS', icon: HardDrive, component: null }, // Handled inline thanks to its simplicity
         terminal: { name: 'CMD', icon: Terminal, component: TerminalApp, props: { financeData } },
         network: { name: 'NET_TRACE', icon: Share2, component: NetworkMapApp },
