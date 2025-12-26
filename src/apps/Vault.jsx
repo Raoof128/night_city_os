@@ -13,6 +13,9 @@ export default function VaultApp() {
 
     useEffect(() => {
         if (locked) setProgress(0);
+        return () => {
+            if (timerRef.current) clearInterval(timerRef.current);
+        };
     }, [locked]);
 
     const startScan = () => {

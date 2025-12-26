@@ -80,6 +80,7 @@ The OS features a fully modularized architecture to support scalability and main
 - **Docs:** Mermaid diagrams are GitHub-compatible; validate new diagrams locally before committing.
 - **Documentation Discipline:** Whenever system behavior changes (audio, window manager, finance), update README, ARCHITECTURE, CONTRIBUTING, SECURITY, and Changelogs in the same PR.
 - **Cybersec Workspace:** New apps (Construct, Icebreaker, SysMon, Vault) must stay wired into `WinOS` and Start Menu; preserve neon palette and hover/click SFX.
+- **Stability:** Streaming intervals in Construct and biometric timers in Vault must clear on unmount/lock transitions to avoid runaway timers.
 - **Strategic Ops:** Uses Recharts + `decimal.js` for high-precision planning (vaults, debt, FIRE). Keep projections deterministic by passing sanitized params into `strategicOps` utils.
 - **Lint discipline:** CI blocks warnings; clear unused imports before committing.
 - **Dependencies:** New chart/math deps are vendored locally (`recharts`, `decimal.js`)—ensure `npm install` is run after cloning.

@@ -29,28 +29,36 @@ export default function ConstructApp() {
         }
     }, [messages]);
 
+    const streamInterval = useRef(null);
+
     const streamMessage = (id, fullText) => {
+        if (streamInterval.current) clearInterval(streamInterval.current);
         let idx = 0;
         setStreamingId(id);
-        const interval = setInterval(() => {
+        streamInterval.current = setInterval(() => {
             idx += 1;
             setMessages(prev =>
                 prev.map(msg => msg.id === id ? { ...msg, text: fullText.slice(0, idx), complete: idx >= fullText.length } : msg)
             );
             if (idx >= fullText.length) {
-                clearInterval(interval);
+                clearInterval(streamInterval.current);
                 setStreamingId(null);
             }
         }, 20);
     };
 
+    useEffect(() => () => {
+        if (streamInterval.current) clearInterval(streamInterval.current);
+    }, []);
+
     const sendMessage = () => {
-        if (!input.trim()) return;
-        const userMsg = { id: Date.now(), role: 'user', text: input.trim(), complete: true };
+        const prompt = input.trim();
+        if (!prompt) return;
+        const userMsg = { id: Date.now(), role: 'user', text: prompt, complete: true };
         const aiId = Date.now() + 1;
         const aiMsg = { id: aiId, role: 'ai', text: '', complete: false };
         setMessages(prev => [...prev, userMsg, aiMsg]);
-        const reply = generateReply(input.trim());
+        const reply = generateReply(prompt).slice(0, 1000);
         play('type');
         streamMessage(aiId, reply);
         setInput('');

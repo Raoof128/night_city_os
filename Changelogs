@@ -42,6 +42,8 @@ All notable changes to the "Night City OS" project will be documented in this fi
 - **Cybersec Workspace:** Added Construct AI chat (Silverhand persona), Icebreaker neon code editor + sandbox, SysMon canvas monitor, and Vault biometric-protected secrets store wired into the window manager and start menu.
 - **Cursor & Audio Polish:** Crosshair/red hover cursor plus new SFX (hover blip, window hum) mapped through `useSound`.
 - **Utilities & Tests:** Introduced `codeHighlighter` helper and Vitest coverage for keyword wrapping.
+### Fixed
+- Cleaned streaming and biometric timers to avoid runaway intervals when components unmount or relock.
 
 ## [v5.0.0] - The Neural Link Update - 2025-12-25
 ### Added
