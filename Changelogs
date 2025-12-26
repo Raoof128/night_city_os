@@ -17,6 +17,9 @@ All notable changes to the "Night City OS" project will be documented in this fi
   - **Approval Workflows:** Transactions exceeding a configurable threshold (default 1000) require Admin approval.
   - **Spending Limits:** Allowance/Teen mode support via permission checks.
   - **Audit Logging:** Permission denials and approvals are logged.
+## [Unreleased]
+### Fixed
+- **Calculator:** Improved floating point precision handling. Fixed regression where large integers were losing precision (e.g. `1234567890123`) while maintaining fix for `0.1 + 0.2` epsilon errors.
 
 ## [v5.0.0] - The Neural Link Update - 2025-12-25
 ### Added
