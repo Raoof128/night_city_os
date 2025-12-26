@@ -27,6 +27,8 @@ import DraggableItem from './components/DraggableItem';
 import DesktopCalendarWidget from './components/DesktopCalendarWidget';
 import DesktopUploadWidget from './components/DesktopUploadWidget';
 import StartMenu from './components/StartMenu';
+import MobileAppGrid from './components/MobileAppGrid';
+import CommandPalette from './components/CommandPalette';
 import FinancialTracker from './apps/FinancialTracker';
 import CalculatorApp from './apps/Calculator';
 import SettingsApp from './apps/Settings';
@@ -35,6 +37,7 @@ import NetworkMapApp from './apps/NetworkMap';
 import TextPadApp from './apps/TextPad';
 import MusicPlayerApp from './apps/MusicPlayer';
 import { generateDailyQuests } from './utils/gamificationEngine';
+import { MOCK_USERS, migrateDataToSpace, checkPermission, ACTIONS } from './utils/spaces';
 
 // --- UTILS ---
 const getPersianDate = () => {
@@ -127,19 +130,44 @@ export default function WinOS() {
     const [stealthMode, setStealthMode] = useState(false);
     const [notifications, setNotifications] = useState([]);
 
-    // V2 Financial Data
-    const [financeData, setFinanceData] = useState({
-        balance: 1240500.00,
-        currency: 'EDDIES', // Primary Currency
-        spent: 4230,
-        recent: [{ time: "10:42 AM", desc: "TRANSFER_TO_RAOUF", amount: 500, category: "Income" }],
-        assets: [ // New Asset Tracking
-            { id: 1, name: "Arasaka Tower Apt", value: 850000, type: 'Real Estate' },
-            { id: 2, name: "Quadra Turbo-R", value: 125000, type: 'Vehicle' },
-            { id: 3, name: "Vintage Samurai Jacket", value: 5000, type: 'Collectible' }
-        ],
-        subscriptions: [] // Detected subs
-    });
+    // --- SHARED SPACES & COLLAB FINANCE ---
+    const [currentUser, setCurrentUser] = usePersistentState('os_current_user', MOCK_USERS[0]); // Default to Admin
+    const [spaces, setSpaces] = usePersistentState('os_spaces', []);
+    const [currentSpaceId, setCurrentSpaceId] = usePersistentState('os_current_space_id', null);
+
+    // Initial Migration / Setup
+    useEffect(() => {
+        if (spaces.length === 0) {
+            // Migration for legacy users or fresh install
+            const defaultSpace = migrateDataToSpace({
+                balance: 1240500.00,
+                spent: 4230,
+                recent: [{ time: "10:42 AM", desc: "TRANSFER_TO_RAOUF", amount: 500, category: "Income" }],
+                assets: [
+                    { id: 1, name: "Arasaka Tower Apt", value: 850000, type: 'Real Estate' },
+                    { id: 2, name: "Quadra Turbo-R", value: 125000, type: 'Vehicle' },
+                    { id: 3, name: "Vintage Samurai Jacket", value: 5000, type: 'Collectible' }
+                ],
+                subscriptions: []
+            }, currentUser.id);
+            setSpaces([defaultSpace]);
+            setCurrentSpaceId(defaultSpace.id);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const currentSpace = spaces.find(s => s.id === currentSpaceId) || spaces[0];
+
+    // Helper to update spaces state
+    const handleUpdateSpace = (updatedSpace) => {
+        setSpaces(prev => prev.map(s => s.id === updatedSpace.id ? updatedSpace : s));
+    };
+
+    // Helper to add new space
+    const handleAddSpace = (newSpace) => {
+        setSpaces(prev => [...prev, newSpace]);
+        setCurrentSpaceId(newSpace.id);
+    };
 
     const [privacyMode, setPrivacyMode] = useState(false);
 
@@ -194,15 +222,23 @@ export default function WinOS() {
         return () => clearInterval(timer);
     }, []);
 
-    // Privacy Mode Hotkey Listener
+    // Privacy Mode & Command Palette Hotkey Listener
+    const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
     useEffect(() => {
         const handleKeyDown = (e) => {
+            // Privacy Mode: Cmd+Shift+P
             if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'p') {
                 e.preventDefault();
                 setPrivacyMode(prev => !prev);
                 const newState = !privacyMode;
                 logEvent(newState ? "PRIVACY_MODE_ENABLED" : "PRIVACY_MODE_DISABLED", "warning");
                 addNotification(newState ? "PRIVACY_MODE_ENABLED" : "PRIVACY_MODE_DISABLED", "info");
+            }
+            // Command Palette: Cmd+K
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                setCommandPaletteOpen(prev => !prev);
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -219,7 +255,9 @@ export default function WinOS() {
     }, [privacyMode]);
 
     useEffect(() => {
-        const lastTransaction = financeData.recent[0];
+        if (!currentSpace || !currentSpace.data || !currentSpace.data.recent) return;
+
+        const lastTransaction = currentSpace.data.recent[0];
         if (lastTransaction) {
             // Anomaly Detection
             const hour = new Date(lastTransaction.time).getHours();
@@ -227,15 +265,21 @@ export default function WinOS() {
                 addNotification(`Anomaly detected: ${lastTransaction.desc} for ${lastTransaction.amount}`, 'error');
             }
 
-            // Merchant Enrichment (mock)
-            setTimeout(() => {
-                setFinanceData(prev => ({
-                    ...prev,
-                    recent: prev.recent.map(t => t.desc === lastTransaction.desc ? { ...t, enriched: true, logo: 'https://example.com/logo.png' } : t)
-                }));
-            }, 1000);
+            // Merchant Enrichment (mock) - ONLY IF NOT ALREADY ENRICHED
+            if (!lastTransaction.enriched) {
+                setTimeout(() => {
+                    handleUpdateSpace({
+                        ...currentSpace,
+                        data: {
+                            ...currentSpace.data,
+                            recent: currentSpace.data.recent.map(t => t.desc === lastTransaction.desc ? { ...t, enriched: true, logo: 'https://example.com/logo.png' } : t)
+                        }
+                    });
+                }, 1000);
+            }
         }
-    }, [financeData.recent]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentSpace?.data?.recent]);
 
     const addNotification = (msg, type = 'info') => {
         const id = Date.now();
@@ -280,14 +324,23 @@ export default function WinOS() {
             icon: Activity,
             component: FinancialTracker,
             props: {
-                data: financeData,
+                data: currentSpace ? currentSpace.data : {},
+                // Spaces Logic
+                currentSpace,
+                spaces,
+                currentUser,
+                onSwitchSpace: setCurrentSpaceId,
+                onAddSpace: handleAddSpace,
+                onUpdateSpace: handleUpdateSpace,
+                onSwitchUser: setCurrentUser,
+                // Existing
                 onLearnRule: learnRule,
                 gamification,
                 onUpdateGamification: handleUpdateGamification
             }
         },
         files: { name: 'SHARDS', icon: HardDrive, component: null }, // Handled inline thanks to its simplicity
-        terminal: { name: 'CMD', icon: Terminal, component: TerminalApp, props: { financeData } },
+        terminal: { name: 'CMD', icon: Terminal, component: TerminalApp, props: { financeData: currentSpace ? currentSpace.data : {} } },
         network: { name: 'NET_TRACE', icon: Share2, component: NetworkMapApp },
         textpad: { name: 'TEXT_PAD', icon: FileEdit, component: TextPadApp },
         calc: { name: 'CALCULATOR', icon: Grid, component: CalculatorApp },
@@ -305,6 +358,21 @@ export default function WinOS() {
         { id: 'calc', defaultY: '40px', x: '120px' }, // Second column
         { id: 'music', defaultY: '140px', x: '120px' },
         { id: 'settings', defaultY: '240px', x: '120px' },
+    ];
+
+    const commands = [
+        ...Object.entries(apps).map(([id, app]) => ({
+            name: `OPEN ${app.name}`,
+            icon: app.icon,
+            action: () => openWindow(id),
+            shortcut: 'APP'
+        })),
+        { name: 'TOGGLE STEALTH MODE', icon: Eye, action: () => setStealthMode(p => !p), shortcut: 'MOD+S' },
+        { name: 'TOGGLE PRIVACY MODE', icon: Lock, action: () => setPrivacyMode(p => !p), shortcut: 'MOD+SHIFT+P' },
+        { name: 'JACK OUT (SHUTDOWN)', icon: ShieldAlert, action: handleShutdown, shortcut: 'SYS_HALT' },
+        { name: 'RESET DESKTOP', icon: Grid, action: handleResetDesktop, shortcut: 'RESET' },
+        { name: 'ADD TRANSACTION', icon: Activity, action: () => openWindow('tracker'), shortcut: 'FIN' },
+        { name: 'SCAN RECEIPT', icon: Search, action: () => { openWindow('tracker'); addNotification("DROP RECEIPT ON WIDGET", "info"); }, shortcut: 'SCAN' }
     ];
 
     const bringToFront = (id) => {
@@ -350,40 +418,52 @@ export default function WinOS() {
 
     // Receipt scanning / finance update handler
     const handleTransactionUpdate = (newData) => {
+        if (!currentSpace) return;
+
+        // 1. Permission Check
+        if (!checkPermission(currentSpace, currentUser.id, ACTIONS.EDIT_DATA)) {
+            addNotification("ACCESS DENIED: INSUFFICIENT PERMISSIONS", "error");
+            return;
+        }
+
         const { category, isRecurring, isTaxDeductible } = categorizeTransaction(newData.summary || "", newData.amount);
 
-        setFinanceData(prev => {
-            const newSubs = isRecurring ? [...prev.subscriptions, { service: newData.summary, amount: newData.amount, cycle: 'Monthly' }] : prev.subscriptions;
+        // 2. Approval Logic
+        const threshold = currentSpace.settings?.approvalThreshold || Infinity;
+        const needsApproval = newData.amount > threshold;
+        const status = needsApproval ? 'Pending Approval' : 'Posted';
 
-            return {
-                ...prev,
-                spent: prev.spent + newData.amount,
-                balance: prev.balance - newData.amount,
-                subscriptions: newSubs,
-                recent: [{
-                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    desc: newData.summary || "UNKNOWN",
-                    category: category,
-                    amount: newData.amount,
-                    isTaxDeductible: isTaxDeductible,
-                }, ...prev.recent]
-            };
+        // Only update balance if approved immediately
+        const newSpent = needsApproval ? (currentSpace.data.spent || 0) : (currentSpace.data.spent || 0) + newData.amount;
+        const newBalance = needsApproval ? (currentSpace.data.balance || 0) : (currentSpace.data.balance || 0) - newData.amount;
+
+        const updatedData = {
+            ...currentSpace.data,
+            spent: newSpent,
+            balance: newBalance,
+            subscriptions: isRecurring ? [...(currentSpace.data.subscriptions || []), { service: newData.summary, amount: newData.amount, cycle: 'Monthly' }] : (currentSpace.data.subscriptions || []),
+            recent: [{
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                desc: newData.summary || "UNKNOWN",
+                category: category,
+                amount: newData.amount,
+                isTaxDeductible: isTaxDeductible,
+                status: status
+            }, ...(currentSpace.data.recent || [])]
+        };
+
+        handleUpdateSpace({
+            ...currentSpace,
+            data: updatedData
         });
-        openWindow('tracker');
-        addNotification(isRecurring ? "SUBSCRIPTION DETECTED" : "SECURE DATA PARSED", "info");
-    };
 
-    if (isMobile) {
-        return (
-            <div className="fixed inset-0 bg-black flex flex-col items-center justify-center p-8 text-center font-mono text-[var(--color-red)] z-[9999]">
-                <ShieldAlert size={64} className="mb-4 animate-pulse" />
-                <h1 className="text-2xl font-black tracking-widest mb-2">SYSTEM ERROR</h1>
-                <p className="text-sm border flex items-center gap-2 px-2 py-1 mb-8 border-red-900 bg-red-900/10">ERROR_CODE: VIEWPORT_TOO_SMALL</p>
-                <p className="text-gray-500 text-xs">This Neural Interface requires a standard desktop resolution to function safely.</p>
-                <div className="mt-8 text-xs text-yellow-500">PLEASE ACCESS VIA TERMINAL (DESKTOP)</div>
-            </div>
-        );
-    }
+        openWindow('tracker');
+        if (needsApproval) {
+            addNotification("TRANSACTION PENDING APPROVAL", "warning");
+        } else {
+            addNotification(isRecurring ? "SUBSCRIPTION DETECTED" : "SECURE DATA PARSED", "info");
+        }
+    };
 
     if (!booted) return <BootScreen onComplete={() => setBooted(true)} />;
     if (shutDown) return <ShutdownScreen onReboot={handleReboot} />;
@@ -398,6 +478,11 @@ export default function WinOS() {
                 {notifications.map(n => (
                     <Toast key={n.id} message={n.msg} type={n.type} onClose={() => setNotifications(prev => prev.filter(item => item.id !== n.id))} />
                 ))}
+            </AnimatePresence>
+
+            {/* COMMAND PALETTE */}
+            <AnimatePresence>
+                {commandPaletteOpen && <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} commands={commands} />}
             </AnimatePresence>
 
             {/* BACKGROUND LAYER */}
@@ -431,26 +516,34 @@ export default function WinOS() {
             {/* DESKTOP AREA (Keyed for Reset) */}
             <div ref={desktopRef} className="relative z-10 w-full h-full p-6 pb-20" key={desktopKey} onClick={(e) => e.stopPropagation()}>
 
-                {/* DRAGGABLE ICONS */}
-                {desktopIcons.map((item) => {
-                    const app = apps[item.id];
-                    if (!app) return null;
-                    return (
-                        <DraggableItem key={item.id} initialX={item.x || "20px"} initialY={item.defaultY} className="w-24" constraintsRef={desktopRef}>
-                            <button onDoubleClick={() => openWindow(item.id)} className="group flex flex-col items-center gap-2 focus:outline-none w-full">
-                                <div className="w-16 h-16 bg-black/40 backdrop-blur-sm border border-gray-600 rounded-xl flex items-center justify-center group-hover:bg-[var(--color-yellow)] group-hover:border-[var(--color-yellow)] transition-all duration-200 shadow-lg group-hover:shadow-[0_0_20px_rgba(255,224,0,0.4)] relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 skew-x-12 translate-x-full group-hover:animate-shine pointer-events-none" />
-                                    <app.icon size={30} className="text-[var(--color-blue)] group-hover:text-black transition-colors" />
-                                </div>
-                                <span className="text-xs font-bold tracking-widest bg-black/80 px-2 py-0.5 rounded text-gray-300 group-hover:text-[var(--color-yellow)] shadow-sm">{app.name}</span>
-                            </button>
-                        </DraggableItem>
-                    )
-                })}
+                {/* MOBILE GRID or DESKTOP ICONS */}
+                {isMobile ? (
+                    <MobileAppGrid apps={apps} onOpenApp={openWindow} />
+                ) : (
+                    desktopIcons.map((item) => {
+                        const app = apps[item.id];
+                        if (!app) return null;
+                        return (
+                            <DraggableItem key={item.id} initialX={item.x || "20px"} initialY={item.defaultY} className="w-24" constraintsRef={desktopRef}>
+                                <button onDoubleClick={() => openWindow(item.id)} className="group flex flex-col items-center gap-2 focus:outline-none w-full">
+                                    <div className="w-16 h-16 bg-black/40 backdrop-blur-sm border border-gray-600 rounded-xl flex items-center justify-center group-hover:bg-[var(--color-yellow)] group-hover:border-[var(--color-yellow)] transition-all duration-200 shadow-lg group-hover:shadow-[0_0_20px_rgba(255,224,0,0.4)] relative overflow-hidden">
+                                        <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 skew-x-12 translate-x-full group-hover:animate-shine pointer-events-none" />
+                                        <app.icon size={30} className="text-[var(--color-blue)] group-hover:text-black transition-colors" />
+                                    </div>
+                                    <span className="text-xs font-bold tracking-widest bg-black/80 px-2 py-0.5 rounded text-gray-300 group-hover:text-[var(--color-yellow)] shadow-sm">{app.name}</span>
+                                </button>
+                            </DraggableItem>
+                        )
+                    })
+                )}
 
-                {/* WIDGETS */}
-                <DesktopCalendarWidget constraintsRef={desktopRef} />
-                <DesktopUploadWidget onTransactionUpdate={handleTransactionUpdate} onFileUpload={handleFileUpload} constraintsRef={desktopRef} />
+                {/* WIDGETS (Desktop Only) */}
+                {!isMobile && (
+                    <>
+                        <DesktopCalendarWidget constraintsRef={desktopRef} />
+                        <DesktopUploadWidget onTransactionUpdate={handleTransactionUpdate} onFileUpload={handleFileUpload} constraintsRef={desktopRef} />
+                    </>
+                )}
 
                 {/* WINDOWS LAYER */}
                 <AnimatePresence>
@@ -473,6 +566,7 @@ export default function WinOS() {
                                 initialPos={{ x: (200 + index * 40) + 'px', y: (100 + index * 40) + 'px' }}
                                 zIndex={100 + index}
                                 constraintsRef={desktopRef}
+                                isMobile={isMobile}
                             >
                                 {Component ? <Component {...(app.props || {})} /> :
                                     win.id === 'files' ? (
@@ -549,36 +643,40 @@ export default function WinOS() {
             {/* TASKBAR */}
             <div className="absolute bottom-0 left-0 right-0 h-12 bg-black/90 backdrop-blur-md border-t border-gray-800 flex items-center justify-between px-2 z-50 select-none" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-4">
-                    <button onClick={() => setStartMenuOpen(!startMenuOpen)} className={`h-12 px-6 flex items-center justify-center transition-all font-black text-lg tracking-wider ${startMenuOpen ? 'bg-[var(--color-red)] text-black' : 'bg-[var(--color-yellow)] hover:bg-white hover:text-black text-black'}`} style={{ clipPath: 'polygon(0 0, 100% 0, 90% 100%, 0% 100%)' }}>
-                        START
-                    </button>
-                    <div className="flex items-center gap-2 bg-[var(--color-surface)]/50 border border-white/5 rounded-full px-4 py-1.5 focus-within:border-[var(--color-blue)] transition-colors">
-                        <Search size={14} className="text-[var(--color-blue)]" />
-                        <input
-                            type="text"
-                            placeholder="SEARCH_NET..."
-                            className="bg-transparent border-none outline-none text-xs w-48 text-[var(--color-yellow)] placeholder:text-gray-700 font-mono uppercase"
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    const term = e.target.value.toLowerCase();
-                                    // Search Apps
-                                    const foundApp = Object.keys(apps).find(key =>
-                                        apps[key].name.toLowerCase().includes(term) || key.includes(term)
-                                    );
-                                    if (foundApp) {
-                                        openWindow(foundApp);
-                                        e.target.value = '';
-                                        logEvent(`SEARCH_EXEC: OPEN_APP ${apps[foundApp].name}`, 'info');
-                                    } else {
-                                        addNotification("NO RESULTS FOUND", "error");
-                                    }
-                                }
-                            }}
-                        />
-                    </div>
+                    {!isMobile && (
+                        <>
+                            <button onClick={() => setStartMenuOpen(!startMenuOpen)} className={`h-12 px-6 flex items-center justify-center transition-all font-black text-lg tracking-wider ${startMenuOpen ? 'bg-[var(--color-red)] text-black' : 'bg-[var(--color-yellow)] hover:bg-white hover:text-black text-black'}`} style={{ clipPath: 'polygon(0 0, 100% 0, 90% 100%, 0% 100%)' }}>
+                                START
+                            </button>
+                            <div className="flex items-center gap-2 bg-[var(--color-surface)]/50 border border-white/5 rounded-full px-4 py-1.5 focus-within:border-[var(--color-blue)] transition-colors">
+                                <Search size={14} className="text-[var(--color-blue)]" />
+                                <input
+                                    type="text"
+                                    placeholder="SEARCH_NET..."
+                                    className="bg-transparent border-none outline-none text-xs w-48 text-[var(--color-yellow)] placeholder:text-gray-700 font-mono uppercase"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            const term = e.target.value.toLowerCase();
+                                            // Search Apps
+                                            const foundApp = Object.keys(apps).find(key =>
+                                                apps[key].name.toLowerCase().includes(term) || key.includes(term)
+                                            );
+                                            if (foundApp) {
+                                                openWindow(foundApp);
+                                                e.target.value = '';
+                                                logEvent(`SEARCH_EXEC: OPEN_APP ${apps[foundApp].name}`, 'info');
+                                            } else {
+                                                addNotification("NO RESULTS FOUND", "error");
+                                            }
+                                        }
+                                    }}
+                                />
+                            </div>
+                        </>
+                    )}
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className={`flex items-center gap-1 ${isMobile ? 'overflow-x-auto max-w-[200px]' : ''}`}>
                     {windows.map(win => {
                         const appName = apps[win.id]?.name || win.id;
                         return (

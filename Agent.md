@@ -30,14 +30,24 @@ The OS features a fully modularized architecture to support scalability and main
 - **Application Layer:** Each app is an isolated module in `src/apps/`:
     - `FinancialTracker.jsx`, `Calculator.jsx`, `Terminal.jsx`, etc.
 
-## 📦 Key Features (v5.0 Updated)
+## 📦 Key Features (v5.1 Updated - Social Suite)
 
 ### 1. The "Arasaka" Interface (Glassmorphism Upgrade)
 - **Palette:** Strict adherence to `#FCEE0A` (Yellow), `#FF003C` (Red), `#00F0FF` (Blue), and `#000000` (Void).
 - **Aesthetic:** "Glass-morphism" windows with frosted backdrops, neon borders, and CRT/Glitch overlays.
 - **Stealth Mode:** Toggleable via Context Menu to reduce visual noise.
 
-### 2. Functional Applications
+### 2. Social & Collaborative Finance (NEW)
+- **Shared Spaces:** Unified dashboard for Families, Roommates, or Couples.
+    - **Roles & Permissions:** Admin/Editor/Viewer controls.
+    - **Approval Workflows:** Transactions > Threshold require Admin approval.
+- **Collaborative Tools:**
+    - **Split The Bill:** Multi-user expense splitting.
+    - **Shared Goals:** Collaborative savings targets.
+    - **Group Challenges:** Gamified saving competitions.
+    - **Shared Shopping Lists:** Real-time synced lists linked to budgets.
+
+### 3. Functional Applications
 - **cmd.exe (Terminal):** Functional CLI. Parses commands (`hack`, `balance`, `whoami`, `clear`, `date`). Maintains history state.
 - **Finance Tracker (v2.5 Neural):**
     - **Dashboard:** Tabbed interface (Overview, Assets, Analytics, Simulation, Insights).
@@ -51,7 +61,7 @@ The OS features a fully modularized architecture to support scalability and main
 - **Network Map:** SVG-based animated node topology visualization.
 - **Media Amp:** Music player with animated visualizers.
 
-### 3. Desktop Environment
+### 4. Desktop Environment
 - **Context Menu:** Custom Right-Click menu replacing browser defaults.
     - **Features:** Reset Grid, Toggle Stealth Mode, Run Diagnostics.
     - **Logic:** Auto-closes on interaction or outside click.
@@ -61,9 +71,10 @@ The OS features a fully modularized architecture to support scalability and main
 
 ## 🔮 V6.0 Roadmap // The "Brave New World" Update
 
-### 🌐 Social & Multiplayer
+### 🌐 Social & Multiplayer (Partially Shipped v5.1)
 - **Netrunner Relay:** P2P chat channel with other "Netrunners" (simulated or WebRTC).
 - **Leaderboards:** Global ranking based on "Savings Goal" progress.
+- **(DONE) Shared Spaces & Split Bill.**
 
 ### 🎮 Gamification
 - **Hacking Minigames:** Breach Protocol mini-game to unlock "Encrypted" files.

@@ -7,12 +7,14 @@ import {
     BrainCircuit,
     Receipt,
     Settings,
-    Trophy
+    Trophy,
+    Flag
 } from 'lucide-react';
 const TabBar = ({ activeTab, setActiveTab }) => {
     const tabs = [
         { id: 'overview', label: 'OVERVIEW', icon: PieChart },
         { id: 'transactions', label: 'TRANSACTIONS', icon: Receipt },
+        { id: 'goals', label: 'GOALS', icon: Flag },
         { id: 'assets', label: 'ASSETS', icon: Wallet },
         { id: 'analytics', label: 'ANALYTICS', icon: TrendingUp },
         { id: 'simulation', label: 'SIMULATION', icon: Target },
