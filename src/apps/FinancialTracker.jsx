@@ -1,7 +1,20 @@
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TabBar from './TabBar';
+import StatCard from './components/StatCard';
+import DonutChart from './components/DonutChart';
+import AIInsight from './components/AIInsight';
+import MonteCarloSim from './components/MonteCarloSim';
+import GamificationHub from './components/GamificationHub';
+import GoalsTab from './components/GoalsTab';
+import ShoppingListWidget from './components/ShoppingListWidget';
+import ChallengesWidget from './components/ChallengesWidget';
+import SpaceSwitcher from './components/SpaceSwitcher';
+import SpaceSettingsModal from './components/SpaceSettingsModal';
+import SplitTransactionModal from './components/SplitTransactionModal';
+import { checkNudges } from '../utils/gamificationEngine';
+import { checkPermission, ACTIONS } from '../utils/spaces';
 import {
     TrendingUp,
     Wallet,
@@ -9,283 +22,36 @@ import {
     Activity,
     ArrowDownLeft,
     Sparkles,
-    BrainCircuit,
     Target,
     Zap,
-    Share2
+    Share2,
+    AlertTriangle,
+    Settings,
+    Check,
+    XCircle
 } from 'lucide-react';
 
-const COLORS = {
-    YELLOW: 'var(--color-yellow)',
-    BLUE: 'var(--color-blue)',
-    RED: 'var(--color-red)',
-    VOID: '#000000',
-    SURFACE: 'var(--color-surface)',
-    GRID: 'var(--color-grid)',
-};
-
-// --- COMPONENTS ---
-
-const StatCard = ({ label, value, subtext, icon: Icon, color = COLORS.BLUE }) => (
-    <div className="bg-[var(--color-surface)]/50 border border-gray-800 p-4 relative overflow-hidden group hover:border-[var(--color-yellow)] transition-colors">
-        <div className="flex justify-between items-start mb-2">
-            <div className="text-xs font-bold text-gray-500 tracking-wider">{label}</div>
-            <Icon size={16} style={{ color }} />
-        </div>
-        <div className="text-2xl font-black text-white tracking-tight mb-1">
-            {value}
-        </div>
-        <div className="text-xs font-mono" style={{ color }}>{subtext}</div>
-
-        {/* Hover Effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shimmer" />
-    </div>
-);
-
-const DonutChart = ({ data }) => {
-    // Simple SVG Donut Chart
-    const total = data.reduce((acc, curr) => acc + curr.value, 0);
-    let currentAngle = 0;
-
-    return (
-        <div className="relative w-48 h-48 mx-auto">
-            <svg viewBox="0 0 100 100" className="transform -rotate-90 w-full h-full">
-                {data.map((slice, i) => {
-                    const percentage = slice.value / total;
-                    const angle = percentage * 360;
-                    const radius = 40;
-                    const circumference = 2 * Math.PI * radius;
-                    const strokeDasharray = `${(percentage * circumference)} ${circumference}`;
-
-                    const el = (
-                        <motion.circle
-                            key={i}
-                            cx="50"
-                            cy="50"
-                            r={radius}
-                            fill="transparent"
-                            stroke={slice.color}
-                            strokeWidth="10"
-                            strokeDasharray={strokeDasharray}
-                            strokeDashoffset={0}
-                            initial={{ pathLength: 0, opacity: 0 }}
-                            animate={{ pathLength: 1, opacity: 1 }}
-                            transition={{ duration: 1, delay: i * 0.2 }}
-                            style={{ transformOrigin: 'center', transform: `rotate(${currentAngle}deg)` }}
-                        />
-                    );
-                    currentAngle += angle;
-                    return el;
-                })}
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-xs text-gray-500 font-bold">TOTAL</span>
-                <span className="text-xl font-black text-white">{total.toLocaleString()}</span>
-            </div>
-        </div>
-    );
-};
-
-const AIInsight = () => {
-    const [thoughtSteps, setThoughtSteps] = useState([]);
-    const [finalInsight, setFinalInsight] = useState(null);
-
-    useEffect(() => {
-        // Simulate "Thinking" process of Gemini 2.5
-        const steps = [
-            "Analyzing transaction patterns...",
-            "Checking recurring subscriptions...",
-            "Comparing against regional benchmarks...",
-            "Calculating potential savings...",
-            "Formulating budget advice..."
-        ];
-
-        let delay = 0;
-        steps.forEach((step) => {
-            setTimeout(() => {
-                setThoughtSteps(prev => [...prev, step]);
-            }, delay);
-            delay += 800;
-        });
-
-        setTimeout(() => {
-            setFinalInsight({
-                title: "OPTIMIZATION_OPPORTUNITY",
-                content: "Detected 15% increase in 'Night Market' spending. Reallocating 200 €$ from 'Entertainment' could maximize your cyberware savings goal by next month."
-            });
-        }, delay + 500);
-    }, []);
-
-    return (
-        <div className="font-mono text-sm space-y-4">
-            <div className="space-y-1">
-                {thoughtSteps.map((step, i) => (
-                    <motion.div
-                        key={i}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="flex items-center gap-2 text-gray-500 text-xs"
-                    >
-                        <BrainCircuit size={10} className="text-[var(--color-blue)]" />
-                        <span>{step}</span>
-                        {i === thoughtSteps.length - 1 && !finalInsight && <span className="animate-pulse">_</span>}
-                    </motion.div>
-                ))}
-            </div>
-
-            {finalInsight && (
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="border border-[var(--color-yellow)] bg-[var(--color-yellow)]/5 p-4 relative overflow-hidden"
-                >
-                    <div className="absolute top-0 left-0 w-1 h-full bg-[var(--color-yellow)]" />
-                    <div className="flex items-center gap-2 mb-2 text-[var(--color-yellow)] font-bold">
-                        <Sparkles size={16} />
-                        <span>{finalInsight.title}</span>
-                    </div>
-                    <p className="text-gray-300 leading-relaxed">{finalInsight.content}</p>
-                    <div className="mt-3 flex gap-2">
-                        <button className="px-3 py-1 bg-[var(--color-yellow)] text-black text-xs font-bold hover:bg-white transition-colors">APPLY_LIMITS</button>
-                        <button className="px-3 py-1 border border-gray-600 text-gray-400 text-xs font-bold hover:text-white transition-colors">DISMISS</button>
-                    </div>
-                </motion.div>
-            )}
-        </div>
-    );
-};
-
-// --- MONTE CARLO SIMULATION ---
-const MonteCarloSim = ({ currentBalance, monthlyBurn }) => {
-    const [scenarios, setScenarios] = useState([
-        { id: 1, name: "BASE_CASE", impact: 0, type: 'monthly', active: true },
-        { id: 2, name: "CRYPTO_CRASH", impact: -currentBalance * 0.4, type: 'onetime', active: false },
-        { id: 3, name: "ARASAKA_CONTRACT", impact: 5000, type: 'monthly', active: false },
-        { id: 4, name: "CYBERWARE_UPGRADE", impact: -15000, type: 'onetime', active: false }
-    ]);
-
-    const months = 12;
-    const chartData = useMemo(() => {
-        let basePoints = [];
-        let simPoints = [];
-        let baseBal = currentBalance;
-        let simBal = currentBalance;
-
-        for (let i = 0; i <= months; i++) {
-            // Base: Just burn
-            if (i > 0) baseBal -= monthlyBurn;
-            basePoints.push({ x: i, y: baseBal });
-
-            // Sim: Apply scenarios
-            if (i > 0) {
-                simBal -= monthlyBurn; // Base burn
-                scenarios.filter(s => s.active && s.type === 'monthly').forEach(s => simBal += s.impact);
-            }
-            // One-time events at month 3 (simulation)
-            if (i === 3) {
-                scenarios.filter(s => s.active && s.type === 'onetime').forEach(s => simBal += s.impact);
-            }
-            simPoints.push({ x: i, y: simBal });
-        }
-        return { basePoints, simPoints };
-    }, [currentBalance, monthlyBurn, scenarios]);
-
-    const toggleScenario = (id) => {
-        setScenarios(prev => prev.map(s => s.id === id ? { ...s, active: !s.active } : s));
-    };
-
-    const maxY = Math.max(...chartData.simPoints.map(p => p.y), ...chartData.basePoints.map(p => p.y), currentBalance);
-    const minY = Math.min(...chartData.simPoints.map(p => p.y), ...chartData.basePoints.map(p => p.y), 0);
-    const range = maxY - minY || 1;
-
-    const normalize = (val) => 100 - ((val - minY) / range * 100);
-
-    return (
-        <div className="flex gap-6 h-full">
-            <div className="w-1/3 space-y-4">
-                <h3 className="text-[var(--color-yellow)] font-bold text-sm tracking-widest border-b border-gray-800 pb-2">SCENARIO_BUILDER</h3>
-                <div className="space-y-2">
-                    {scenarios.map(s => (
-                        <div key={s.id} onClick={() => toggleScenario(s.id)} className={`p-3 border cursor-pointer transition-all flex justify-between items-center ${s.active ? 'border-[var(--color-yellow)] bg-[var(--color-yellow)]/10' : 'border-gray-700 bg-black/40 hover:border-gray-500'}`}>
-                            <div>
-                                <div className={`text-xs font-bold ${s.active ? 'text-white' : 'text-gray-500'}`}>{s.name}</div>
-                                <div className="text-[10px] font-mono text-gray-500">{s.type === 'monthly' ? '/MO' : 'ONCE'}</div>
-                            </div>
-                            <div className={`font-mono text-xs ${s.impact > 0 ? 'text-[var(--color-blue)]' : 'text-[var(--color-red)]'}`}>
-                                {s.impact > 0 ? '+' : ''}{s.impact.toLocaleString()}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-                <div className="p-3 bg-white/5 text-xs text-gray-400 font-mono">
-                    PROJECTION: {chartData.simPoints[months].y > 0 ? <span className="text-[var(--color-blue)]">SOLVENT</span> : <span className="text-[var(--color-red)]">BANKRUPT</span>}
-                    <br />
-                    DELTA: {(chartData.simPoints[months].y - chartData.basePoints[months].y).toLocaleString()} €$
-                </div>
-            </div>
-
-            <div className="flex-1 bg-black/40 border border-gray-800 relative p-4 flex flex-col">
-                <h3 className="text-gray-500 font-bold text-xs absolute top-2 left-2">NET_WORTH_PROJECTION (12 MO)</h3>
-                <div className="flex-1 relative mt-6">
-                    {/* SVG Chart */}
-                    <svg className="w-full h-full overflow-visible" preserveAspectRatio="none">
-                        {/* Grid Lines */}
-                        {[0, 25, 50, 75, 100].map(y => (
-                            <line key={y} x1="0" y1={`${y}%`} x2="100%" y2={`${y}%`} stroke="#333" strokeDasharray="4 4" strokeWidth="1" />
-                        ))}
-
-                        {/* Base Line (Gray) */}
-                        <polyline
-                            points={chartData.basePoints.map((p, i) => `${(i / months) * 100},${normalize(p.y)}`).join(' ')}
-                            fill="none"
-                            stroke="#555"
-                            strokeWidth="2"
-                            strokeDasharray="5 5"
-                        />
-
-                        {/* Sim Line (Color) */}
-                        <motion.polyline
-                            points={chartData.simPoints.map((p, i) => `${(i / months) * 100},${normalize(p.y)}`).join(' ')}
-                            fill="none"
-                            stroke="var(--color-yellow)"
-                            strokeWidth="3"
-                            initial={{ pathLength: 0 }}
-                            animate={{ pathLength: 1 }}
-                            transition={{ duration: 1.5, ease: "easeInOut" }}
-                        />
-
-                        {/* Area under curve */}
-                        <motion.path
-                            d={`M 0,${normalize(chartData.simPoints[0].y)} ` + chartData.simPoints.map((p, i) => `L ${(i / months) * 100},${normalize(p.y)}`).join(' ') + ` L 100,100 L 0,100 Z`}
-                            fill="var(--color-yellow)"
-                            fillOpacity="0.1"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 0.1 }}
-                            transition={{ delay: 0.5 }}
-                        />
-                    </svg>
-
-                    {/* Event Marker at Month 3 */}
-                    <div className="absolute top-0 bottom-0 border-l border-[var(--color-blue)] border-dashed opacity-50 flex items-end pb-1" style={{ left: `${(3 / months) * 100}%` }}>
-                        <span className="text-[10px] text-[var(--color-blue)] transform -translate-x-1/2 bg-black px-1">EVENT_HORIZON</span>
-                    </div>
-                </div>
-                <div className="flex justify-between text-[10px] font-mono text-gray-500 mt-2">
-                    <span>NOW</span>
-                    <span>+6 MO</span>
-                    <span>+12 MO</span>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-export default function FinancialTracker({ data, onLearnRule }) {
+export default function FinancialTracker({
+    data,
+    onLearnRule,
+    gamification,
+    onUpdateGamification,
+    // Space Props
+    currentSpace,
+    spaces,
+    currentUser,
+    onSwitchSpace,
+    onAddSpace,
+    onUpdateSpace
+}) {
     const [activeTab, setActiveTab] = useState('overview');
     const [learnMode, setLearnMode] = useState(null); // { keyword: '', category: '' }
+    const activeNudges = useMemo(() => checkNudges(data), [data]);
     const [transactions] = useState(data.recent);
     const [currency, setCurrency] = useState('€$');
     const [showAddAssetForm, setShowAddAssetForm] = useState(false);
+    const [showSpaceSettings, setShowSpaceSettings] = useState(false);
+    const [splitTx, setSplitTx] = useState(null); // The transaction being split
     const [filter, setFilter] = useState({ description: '', category: '' });
     const [forexRates] = useState({
         '€$': 1,
@@ -305,6 +71,25 @@ export default function FinancialTracker({ data, onLearnRule }) {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
         }).format(amount * rate);
+    };
+
+    const handleApprove = (tx) => {
+        const newSpent = (data.spent || 0) + tx.amount;
+        const newBalance = (data.balance || 0) - tx.amount;
+        const updatedRecent = data.recent.map(t => t === tx ? { ...t, status: 'Posted' } : t);
+
+        onUpdateSpace({
+            ...currentSpace,
+            data: { ...currentSpace.data, spent: newSpent, balance: newBalance, recent: updatedRecent }
+        });
+    };
+
+    const handleReject = (tx) => {
+        const updatedRecent = data.recent.map(t => t === tx ? { ...t, status: 'Rejected' } : t);
+        onUpdateSpace({
+            ...currentSpace,
+            data: { ...currentSpace.data, recent: updatedRecent }
+        });
     };
 
     // Aggregate Categories for Chart
@@ -346,9 +131,29 @@ export default function FinancialTracker({ data, onLearnRule }) {
         <div className="h-full flex flex-col bg-transparent text-white font-sans selection:bg-[var(--color-yellow)] selection:text-black">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-800">
-                <div className="flex items-center gap-2 text-[var(--color-yellow)]">
-                    <Activity size={20} />
-                    <h2 className="text-lg font-black tracking-widest">FINANCE_OS <span className="text-xs text-gray-600 align-top">v2.5</span></h2>
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 text-[var(--color-yellow)]">
+                        <Activity size={20} />
+                        <h2 className="text-lg font-black tracking-widest hidden md:block">FINANCE_OS <span className="text-xs text-gray-600 align-top">v2.5</span></h2>
+                    </div>
+                    {/* Space Switcher */}
+                    {spaces && (
+                        <div className="flex items-center gap-2 pl-4 border-l border-gray-800">
+                            <SpaceSwitcher
+                                spaces={spaces}
+                                currentSpace={currentSpace}
+                                currentUser={currentUser}
+                                onSwitchSpace={onSwitchSpace}
+                                onAddSpace={onAddSpace}
+                            />
+                            <button
+                                onClick={() => setShowSpaceSettings(true)}
+                                className="text-gray-500 hover:text-[var(--color-yellow)] transition-colors"
+                            >
+                                <Settings size={14} />
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Currency & Sync Controls */}
@@ -371,6 +176,16 @@ export default function FinancialTracker({ data, onLearnRule }) {
                 <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
             </div>
 
+            {/* Space Settings Modal */}
+            {showSpaceSettings && currentSpace && (
+                <SpaceSettingsModal
+                    space={currentSpace}
+                    currentUser={currentUser}
+                    onUpdateSpace={onUpdateSpace}
+                    onClose={() => setShowSpaceSettings(false)}
+                />
+            )}
+
             {/* Content Area */}
             <div className="flex-1 overflow-auto custom-scrollbar p-6">
                 <AnimatePresence mode="wait">
@@ -382,6 +197,22 @@ export default function FinancialTracker({ data, onLearnRule }) {
                             exit={{ opacity: 0, y: -10 }}
                             className="space-y-6"
                         >
+                            {/* Behavioral Nudges */}
+                            {activeNudges.length > 0 && (
+                                <div className="bg-[var(--color-blue)]/10 border border-[var(--color-blue)] p-3 flex flex-col gap-2 relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-[var(--color-blue)]" />
+                                    {activeNudges.map(nudge => (
+                                        <div key={nudge.id} className="flex items-start gap-3">
+                                            <AlertTriangle size={16} className="text-[var(--color-blue)] mt-1 flex-shrink-0" />
+                                            <div>
+                                                <div className="text-xs font-bold text-[var(--color-blue)]">{nudge.title}</div>
+                                                <div className="text-xs text-gray-300">{nudge.message}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
                             {/* Key Stats */}
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <StatCard
@@ -432,7 +263,7 @@ export default function FinancialTracker({ data, onLearnRule }) {
                                         }} className="text-gray-500 text-xs font-bold hover:text-[var(--color-yellow)] flex items-center gap-1">
                                             <Share2 size={10} /> EXPORT_CSV
                                         </button>
-                    <button className="text-[var(--color-yellow)] text-xs font-bold hover:underline" onClick={() => setActiveTab('transactions')}>VIEW_ALL</button>
+                                        <button className="text-[var(--color-yellow)] text-xs font-bold hover:underline" onClick={() => setActiveTab('transactions')}>VIEW_ALL</button>
                                     </div>
                                 </div>
                                 <div className="divide-y divide-gray-800">
@@ -452,15 +283,53 @@ export default function FinancialTracker({ data, onLearnRule }) {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4">
-                                                <span className={`text-xs font-bold ${tx.status === 'Pending' ? 'text-gray-500' : 'text-white'}`}>{tx.status || 'Posted'}</span>
-                                                <button onClick={() => alert('Splitting transaction... (mocked)')} className="text-xs font-bold text-[var(--color-blue)] hover:underline">Split</button>
+                                                {tx.status === 'Pending Approval' && checkPermission(currentSpace, currentUser.id, ACTIONS.APPROVE_TRANSACTIONS) ? (
+                                                    <div className="flex gap-2">
+                                                            <button onClick={(e) => { e.stopPropagation(); handleApprove(tx); }} className="text-[10px] font-bold text-[var(--color-green)] border border-[var(--color-green)] px-1 hover:bg-[var(--color-green)] hover:text-black flex items-center gap-1"><Check size={10}/> APP</button>
+                                                            <button onClick={(e) => { e.stopPropagation(); handleReject(tx); }} className="text-[10px] font-bold text-[var(--color-red)] border border-[var(--color-red)] px-1 hover:bg-[var(--color-red)] hover:text-black flex items-center gap-1"><XCircle size={10}/> REJ</button>
+                                                    </div>
+                                                ) : (
+                                                    <span className={`text-xs font-bold ${tx.status === 'Pending Approval' ? 'text-[var(--color-yellow)] animate-pulse' : (tx.status === 'Rejected' ? 'text-[var(--color-red)]' : 'text-white')}`}>{tx.status || 'Posted'}</span>
+                                                )}
+                                                <button onClick={() => setSplitTx(tx)} className="text-xs font-bold text-[var(--color-blue)] hover:underline">Split</button>
                                                 <span className="font-mono font-bold text-[var(--color-red)] privacy-blur">-{convert(tx.amount)}</span>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
+
+                            {/* Split Transaction Modal */}
+                            {splitTx && (
+                                <SplitTransactionModal
+                                    space={currentSpace}
+                                    currentUser={currentUser}
+                                    transaction={splitTx}
+                                    onClose={() => setSplitTx(null)}
+                                    onSplit={(txId, splits) => {
+                                        const updatedRecent = data.recent.map(tx => {
+                                            if (tx === splitTx) {
+                                                 return { ...tx, splitData: splits };
+                                            }
+                                            return tx;
+                                        });
+                                        onUpdateSpace({
+                                            ...currentSpace,
+                                            data: { ...currentSpace.data, recent: updatedRecent }
+                                        });
+                                        setSplitTx(null);
+                                    }}
+                                />
+                            )}
                         </motion.div>
+                    )}
+
+                    {activeTab === 'goals' && (
+                        <GoalsTab
+                            space={currentSpace}
+                            currentUser={currentUser}
+                            onUpdateSpace={onUpdateSpace}
+                        />
                     )}
 
                     {activeTab === 'transactions' && (
@@ -502,8 +371,15 @@ export default function FinancialTracker({ data, onLearnRule }) {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4">
-                                                <span className={`text-xs font-bold ${tx.status === 'Pending' ? 'text-gray-500' : 'text-white'}`}>{tx.status || 'Posted'}</span>
-                                                <button onClick={() => alert('Splitting transaction... (mocked)')} className="text-xs font-bold text-[var(--color-blue)] hover:underline">Split</button>
+                                                {tx.status === 'Pending Approval' && checkPermission(currentSpace, currentUser.id, ACTIONS.APPROVE_TRANSACTIONS) ? (
+                                                    <div className="flex gap-2">
+                                                            <button onClick={(e) => { e.stopPropagation(); handleApprove(tx); }} className="text-[10px] font-bold text-[var(--color-green)] border border-[var(--color-green)] px-1 hover:bg-[var(--color-green)] hover:text-black flex items-center gap-1"><Check size={10}/> APP</button>
+                                                            <button onClick={(e) => { e.stopPropagation(); handleReject(tx); }} className="text-[10px] font-bold text-[var(--color-red)] border border-[var(--color-red)] px-1 hover:bg-[var(--color-red)] hover:text-black flex items-center gap-1"><XCircle size={10}/> REJ</button>
+                                                    </div>
+                                                ) : (
+                                                    <span className={`text-xs font-bold ${tx.status === 'Pending Approval' ? 'text-[var(--color-yellow)] animate-pulse' : (tx.status === 'Rejected' ? 'text-[var(--color-red)]' : 'text-white')}`}>{tx.status || 'Posted'}</span>
+                                                )}
+                                                <button onClick={() => setSplitTx(tx)} className="text-xs font-bold text-[var(--color-blue)] hover:underline">Split</button>
                                                 <span className="font-mono font-bold text-[var(--color-red)] privacy-blur">-{convert(tx.amount)}</span>
                                             </div>
                                         </div>
@@ -538,15 +414,7 @@ export default function FinancialTracker({ data, onLearnRule }) {
                             </div>
 
                             <div className="flex-1 space-y-4">
-                                <div className="bg-[var(--color-surface)]/30 border border-gray-800 p-6 h-48 flex flex-col justify-center items-center text-center">
-                                    <TrendingUp size={32} className="text-[var(--color-blue)] mb-2" />
-                                    <div className="text-lg font-bold">NET WORTH TREND</div>
-                                    <div className="text-xs text-gray-500">Currently projecting +4.5% growth</div>
-                                    {/* Placeholder for complex line chart */}
-                                    <div className="w-full h-1 bg-gray-700 mt-4 overflow-hidden relative">
-                                        <div className="absolute inset-0 bg-[var(--color-blue)] w-3/4 opacity-50" />
-                                    </div>
-                                </div>
+                                <ChallengesWidget space={currentSpace} currentUser={currentUser} onUpdateSpace={onUpdateSpace} />
                             </div>
                         </motion.div>
                     )}
@@ -603,6 +471,8 @@ export default function FinancialTracker({ data, onLearnRule }) {
 
                             {/* Subscription Manager & Smart Rules */}
                             <div className="space-y-4">
+                                <ShoppingListWidget space={currentSpace} currentUser={currentUser} onUpdateSpace={onUpdateSpace} />
+
                                 <div className="bg-[var(--color-surface)]/30 border border-gray-800 p-4">
                                     <h3 className="text-[var(--color-red)] font-bold text-sm tracking-widest mb-4 border-b border-gray-800 pb-2">RECURRING_DRAINS</h3>
                                     {(!data.subscriptions || data.subscriptions.length === 0) ? (
@@ -681,6 +551,17 @@ export default function FinancialTracker({ data, onLearnRule }) {
 
                             <AIInsight />
 
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'career' && (
+                        <motion.div
+                            key="career"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                        >
+                            <GamificationHub gamification={gamification} onUpdateGamification={onUpdateGamification} />
                         </motion.div>
                     )}
 
