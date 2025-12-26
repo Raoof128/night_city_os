@@ -160,3 +160,12 @@ All notable changes to the "Night City OS" project will be documented in this fi
 - Project kick-off.
 - Basic "WebOS" card concept (deprecated in favor of Desktop Window Manager).
 - Basic React + Tailwind setup.
+## [v5.2.0] - The Construct - 2025-12-28
+### Added
+- Window manager refactored to a reducer with persisted z-order, minimize/maximize, and position restore.
+- Recursive VFS with create/rename/delete and TextPad save/update hooked into localStorage; files window supports inline actions.
+- Web Audio-based `useSound` hook for boot/click/error SFX with Settings-driven volume/mute and drag sensitivity controls.
+### Changed
+- Settings daemon now manages wallpaper theme (Night/Void), master volume, and drag calibration; window/desktop drag use memoized frames for perf.
+### Fixed
+- Session restore now rehydrates windows, files, and settings across reloads for a consistent boot state.

@@ -2,7 +2,7 @@
 
 **Codename:** NC_OS_V5_NEURAL
 **Owner:** Raouf (Netrunner/Admin)
-**Status:** STABLE RELEASE (Verified Build v5.1.1)
+**Status:** STABLE RELEASE (Verified Build v5.2.0)
 **Repository:** [https://github.com/Raoof128/night_city_os](https://github.com/Raoof128/night_city_os)
 
 ## ⚡ Executive Summary
@@ -20,6 +20,7 @@ Night City OS is a high-fidelity React-based Operating System simulation running
     - Audio Processing (Voice Note Expenses)
     - Financial Reasoning (Spending Insights & Anomaly Detection)
 - **Validation & Telemetry:** Centralized input validation + prefixed logging (`src/utils/validation`, `src/utils/logger`) used for uploads and finance mutations.
+- **Persistence & VFS:** Window manager now runs on a reducer with persisted state, and files are stored in a recursive VFS (`src/utils/vfs`) with create/rename/delete support.
 
 ## 🏗️ Architecture (Modular V4)
 The OS features a fully modularized architecture to support scalability and maintainability.
@@ -80,6 +81,8 @@ The OS features a fully modularized architecture to support scalability and main
 - **Lint discipline:** CI blocks warnings; clear unused imports before committing.
 - **Dependencies:** New chart/math deps are vendored locally (`recharts`, `decimal.js`)—ensure `npm install` is run after cloning.
 - **Round-ups:** Siphon math uses Decimal ceiling via `calculateRoundups`; keep inputs numeric to avoid NaN.
+- **Audio:** Web Audio-based `useSound` drives SFX (boot, clicks, errors); master volume/mute is controlled via Settings.
+- **Settings:** Wallpaper toggle (Night/Void), drag sensitivity, and volume sliders are persisted in `os_config`.
 
 ## 🛡️ Security Notes
 - Do not store secrets in the repo. Env keys are user-provided at runtime.
