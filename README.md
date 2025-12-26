@@ -22,24 +22,24 @@ Night City OS is a production-grade, browser-based operating system simulation i
 
 ```mermaid
 flowchart TD
-    User([User]) --> UI[WinOS Shell]
-    UI --> WM[Window Manager]
-    UI --> Widgets[Desktop Widgets]
-    WM --> Apps[Applications Registry]
-    Apps --> Finance[FinancialTracker]
-    Apps --> TerminalApp[Terminal]
-    Apps --> Media[MusicPlayer]
-    Apps --> SettingsApp[Settings]
-    Finance --> Storage[usePersistentState (localStorage)]
-    SettingsApp --> Theme[Theme Tokens]
-    Widgets --> Upload[DesktopUploadWidget]
-    Upload --> Validation[Validation Utilities]
-    Validation --> Finance
-    subgraph Security & Telemetry
-        Validation -. guards .-> Logger[(Logger)]
-        Logger -. audit .-> Audit[Audit Log]
+    user([User]) --> ui[WinOS Shell]
+    ui --> wm[Window Manager]
+    ui --> widgets[Desktop Widgets]
+    wm --> apps[Applications Registry]
+    apps --> finance[FinancialTracker]
+    apps --> terminal[Terminal]
+    apps --> media[MusicPlayer]
+    apps --> settings[Settings]
+    finance --> storage["usePersistentState (localStorage)"]
+    settings --> theme[Theme Tokens]
+    widgets --> upload[DesktopUploadWidget]
+    upload --> validation[Validation Utilities]
+    validation --> finance
+    subgraph security_telemetry [Security & Telemetry]
+        validation -. guards .-> logger[(Logger)]
+        logger -. audit .-> auditLog[Audit Log]
     end
-    Storage -. sync .-> UI
+    storage -. sync .-> ui
 ```
 
 Additional design details live in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).

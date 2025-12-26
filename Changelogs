@@ -10,6 +10,7 @@ All notable changes to the "Night City OS" project will be documented in this fi
 ### Changed
 - Finance, shopping, and psycho widgets cleaned for lint compliance, clearer labels, and safer state hydration.
 - Package metadata aligned to v5.1.1 to track stability release.
+- README architecture diagram updated to render correctly in GitHub Mermaid.
 ### Fixed
 - Window manager effect dependencies and shopping list initialization to prevent stale updates and rendering edge cases.
 

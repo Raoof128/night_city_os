@@ -75,6 +75,7 @@ The OS features a fully modularized architecture to support scalability and main
 - **Env:** Provide `VITE_GEMINI_API_KEY` via `.env.local` when exercising AI receipt scanning.
 - **State hygiene:** Persistent slices are stored in `localStorage`; clear storage to simulate a cold boot.
 - **Permissions:** Finance mutations respect `spaces` roles; approvals enforced over configured thresholds.
+- **Docs:** Mermaid diagrams are GitHub-compatible; validate new diagrams locally before committing.
 
 ## 🛡️ Security Notes
 - Do not store secrets in the repo. Env keys are user-provided at runtime.
