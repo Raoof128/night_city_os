@@ -76,6 +76,10 @@ The OS features a fully modularized architecture to support scalability and main
 - **State hygiene:** Persistent slices are stored in `localStorage`; clear storage to simulate a cold boot.
 - **Permissions:** Finance mutations respect `spaces` roles; approvals enforced over configured thresholds.
 - **Docs:** Mermaid diagrams are GitHub-compatible; validate new diagrams locally before committing.
+- **Strategic Ops:** Uses Recharts + `decimal.js` for high-precision planning (vaults, debt, FIRE). Keep projections deterministic by passing sanitized params into `strategicOps` utils.
+- **Lint discipline:** CI blocks warnings; clear unused imports before committing.
+- **Dependencies:** New chart/math deps are vendored locally (`recharts`, `decimal.js`)—ensure `npm install` is run after cloning.
+- **Round-ups:** Siphon math uses Decimal ceiling via `calculateRoundups`; keep inputs numeric to avoid NaN.
 
 ## 🛡️ Security Notes
 - Do not store secrets in the repo. Env keys are user-provided at runtime.

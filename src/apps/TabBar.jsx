@@ -8,7 +8,8 @@ import {
     Receipt,
     Settings,
     Trophy,
-    Flag
+    Flag,
+    Crosshair
 } from 'lucide-react';
 const TabBar = ({ activeTab, setActiveTab }) => {
     const tabs = [
@@ -21,6 +22,7 @@ const TabBar = ({ activeTab, setActiveTab }) => {
         { id: 'psycho', label: 'MINDSET', icon: BrainCircuit },
         { id: 'insights', label: 'AI_INSIGHTS', icon: BrainCircuit },
         { id: 'career', label: 'CAREER', icon: Trophy },
+        { id: 'strategic', label: 'STRATEGIC_OPS', icon: Crosshair },
         { id: 'rules', label: 'RULES', icon: Settings },
     ];
 

@@ -14,6 +14,7 @@ import ChallengesWidget from './components/ChallengesWidget';
 import SpaceSwitcher from './components/SpaceSwitcher';
 import SpaceSettingsModal from './components/SpaceSettingsModal';
 import SplitTransactionModal from './components/SplitTransactionModal';
+import StrategicOperations from './components/StrategicOperations';
 import { checkNudges } from '../utils/gamificationEngine';
 import { checkPermission, ACTIONS } from '../utils/spaces';
 import {
@@ -566,6 +567,17 @@ export default function FinancialTracker({
                             exit={{ opacity: 0, y: -10 }}
                         >
                             <GamificationHub gamification={gamification} onUpdateGamification={onUpdateGamification} />
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'strategic' && (
+                        <motion.div
+                            key="strategic"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                        >
+                            <StrategicOperations space={currentSpace} currentUser={currentUser} onUpdateSpace={onUpdateSpace} />
                         </motion.div>
                     )}
 

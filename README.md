@@ -12,6 +12,7 @@ Night City OS is a production-grade, browser-based operating system simulation i
 ## 🚀 Highlights
 - **Modular desktop**: Window manager with drag physics, minimization, z-index orchestration, and mobile-aware layout.
 - **Finance suite**: Shared spaces, permissions, anomaly detection, receipt scanning, and gamified savings quests.
+- **Strategic Ops**: Mission-style goal engine (vaults, debt liquidation, burn-rate limiters) with FIRE/legacy projections and micro-siphoning.
 - **Productivity tools**: Terminal, calculator, scratchpad, music amp, network map, image viewer, and start menu search.
 - **Resilience first**: Persistent state via `localStorage`, guarded input validation, and defensive logging around user uploads and transactions.
 - **Theming**: Arasaka palette with CRT overlays, neon grids, and toggleable stealth/privacy modes.
@@ -50,6 +51,7 @@ Additional design details live in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - **Framework**: React 18 + Vite
 - **Styling**: Tailwind CSS, custom design tokens, glassmorphism overlays
 - **Animation**: framer-motion
+- **Charts**: Recharts for mission planning projections
 - **Testing**: Vitest + React Testing Library
 - **Tooling**: ESLint, Prettier, Husky, lint-staged, GitHub Actions CI
 

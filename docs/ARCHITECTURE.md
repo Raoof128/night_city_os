@@ -16,6 +16,7 @@ flowchart LR
     end
     subgraph Apps
         FinancialTracker
+        StrategicOps[Strategic Operations]
         Terminal
         Calculator
         MusicPlayer
@@ -32,6 +33,7 @@ flowchart LR
     WinOS --> WindowFrame
     WindowFrame --> Apps
     Widgets --> FinancialTracker
+    FinancialTracker --> StrategicOps
     Apps --> Hooks
     Apps --> Utils
 ```
@@ -50,6 +52,7 @@ flowchart LR
   - `sysConfig`: background fit + visual toggles.
   - `gamification`: XP, badges, and rotating quests.
   - `spaces`: collaborative finance spaces, members, and approvals.
+  - `strategicOps`: vault/debt/burn targets, round-up toggles, FIRE/legacy parameters.
 - **Ephemeral slices**:
   - `notifications`: transient toasts.
   - `contextMenu` and `commandPaletteOpen`: UI overlays.
@@ -116,6 +119,7 @@ sequenceDiagram
 - **Add an app**: create a component under `src/apps/`, register it in the `apps` map inside `WinOS.jsx`, and provide an icon + title.
 - **Add persistent data**: use `usePersistentState` for any state that must survive reloads and supply clear defaults.
 - **Extend validation**: centralize new input guards in `src/utils/validation.js` and cover them with tests in `tests/unit/`.
+- **Strategic Ops**: use `src/utils/strategicOps.js` for deterministic projections (FIRE, legacy funds, round-ups, debt ranking) and render via `StrategicOperations.jsx`.
 
 ---
 
