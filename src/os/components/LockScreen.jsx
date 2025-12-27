@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, User, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
+import { User, ChevronRight } from 'lucide-react';
 import { useOS } from '../hooks/useOS';
 
 const LockScreen = () => {

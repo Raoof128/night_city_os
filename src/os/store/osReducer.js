@@ -1,6 +1,6 @@
 // Initial state definition
 export const INITIAL_STATE = {
-    bootState: 'off', // off | booting | login | desktop | shutdown
+    bootState: 'booting', // off | booting | login | desktop | shutdown
     windows: [], // { id, type, title, zIndex, minimized, maximized, pos: {x,y}, size: {w,h}, data, spaceId, snapState }
     activeWindowId: null,
     desktopIcons: [

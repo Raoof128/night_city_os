@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useOS } from '../os/hooks/useOS';
 import BootScreen from './BootScreen';
 import ShutdownScreen from './ShutdownScreen';
@@ -13,6 +13,7 @@ import NotificationCenter from '../os/components/NotificationCenter';
 import ToastManager from '../os/components/ToastManager';
 import PermissionPrompt from '../os/components/PermissionPrompt';
 import LockScreen from '../os/components/LockScreen';
+import CommandPalette from './CommandPalette';
 
 // Kernel
 import { SYSTEM_APPS, resolveFileHandler } from '../os/kernel/registry';
@@ -27,6 +28,27 @@ const Shell = () => {
     const [paletteOpen, setPaletteOpen] = useState(false);
     const [paletteCommands, setPaletteCommands] = useState([]);
 
+    const handleSearch = useCallback((q) => {
+        const fileResults = fileIndexer.search(q).map(f => ({
+            name: f.name,
+            icon: SYSTEM_APPS['files'].icon, // Generic icon
+            shortcut: 'FILE',
+            action: () => {
+                const handler = resolveFileHandler(f.name);
+                if (handler) actions.openWindow(handler, handler, { fileId: f.id, name: f.name });
+            }
+        }));
+        // Merge with apps (simple logic)
+        const apps = Object.values(SYSTEM_APPS)
+            .filter(a => a.name.toLowerCase().includes(q.toLowerCase()))
+            .map(app => ({
+                name: `Open ${app.name}`,
+                icon: app.icon,
+                action: () => actions.openWindow(app.id, app.id)
+            }));
+        setPaletteCommands([...apps, ...fileResults]);
+    }, [actions]);
+
     // Hydrate Commands on Open
     useEffect(() => {
         if (paletteOpen) {
@@ -36,14 +58,6 @@ const Shell = () => {
                 action: () => actions.openWindow(app.id, app.id)
             }));
 
-            // Basic Search Integration
-            // Ideally we pass query to palette and let it call search, but for P4 MVP we preload top results? 
-            // Better: CommandPalette needs to call search on type. 
-            // For now, let's just show apps. Real search happens in Palette logic if we refactor it.
-            // Wait, CommandPalette logic filters `commands` prop.
-            // We need to inject file results into `commands` prop dynamically? 
-            // Or refactor CommandPalette to accept a `onSearch` prop.
-            // Let's refactor CommandPalette next. For now, just apps.
             setPaletteCommands(systemCommands);
         }
     }, [paletteOpen, actions]);
@@ -84,26 +98,7 @@ const Shell = () => {
                     isOpen={paletteOpen} 
                     onClose={() => setPaletteOpen(false)} 
                     commands={paletteCommands}
-                    onSearch={(q) => {
-                        const fileResults = fileIndexer.search(q).map(f => ({
-                            name: f.name,
-                            icon: SYSTEM_APPS['files'].icon, // Generic icon
-                            shortcut: 'FILE',
-                            action: () => {
-                                const handler = resolveFileHandler(f.name);
-                                if (handler) actions.openWindow(handler, handler, { fileId: f.id, name: f.name });
-                            }
-                        }));
-                        // Merge with apps (simple logic)
-                        const apps = Object.values(SYSTEM_APPS)
-                            .filter(a => a.name.toLowerCase().includes(q.toLowerCase()))
-                            .map(app => ({
-                                name: `Open ${app.name}`,
-                                icon: app.icon,
-                                action: () => actions.openWindow(app.id, app.id)
-                            }));
-                        setPaletteCommands([...apps, ...fileResults]);
-                    }}
+                    onSearch={handleSearch}
                 />
                 <NotificationCenter isOpen={notifCenterOpen} onClose={() => setNotifCenterOpen(false)} />
                 <AppSwitcher />

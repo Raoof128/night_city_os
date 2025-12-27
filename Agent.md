@@ -2,17 +2,18 @@
 
 **Codename:** NC_OS_V5_NEURAL
 **Owner:** Raouf (Netrunner/Admin)
-**Status:** STABLE RELEASE (Platform Runtime v5.5.0)
+**Status:** PRODUCTION CANDIDATE (Security Hardened v5.6.1)
 **Repository:** [https://github.com/Raoof128/night_city_os](https://github.com/Raoof128/night_city_os)
 
 ## ⚡ Executive Summary
-Night City OS is a high-fidelity React-based Operating System simulation running directly in the browser. It emulates the aesthetic and functionality of a Cyberpunk 2077 "Cyberdeck" interface. It has evolved from a UI shell into a functional, modular environment with active state management, drag physics, simulated file systems, and advanced AI integration.
+Night City OS is a high-fidelity React-based Operating System simulation running directly in the browser. It emulates the aesthetic and functionality of a Cyberpunk 2077 "Cyberdeck" interface. It has evolved from a UI shell into a functional, modular environment with active state management, drag physics, simulated file systems, and advanced AI integration. All core modules maintain a zero-warning lint status.
 
 ## 🛠️ Tech Stack & Dependencies
 - **Core:** React 18+ (Context + Reducer Architecture)
 - **State Management:** Custom Redux-lite Store (`osReducer`) + Typed Event Bus.
 - **Persistence:** **Hybrid Storage Engine** (IndexedDB for metadata + OPFS for binary content).
 - **Runtime:** **AppContainer Sandbox** with Permission Gates and Lazy Loading.
+- **Security:** **Audit Logging**, **CSP**, and **Profile Isolation**.
 - **Animation Physics:** framer-motion (Spring physics for windows, drag interactions, toast animations, charts)
 - **Testing:** Vitest + React Testing Library (Unit & Integration)
 - **CI/CD:** GitHub Actions (Lint, Test, Build)
@@ -27,10 +28,11 @@ Night City OS is a high-fidelity React-based Operating System simulation running
 ## 🏗️ Architecture (Modular V5 Kernel)
 The OS features a fully modularized kernel architecture to support scalability and maintainability.
 - **Kernel Layer (`src/os/kernel`):** 
-    - **`EventBus`:** Centralized system-wide messaging (Boot, Error, Window Ops) with history buffer.
-    - **`StorageKernel`:** Abstraction over `idb` and `navigator.storage` (OPFS) for persistent data.
+    - **`EventBus`:** Centralized system-wide messaging (Boot, Error, Window Ops) with history buffer and audit logging.
+    - **`StorageKernel`:** Abstraction over `idb` and `navigator.storage` (OPFS) with **Profile Namespace Support**.
     - **`AppContainer`:** Runtime wrapper providing error boundaries, lifecycle events, and permission enforcement.
-    - **`PermissionManager`:** Handles capability requests (`files:read`, `network`) with user prompts.
+    - **`PermissionManager`:** Handles capability requests (`files:read`, `network`) with user prompts and audit trails.
+    - **`Indexer`:** In-memory inverted index for file search (Phase 4).
 - **Store Layer (`src/os/store`):** Single source of truth via `OSProvider` and `osReducer`, handling Windows, Boot State, and Theme.
 - **Shell Layer (`Shell.jsx`):** Orchestrates the Boot -> Desktop -> Shutdown lifecycle.
 - **Component Library:**
@@ -39,35 +41,32 @@ The OS features a fully modularized kernel architecture to support scalability a
     - **`utils/theme`:** Centralized design tokens.
 - **Application Layer:** Each app is an isolated module in `src/apps/`, defined by a **Manifest** in `registry.js`.
 
-## 📦 Key Features (v5.5 Updated - Platform Runtime)
+## 📦 Key Features (v5.6 Updated - Security & Polish)
 
-### 1. App Runtime & Security
+### 1. Security & Privacy (Phase 6)
+- **Audit Log:** Immutable record of all permission decisions and security events (IDB-backed).
+- **Profile Isolation:** Storage and settings are scoped to `profileId`, preventing data leaks between users.
+- **Hardening:** Strict CSP headers, safe parsing utilities, and import validation.
+- **Lock Screen:** Session locking mechanism (mock auth) guarding the desktop.
+
+### 2. App Runtime & Search (Phase 3-4)
+- **Command Palette:** `Cmd+K` global search for Apps and Files (indexed).
 - **Manifest System:** Apps define permissions, icons, and file handlers in a central registry.
 - **Sandboxing:** Apps run inside `AppContainer` which intercepts crashes (Blue Screen) without bringing down the OS.
-- **Permission Gates:** Sensitive actions (File Write, Network, Clipboard) trigger a "Allow/Deny" modal. Choices are persisted.
-- **Code Splitting:** All apps are lazy-loaded on demand to ensure fast boot times.
+- **Permission Gates:** Sensitive actions (File Write, Network, Clipboard) trigger a "Allow/Deny" modal.
 
-### 2. The "Arasaka" Interface (Glassmorphism Upgrade)
-- **Palette:** Strict adherence to `#FCEE0A` (Yellow), `#FF003C` (Red), `#00F0FF` (Blue), and `#000000` (Void).
-- **Aesthetic:** "Glass-morphism" windows with frosted backdrops, neon borders, and CRT/Glitch overlays.
-- **Stealth Mode:** Toggleable via Context Menu to reduce visual noise.
-- **Window Management:** Snapping (Split/Quarter), Virtual Desktops (Spaces), and Minimize/Maximize animations.
-
-### 3. Functional Applications
+### 3. Functional Applications (Phase 5)
+- **Terminal:** `ls`, `cd`, `cat`, `mkdir`, `rm` implementation against real FS.
 - **File Explorer:** Tree/Grid navigation, File System Access API mounting, and file operations.
-- **cmd.exe (Terminal):** Functional CLI. Parses commands (`hack`, `balance`, `whoami`, `clear`, `date`). Maintains history state.
-- **Finance Tracker (v2.5 Neural):** Smart categorization, multi-currency, asset management, and AI receipts.
-- **Text Pad:** Fully functional scratchpad (`<textarea>`) reading/writing to real OPFS files.
-- **Image Viewer:** Simulates decryption of "Data Shards" (files).
-- **Network Map:** SVG-based animated node topology visualization.
-- **Media Amp:** Music player with animated visualizers.
+- **Text Pad:** Autosave enabled scratchpad reading/writing to real OPFS files.
+- **Media Viewer:** Decryption simulation for Images and Videos.
+- **SysMon:** Process list with "Kill" functionality.
 
 ### 4. Desktop Environment
 - **Context Menu:** Custom Right-Click menu replacing browser defaults.
 - **Draggable Everything:** Icons, Widgets, and Windows use framer-motion drag controls.
 - **Notifications & Audit:** "Toast" system + Notification Center history panel.
 - **Quick Settings:** System Tray panel for Wifi, DND, Theme, and Performance toggles.
-- **Natural Search:** Taskbar input supports natural language app launching.
 
 ## 🧪 Engineering Runbook
 - **Quality gates:** `npm run lint`, `npm run test -- --run`, `npm run build`.

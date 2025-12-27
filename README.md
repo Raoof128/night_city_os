@@ -16,25 +16,27 @@ Night City OS is a production-grade, browser-based operating system simulation i
 - **Finance suite**: Shared spaces, permissions, anomaly detection, receipt scanning, and gamified savings quests.
 - **Strategic Ops**: Mission-style goal engine (vaults, debt liquidation) with FIRE/legacy projections.
 - **Cybersec workspace**: Construct AI chat, Icebreaker code editor, SysMon, and Vault secure store.
-- **Resilience**: Global error boundary with auto-recovery, event bus logging, and "Safe Mode" reset.
+- **Resilience**: Global error boundary with auto-recovery, kernel-level event bus, and "Hard Reset" recovery.
+- **Audit Logging**: Immutable security logs tracking all permission decisions and system events.
+- **Profile Isolation**: Isolated storage and settings for multiple user profiles.
 - **Theming**: Arasaka palette with CRT overlays, neon grids, and toggleable stealth/privacy modes.
 
 ---
 
-## 🗺️ Architecture Overview
+## 🗺️ Architecture Overview (V5 Kernel)
 
 ```mermaid
 flowchart TD
-    user([User]) --> ui[WinOS Shell]
+    user([User]) --> ui[Shell.jsx]
     ui --> wm[Window Manager]
-    wm --> apps[Applications Registry]
-    apps --> explorer[File Explorer]
-    apps --> finance[FinancialTracker]
+    wm --> registry[App Registry]
+    registry --> apps[Sandboxed Apps]
     
     subgraph Kernel
-        store[OS Store (Redux)]
+        store[OS Store Context]
         bus[Event Bus]
-        storage[Storage Engine]
+        storage[Hybrid Storage Kernel]
+        perms[Permission Manager]
     end
     
     ui -. actions .-> store
@@ -42,8 +44,10 @@ flowchart TD
     storage -- metadata --> idb[(IndexedDB)]
     storage -- blobs --> opfs[(OPFS)]
     
-    wm -. events .-> bus
-    bus -. logs .-> recovery[Recovery UI]
+    apps -- capability requests --> perms
+    perms -- prompts --> ui
+    
+    bus -. audit logs .-> idb
 ```
 
 ---
@@ -101,15 +105,18 @@ These values remain in the browser; do not commit secrets to the repository.
 ```
 .
 ├── src/               # Application source
-│   ├── WinOS.jsx      # Desktop shell and window manager
-│   ├── apps/          # Modular applications (Finance, Terminal, etc.)
-│   ├── components/    # Shared UI building blocks
-│   ├── hooks/         # Reusable hooks (persistence, viewport)
-│   └── utils/         # Theming, validation, logging, helpers
-├── tests/             # Vitest suite + setup
-├── docs/              # Architecture and user manuals
-├── public/            # Static assets served by Vite
-└── .github/workflows/ # CI configuration
+│   ├── components/    # Common UI components (Shell, WindowFrame, etc.)
+│   ├── os/            # Core OS Kernel
+│   │   ├── kernel/    # Persistence, Permissions, Registry, EventBus
+│   │   ├── store/     # OSContext and Reducer
+│   │   └── components/# OS-level UI (Desktop, Taskbar, LockScreen)
+│   ├── apps/          # sandboxed user applications
+│   ├── hooks/         # System-wide hooks
+│   └── utils/         # Theming, validation, security
+├── tests/             # Vitest suite (Unit, Integration, E2E)
+├── docs/              # Architecture, User Manual, Phase Reports
+├── public/            # Static assets
+└── .github/workflows/ # CI configuration (Lint, Test, Deploy)
 ```
 
 ---
@@ -133,10 +140,11 @@ For feature-by-feature guidance, see [`docs/USER_MANUAL.md`](docs/USER_MANUAL.md
 ---
 
 ## 🔒 Security & Data Handling
-- All state persists in `localStorage`; avoid storing personal secrets or credentials.
-- Client-side validation guards file uploads and transaction inputs to prevent corrupt state.
-- Environment keys (e.g., Gemini) must be provided by the user at runtime and never checked into git.
-- See [`SECURITY.md`](SECURITY.md) for reporting guidelines and supported versions.
+- **Profile Isolation**: All user data is isolated by `profileId` within separate IndexedDB and OPFS namespaces.
+- **Audit Logging**: Critical system actions and permission grants are logged to a persistent audit trail.
+- **Sandboxing**: Applications run inside an `AppContainer` with restricted access to system APIs via the `AppContext`.
+- **Environment Keys**: Gemini API keys remain in the browser; do not commit secrets.
+- See [`SECURITY.md`](SECURITY.md) for more.
 
 ---
 

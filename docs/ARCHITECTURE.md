@@ -9,41 +9,37 @@ This document captures the structure, data flows, and operational guarantees of 
 ```mermaid
 flowchart LR
     subgraph Shell
-        WinOS[WinOS.jsx\nDesktop Shell]
+        Shell[Shell.jsx\nOrchestrator]
         WindowFrame
-        StartMenu
+        Desktop
         Taskbar
     end
     subgraph Apps
-        FinancialTracker
-        FileExplorer
-        Terminal
-        Calculator
-        MusicPlayer
-        Construct[Construct AI]
-        Icebreaker[Icebreaker Editor]
-        SysMon[System Monitor]
-        Vault[Vault]
-        NetworkMap
-        TextPad
-        Settings
+        AppContainer[AppContainer\nSandbox]
+        Registry[Registry.js\nManifests]
+        UserApps[User Apps\nFinance, etc.]
     end
     subgraph Kernel
-        Store[OS Store (Redux)]
-        Storage[StorageKernel (IDB+OPFS)]
-        EventBus
+        Store[OS Store\nContext+Reducer]
+        Storage[StorageKernel\nIDB+OPFS]
+        EventBus[EventBus\nAudit Logs]
+        Perms[Permission\nManager]
     end
-    User --> WinOS
-    WinOS --> Store
+    User --> Shell
+    Shell --> Store
     Store --> Storage
-    Store --> Apps
-    Apps --> EventBus
+    Store --> AppContainer
+    AppContainer --> Registry
+    AppContainer --> Perms
+    Registry --> UserApps
+    UserApps --> EventBus
 ```
 
 **Key principles**
-- **Single shell, modular apps**: `Shell.jsx` owns orchestration while each app under `src/apps/` remains isolated and composable.
+- **Single shell, sandboxed apps**: `Shell.jsx` owns orchestration while apps run inside `AppContainer` with restricted API access.
+- **V5 Kernel Architecture**: Decoupled persistence, permissioning, and event management.
 - **Hybrid Storage**: Metadata lives in IndexedDB for fast queries; binary content lives in OPFS for performance.
-- **Event Driven**: System events (errors, logs, window ops) flow through a central `EventBus`.
+- **Capability-Based Security**: Apps must request permission for sensitive operations (FS access, Network).
 
 ---
 
@@ -59,15 +55,15 @@ flowchart LR
   - `fs_nodes`: IndexedDB store for file metadata.
   - `blobs`: OPFS directory for file content.
 
-State is managed via `useReducer` in `OSProvider`, with side-effects syncing to `StorageKernel`.
+State is managed via `useReducer` in `OSProvider`, with side-effects syncing to `StorageKernel`. Persistent slices are rehydrated on boot.
 
----
-
-## 3. Window Management
-- **Creation**: `openWindow(appId, data)` spawns a window or restores it if already present.
-- **Z-ordering**: `bringToFront` reorders the `windows` array so the active window renders last.
-- **Minimize/Close**: `toggleMinimize` flips window visibility without losing state; `closeWindow` removes it from the persistent array.
-- **Taskbar**: mirrors `windows` state, allowing fast focus toggles.
+## 3. App Lifecycle & Sandboxing
+- **Registry**: `src/os/kernel/registry.js` defines all available apps, their icons, permissions, and file handlers.
+- **AppContainer**: A higher-order component that wraps all user apps, providing:
+    - **AppContext**: A restricted set of system APIs (FS, Notifications, System Info).
+    - **Error Boundaries**: Isolating crashes to the specific window.
+    - **Permission Gate**: Intercepting calls to sensitive APIs to verify grants.
+- **File Handlers**: The system automatically launches the correct app based on file extension or MIME type (e.g., TextPad for `.txt`, Media Viewer for `.jpg`).
 
 ---
 

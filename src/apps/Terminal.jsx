@@ -45,7 +45,7 @@ const TerminalApp = () => {
                 case 'pwd':
                     output = [cwd];
                     break;
-                case 'cd':
+                case 'cd': {
                     // Mock navigation since we don't have full path resolution in this MVP
                     // Real implementation would traverse `fs.nodes`
                     // For now, allow switching to 'root' or any known folder ID if typed directly
@@ -53,7 +53,7 @@ const TerminalApp = () => {
                         setCwd('root');
                     } else if (args[0] === '..') {
                         // Go to parent of current CWD
-                        const current = await fs.readFile(cwd); // Hacky: readFile gets node meta
+                        await fs.readFile(cwd); // Hacky: readFile gets node meta
                         // Wait, readFile fails on folders in my implementation? 
                         // I need a `getNode` in FS API. 
                         // Limitations of P3 API surfacing. 
@@ -64,7 +64,8 @@ const TerminalApp = () => {
                         setCwd(args[0]);
                     }
                     break;
-                case 'ls':
+                }
+                case 'ls': {
                     // We need to list children of CWD.
                     // The `fs` wrapper in AppContainer exposes specific methods. 
                     // It does NOT expose `listNodes`. 
@@ -75,7 +76,8 @@ const TerminalApp = () => {
                     );
                     if (output.length === 0) output = ["(empty)"];
                     break;
-                case 'cat':
+                }
+                case 'cat': {
                     if (!args[0]) { output = ["Usage: cat [fileId]"]; break; }
                     const file = await fs.readFile(args[0]); // Expects ID
                     if (file && file.blob) {
@@ -84,6 +86,7 @@ const TerminalApp = () => {
                         output = [`File not found: ${args[0]}`];
                     }
                     break;
+                }
                 case 'mkdir':
                     if (!args[0]) { output = ["Usage: mkdir [name]"]; break; }
                     await fs.createFolder(cwd, args[0]);

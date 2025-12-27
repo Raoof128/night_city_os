@@ -18,14 +18,14 @@ const CommandPalette = ({ isOpen, onClose, commands, onSearch }) => {
             setTimeout(() => inputRef.current?.focus(), 50);
             if (onSearch) onSearch(''); // Init list
         }
-    }, [isOpen]);
+    }, [isOpen, onSearch]);
 
     useEffect(() => {
         if (isOpen && onSearch) {
             onSearch(query);
             setSelectedIndex(0);
         }
-    }, [query, isOpen]); // removed onSearch dep to avoid loop
+    }, [query, isOpen, onSearch]);
 
     // Keyboard nav
     useEffect(() => {

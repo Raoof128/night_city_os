@@ -2,6 +2,31 @@
 
 All notable changes to the "Night City OS" project will be documented in this file.
 
+## [v5.6.1] - Stability Maintenance - 2025-12-27
+### Fixed
+- **Boot Sequence:** Fixed critical "SYSTEM_HALTED" bug on initial load by correctly initializing `bootState` to `'booting'`.
+- **Lint Compliance:** Achieved 0-warning lint status by resolving unused variables, missing hook dependencies, and lexical declaration errors across the core OS and applications.
+- **Shell Stability:** Fixed critical `CommandPalette` undefined error in `Shell.jsx`.
+- **Media Viewer:** Refactored object URL management using `useRef` to ensure proper resource cleanup and prevent memory leaks.
+
+## [v5.6.0] - Security & Polish - 2025-12-27
+### Security
+- **Audit Logging:** Implemented IDB-backed `AuditLogger`. All permission decisions and system errors are now permanently recorded.
+- **Profile Isolation:** Refactored `StorageKernel` to support multi-user profiles with isolated DBs and OPFS roots.
+- **Hardening:** Added strict Content Security Policy (CSP) headers. Added `validateImport` for safe backups.
+- **Lock Screen:** Added session locking capability.
+
+### Features
+- **Global Search:** Upgraded Command Palette (`Cmd+K`) to index files and launch them directly.
+- **Terminal 2.0:** Implemented real filesystem commands (`ls`, `cd`, `cat`, `mkdir`, `rm`) interacting with the sandbox.
+- **Settings 2.0:** Redesigned Settings app with tabs for System, Privacy (Audit Log), and Storage management.
+- **TextPad:** Added autosave and dirty state indicators.
+- **Media Viewer:** New app for viewing images and video files.
+
+### Fixes
+- **App Runtime:** Fixed permission enforcement for all FS operations in `AppContainer`.
+- **Performance:** Optimized search indexing to be non-blocking (simple implementation).
+
 ## [v5.5.0] - Platform Runtime - 2025-12-27
 ### Architecture
 - **App Runtime:** Introduced `AppContainer` sandbox to isolate running applications.

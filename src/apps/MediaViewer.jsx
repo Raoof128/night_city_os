@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../os/kernel/AppContext';
-import { Loader, Image as ImageIcon, Video, AlertTriangle } from 'lucide-react';
+import { Loader, AlertTriangle } from 'lucide-react';
 
 const MediaViewer = () => {
     const { fs, launchArgs } = useApp();
@@ -8,6 +8,7 @@ const MediaViewer = () => {
     const [type, setType] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const urlRef = useRef(null);
 
     useEffect(() => {
         const load = async () => {
@@ -20,6 +21,7 @@ const MediaViewer = () => {
             try {
                 const { blob, meta } = await fs.readFile(launchArgs.fileId);
                 const objUrl = URL.createObjectURL(blob);
+                urlRef.current = objUrl;
                 setUrl(objUrl);
                 
                 // Determine type based on mime or extension
@@ -37,9 +39,12 @@ const MediaViewer = () => {
         load();
 
         return () => {
-            if (url) URL.revokeObjectURL(url);
+            if (urlRef.current) {
+                URL.revokeObjectURL(urlRef.current);
+                urlRef.current = null;
+            }
         };
-    }, [launchArgs?.fileId]);
+    }, [launchArgs?.fileId, fs]);
 
     if (loading) {
         return (

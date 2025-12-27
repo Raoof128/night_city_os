@@ -3,7 +3,7 @@ import { useApp } from '../os/kernel/AppContext';
 import { auditLogger } from '../os/kernel/AuditLog';
 import { 
     Monitor, Shield, HardDrive, Cpu, 
-    ToggleLeft, ToggleRight, Trash2, RefreshCw 
+    ToggleLeft, ToggleRight, Trash2 
 } from 'lucide-react';
 
 const SettingsApp = ({ config }) => {

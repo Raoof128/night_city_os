@@ -4,9 +4,10 @@
 
 | Version  | Supported          |
 | -------- | ------------------ |
+| 5.6.x    | ✅                 |
 | 5.1.x    | ✅                 |
-| 5.0.x    | ✅                 |
-| < 5.0    | ⚠️ Security fixes are not guaranteed |
+| 5.0.x    | ⚠️ Legacy support   |
+| < 5.0    | ❌ End of Life      |
 
 ## Reporting a Vulnerability
 1. **Do not open a public issue.** This protects users while we patch.
@@ -15,9 +16,10 @@
 4. We acknowledge reports within 48 hours and share a remediation ETA after triage.
 
 ## Scope & Threat Model
-- Night City OS runs entirely in the browser; there is **no backend**. State is stored in `localStorage`.
+- Night City OS runs entirely in the browser; there is **no backend**. State is stored in a hybrid **IndexedDB** (metadata) and **OPFS** (binary) engine.
 - AI integrations (e.g., Gemini) depend on user-provided keys injected via Vite environment variables. Keys must never be committed to git.
-- File uploads stay client-side; we only persist sanitized metadata, not file contents.
+- File uploads stay client-side within the Origin Private File System (OPFS) sandbox.
+- **Audit Logging**: All security events and permission decisions are logged to a persistent audit trail.
 
 ## Hardening Guidelines
 - Keep dependencies updated via `npm audit` and GitHub Dependabot.

@@ -1,6 +1,6 @@
 import { lazy } from 'react';
 import { 
-    Activity, Terminal, Grid, Settings, Code2, Cpu, Monitor, 
+    Terminal, Grid, Settings, Code2, Cpu, Monitor, 
     Bell, Share2, FileEdit, ShieldCheck, HardDrive 
 } from 'lucide-react';
 

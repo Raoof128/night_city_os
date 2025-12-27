@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 import { useOS } from '../hooks/useOS';
 import DraggableItem from '../../components/DraggableItem';
 import DesktopCalendarWidget from '../../components/DesktopCalendarWidget';
-import DesktopUploadWidget from '../../components/DesktopUploadWidget';
 import ContextMenu from '../../components/ContextMenu';
 import { COLORS } from '../../utils/theme';
 // Import Icons
@@ -120,7 +119,6 @@ const Desktop = () => {
                 })}
 
                 <DesktopCalendarWidget constraintsRef={desktopRef} />
-                {/* <DesktopUploadWidget onFileUpload={() => { }} constraintsRef={desktopRef} /> */}
             </div>
         </div>
     );

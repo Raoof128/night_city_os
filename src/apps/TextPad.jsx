@@ -3,7 +3,7 @@ import { useApp } from '../os/kernel/AppContext';
 import { Save, FilePlus, Loader } from 'lucide-react';
 
 const TextPadApp = () => {
-    const { fs, addNotification, launchArgs, meta } = useApp();
+    const { fs, addNotification, launchArgs } = useApp();
     const [content, setContent] = useState('');
     const [fileName, setFileName] = useState(launchArgs?.name || 'untitled.txt');
     const [fileId, setFileId] = useState(launchArgs?.fileId || null);
@@ -34,7 +34,7 @@ const TextPadApp = () => {
             }
         };
         load();
-    }, [launchArgs?.fileId]);
+    }, [launchArgs?.fileId, fs]);
 
     // Autosave
     useEffect(() => {
@@ -51,7 +51,7 @@ const TextPadApp = () => {
         }, 2000);
 
         return () => clearTimeout(timer);
-    }, [content, fileId, dirty]);
+    }, [content, fileId, dirty, fs]);
 
     const handleSave = async () => {
         try {
