@@ -14,7 +14,7 @@ Night City OS is a high-fidelity React-based Operating System simulation running
 - **Persistence:** **Hybrid Storage Engine** (IndexedDB for metadata + OPFS for binary content).
 - **Runtime:** **AppContainer Sandbox** with Permission Gates and Lazy Loading.
 - **Security:** **Audit Logging**, **CSP**, and **Profile Isolation**.
-- **Extras:** **Feature Flag System**, **Wallpaper Engine**, and **WASM-optimized Crypto**.
+- **Extras:** **Feature Flag System**, **Wallpaper Engine**, and **SHA-256 Hashing**.
 - **A11y:** **Focus Management**, **Keyboard Navigation**, **Font Scaling**, and **High Contrast**.
 - **Testing:** Vitest + React Testing Library + Playwright.
 - **CI/CD:** GitHub Actions (Lint, Test, Build)
@@ -27,17 +27,17 @@ The OS features a fully modularized kernel architecture to support scalability a
     - **`StorageKernel`:** Scoped to User Profiles.
     - **`AppContainer`:** Runtime isolation and capability injection.
     - **`PermissionManager`:** Gatekeeper for sensitive OS APIs.
-    - **`registry.js`:** App Manifests + **Plugin Loader**.
+    - **`registry.js`:** App Manifests + **Hardened Plugin Registry** (Allowlisted).
 - **Store Layer (`src/os/store`):** Single source of truth via `OSProvider` and `osReducer`.
 
 ## 📦 Key Features (v5.8 Updated - Labs & Extras)
 
 ### 1. OS Labs (Phase 8)
 - **Feature Flags:** Toggle experimental features in Settings > Labs (Disabled by default).
-- **Live Wallpaper:** Particle-based background engine with **Performance Guardrails** (pauses on low-power or reduced-motion).
-- **Plugin System:** Secure dynamic registration of third-party manifests (Signed/Integrity checked).
+- **Live Wallpaper:** Particle-based background engine with **EMA Performance Guardrails** (auto-disables on lag, low-power, or reduced-motion).
+- **Plugin System:** Secure dynamic registration of third-party manifests restricted by an **ID Allowlist** (Local-only).
 - **Multi-Monitor Sim:** Virtual multi-display canvas environment.
-- **Crypto Engine:** WASM-like SHA-256 integrity verification for system backups.
+- **Corruption Detection:** SHA-256 hashing for system backup verification.
 
 ### 2. Accessibility & Quality (Phase 7)
 - **Keyboard Mastery:** Fully usable via keyboard (Alt+Tab, Alt+W, Arrow keys for menus).
@@ -47,17 +47,18 @@ The OS features a fully modularized kernel architecture to support scalability a
 ### 3. Security & Privacy (Phase 6)
 - **Audit Log:** Immutable record of security events.
 - **Profile Isolation:** Storage and settings scoped to `profileId`.
+- **Hardening:** Strict CSP headers, safe parsing utilities (depth/string limits), and import validation.
 - **Lock Screen:** Session locking mechanism guarding the desktop.
 
 ### 4. Functional Applications (Phase 5)
-- **Terminal:** Real filesystem commands (`ls`, `cat`, `mkdir`, `rm`).
+- **Terminal:** Real filesystem commands (`ls`, `cd`, `cat`, `mkdir`, `rm`).
 - **File Explorer:** Tree/Grid navigation and external drive mounting.
 - **Stubs:** Linux VM and NetRelay sync placeholders.
 
 ## 🧪 Engineering Runbook
 - **Quality gates:** `npm run lint`, `npm run test:unit`, `npm run build`.
-- **Labs:** Toggle flags in `Settings` -> `Labs` to test experimental features.
-- **Performance:** Live wallpaper auto-disables if `reducedMotion` or `performanceMode` is active.
+- **Labs:** Toggle flags in `Settings` -> `Labs` to test experimental features (OFF by default).
+- **Performance:** Live wallpaper auto-disables if EMA frame-time exceeds 33ms or `reducedMotion` is active.
 - **Env:** Provide `VITE_GEMINI_API_KEY` via `.env.local` for AI features.
 
 ## 🔮 V6.0 Roadmap // The "Brave New World" Update

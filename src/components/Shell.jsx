@@ -22,7 +22,7 @@ import { fileIndexer } from '../os/kernel/indexer';
 
 const Shell = () => {
     const { state, actions } = useOS();
-    const { bootState, windows, activeWindowId, currentSpace, flags } = state;
+    const { bootState, windows, activeWindowId, currentSpace } = state;
     const [notifCenterOpen, setNotifCenterOpen] = useState(false);
     const [spaceSwitcherOpen, setSpaceSwitcherOpen] = useState(false);
     const [paletteOpen, setPaletteOpen] = useState(false);
@@ -65,6 +65,7 @@ const Shell = () => {
     // Global Keyboard Shortcuts
     useEffect(() => {
         const handleGlobalKeys = (e) => {
+            if (state.locked) return;
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
                 e.preventDefault();
                 setPaletteOpen(true);
@@ -72,7 +73,7 @@ const Shell = () => {
         };
         window.addEventListener('keydown', handleGlobalKeys);
         return () => window.removeEventListener('keydown', handleGlobalKeys);
-    }, []);
+    }, [state.locked]);
 
     if (bootState === 'booting') {
         return <BootScreen onComplete={actions.login} />;
@@ -143,13 +144,6 @@ const Shell = () => {
                 <Taskbar 
                     onToggleNotifCenter={() => setNotifCenterOpen(prev => !prev)}
                     onToggleSpaceSwitcher={() => setSpaceSwitcherOpen(prev => !prev)}
-                />
-
-                <StartMenu
-                    isOpen={startMenuOpen}
-                    onClose={() => actions.dispatch({ type: 'SET_START_MENU', payload: false })} // I need to add this action or handle state locally
-                    onOpenApp={(id) => actions.openWindow(id, id)}
-                    onShutdown={actions.shutdown}
                 />
             </div>
         );

@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, Activity, RotateCcw } from 'lucide-react';
 import { FocusTrap } from './FocusTrap';
 
 const ContextMenu = ({ x, y, onClose, onReset, onToggleStealth, stealthMode, onScan }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const options = [
+    const options = useMemo(() => [
         { id: 'stealth', label: stealthMode ? "DISABLE_STEALTH" : "ENABLE_STEALTH", icon: Eye, action: onToggleStealth },
         { id: 'scan', label: "RUN_DIAGNOSTIC", icon: Activity, action: onScan },
         { id: 'reset', label: "RESET_GRID_LAYOUT", icon: RotateCcw, action: onReset, color: 'var(--color-red)' }
-    ];
+    ], [stealthMode, onToggleStealth, onScan, onReset]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {

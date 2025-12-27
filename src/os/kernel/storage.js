@@ -228,6 +228,11 @@ class StorageKernel {
     async importBackup(jsonString) {
         if (!this.ready) await this.init();
         
+        // 5MB Limit
+        if (jsonString.length > 5 * 1024 * 1024) {
+            throw new Error('Import file too large (max 5MB)');
+        }
+
         let data;
         try {
             data = JSON.parse(jsonString);
@@ -242,7 +247,9 @@ class StorageKernel {
         // Restore FS Nodes
         if (data.fs && data.fs.nodes) {
             const tx = this.db.transaction(STORE_NODES, 'readwrite');
-            await Promise.all(data.fs.nodes.map(node => tx.store.put(node)));
+            // Assuming nodes is an object in storage, but backup might have it as array/object
+            const nodesToRestore = Array.isArray(data.fs.nodes) ? data.fs.nodes : Object.values(data.fs.nodes);
+            await Promise.all(nodesToRestore.map(node => tx.store.put(node)));
             await tx.done;
         }
 

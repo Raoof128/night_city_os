@@ -1,5 +1,4 @@
-import { useApp } from '../os/kernel/AppContext';
-import { Terminal, ShieldAlert } from 'lucide-react';
+import { ShieldAlert } from 'lucide-react';
 
 const LinuxStub = () => {
     return (

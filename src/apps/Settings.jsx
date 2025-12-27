@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../os/kernel/AppContext';
 import { auditLogger } from '../os/kernel/AuditLog';
-import {
+import { sanitizeDiagnosticData } from '../utils/security';
+import { 
     Monitor, Shield, HardDrive, Cpu, FlaskConical,
-    ToggleLeft, ToggleRight, Trash2, RefreshCw 
+    ToggleLeft, ToggleRight, Trash2 
 } from 'lucide-react';
 
 const SettingsApp = ({ config }) => {
@@ -169,18 +170,20 @@ const SettingsApp = ({ config }) => {
                                 <button
                                     onClick={async () => {
                                         const logs = await auditLogger.getLogs(100);
-                                        const bundle = {
-                                            version: '5.6.0',
+                                        const rawBundle = {
+                                            version: '5.8.0',
                                             timestamp: new Date().toISOString(),
-                                            userAgent: navigator.userAgent,
+                                            environment: 'WebOS_Neural_Link',
                                             state: {
                                                 theme: system.theme,
                                                 quickSettings: system.quickSettings,
+                                                flags: system.flags,
                                                 windowCount: system.windows.length,
-                                                spaces: system.spaces.length
+                                                spacesCount: system.spaces.length
                                             },
-                                            logs: logs.map(l => ({ ...l, details: undefined })) // Redact details
+                                            logs: logs.map(l => ({ ...l, details: undefined }))
                                         };
+                                        const bundle = sanitizeDiagnosticData(rawBundle);
                                         const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
                                         const url = URL.createObjectURL(blob);
                                         const a = document.createElement('a');

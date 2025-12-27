@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     HardDrive,
@@ -11,10 +11,10 @@ import {
     FileEdit,
     Bell,
     Settings,
-    Lock
+    Lock,
+    Globe
 } from 'lucide-react';
 import { COLORS } from '../utils/theme';
-import { getAppManifest } from '../os/kernel/registry';
 import { FocusTrap } from './FocusTrap';
 import { useOS } from '../os/hooks/useOS';
 
@@ -23,30 +23,32 @@ const StartMenu = ({ isOpen, onOpenApp, onShutdown, onClose }) => {
     const { flags } = state;
     const [selectedIndex, setSelectedIndex] = useState(0);
     
-    const baseItems = [
-        { id: 'terminal', label: 'TERMINAL', icon: Terminal },
-        { id: 'network', label: 'NET_TRACE', icon: Share2 },
-        { id: 'files', label: 'DATA_SHARDS', icon: HardDrive },
-        { id: 'textpad', label: 'TEXT_PAD', icon: FileEdit },
-        { id: 'icebreaker', label: 'ICEBREAKER', icon: Grid },
-        { id: 'construct', label: 'CONSTRUCT', icon: Power },
-        { id: 'sysmon', label: 'SYS_MON', icon: Activity },
-        { id: 'vault', label: 'VAULT', icon: Lock },
-        { id: 'calc', label: 'CALCULATOR', icon: Grid },
-        { id: 'music', label: 'MEDIA_AMP', icon: Bell },
-        { id: 'settings', label: 'SYS_CONFIG', icon: Settings }
-    ];
+    const menuItems = useMemo(() => {
+        const baseItems = [
+            { id: 'terminal', label: 'TERMINAL', icon: Terminal },
+            { id: 'network', label: 'NET_TRACE', icon: Share2 },
+            { id: 'files', label: 'DATA_SHARDS', icon: HardDrive },
+            { id: 'textpad', label: 'TEXT_PAD', icon: FileEdit },
+            { id: 'icebreaker', label: 'ICEBREAKER', icon: Grid },
+            { id: 'construct', label: 'CONSTRUCT', icon: Power },
+            { id: 'sysmon', label: 'SYS_MON', icon: Activity },
+            { id: 'vault', label: 'VAULT', icon: Lock },
+            { id: 'calc', label: 'CALCULATOR', icon: Grid },
+            { id: 'music', label: 'MEDIA_AMP', icon: Bell },
+            { id: 'settings', label: 'SYS_CONFIG', icon: Settings }
+        ];
 
-    const experimentalItems = [
-        flags.experimentalLinux && { id: 'linux', label: 'LINUX_EMU', icon: Terminal },
-        flags.collaborationMock && { id: 'relay', label: 'NET_RELAY', icon: Globe }
-    ].filter(Boolean);
+        const experimentalItems = [
+            flags.experimentalLinux && { id: 'linux', label: 'LINUX_EMU', icon: Terminal },
+            flags.collaborationMock && { id: 'relay', label: 'NET_RELAY', icon: Globe }
+        ].filter(Boolean);
 
-    const menuItems = [
-        ...baseItems,
-        ...experimentalItems,
-        { id: 'shutdown', label: 'JACK_OUT', icon: Power, color: 'var(--color-red)', action: onShutdown }
-    ];
+        return [
+            ...baseItems,
+            ...experimentalItems,
+            { id: 'shutdown', label: 'JACK_OUT', icon: Power, color: 'var(--color-red)', action: onShutdown }
+        ];
+    }, [flags, onShutdown]);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -69,7 +71,7 @@ const StartMenu = ({ isOpen, onOpenApp, onShutdown, onClose }) => {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isOpen, selectedIndex, onOpenApp, onShutdown]);
+    }, [isOpen, selectedIndex, onOpenApp, onShutdown, menuItems]);
 
     return (
         <AnimatePresence>

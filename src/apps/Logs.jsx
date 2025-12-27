@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useApp } from '../os/kernel/AppContext';
 import { auditLogger } from '../os/kernel/AuditLog';
 import { getCapturedLogs } from '../utils/errorCapture';
-import { Search, Filter, Trash2, Download } from 'lucide-react';
+import { Search, Trash2, Download } from 'lucide-react';
 
 const LogsApp = () => {
     const { addNotification } = useApp();

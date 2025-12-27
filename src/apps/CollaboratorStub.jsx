@@ -1,4 +1,3 @@
-import { useApp } from '../os/kernel/AppContext';
 import { Users, Wifi, Globe } from 'lucide-react';
 
 const CollaboratorStub = () => {

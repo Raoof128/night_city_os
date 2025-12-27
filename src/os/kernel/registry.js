@@ -142,12 +142,29 @@ export const SYSTEM_APPS = {
     }
 };
 
+/**
+ * Plugin Registry & Registration
+ * 
+ * SECURITY POLICY:
+ * 1. Only local plugins can be registered (baked-in or file-loaded).
+ * 2. Plugins run within the same origin but are logic-isolated by AppContainer.
+ * 3. Registration is restricted by a PLUGIN_ALLOWLIST.
+ */
+
 let pluginApps = {};
 
+const PLUGIN_ALLOWLIST = ['test-plugin', 'community-theme-pack'];
+
 export const registerPlugin = (manifest) => {
-    // Integrity check (mock)
+    // 1. Identity Check
     if (!manifest.id || !manifest.component) return false;
     
+    // 2. Authorization Check (Allowlist)
+    if (!PLUGIN_ALLOWLIST.includes(manifest.id)) {
+        console.warn(`[Security] Blocked unauthorized plugin registration: ${manifest.id}`);
+        return false;
+    }
+
     pluginApps[manifest.id] = {
         ...manifest,
         isPlugin: true

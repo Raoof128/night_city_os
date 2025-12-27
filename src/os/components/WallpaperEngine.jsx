@@ -4,7 +4,7 @@ import { EventBus } from '../kernel/eventBus';
 
 const WallpaperEngine = () => {
     const { state } = useOS();
-    const { flags, theme, quickSettings } = state;
+    const { flags, quickSettings } = state;
     const canvasRef = useRef(null);
     const [isEnabled, setIsEnabled] = useState(false);
 
@@ -30,6 +30,8 @@ const WallpaperEngine = () => {
         const ctx = canvas.getContext('2d');
         let frame;
         let particles = [];
+        let lastTime = performance.now();
+        let frameTimes = [];
 
         const init = () => {
             canvas.width = window.innerWidth;
@@ -44,7 +46,26 @@ const WallpaperEngine = () => {
             }));
         };
 
-        const animate = () => {
+        const animate = (time) => {
+            // Monitor Performance
+            const delta = time - lastTime;
+            lastTime = time;
+            
+            frameTimes.push(delta);
+            if (frameTimes.length > 60) {
+                frameTimes.shift();
+                const avg = frameTimes.reduce((a, b) => a + b) / 60;
+                // If average frame time > 33ms (under 30fps), auto-disable
+                if (avg > 33) {
+                    setIsEnabled(false);
+                    EventBus.emit('sys:log', { 
+                        level: 'error', 
+                        message: 'Wallpaper disabled: System lag detected.' 
+                    });
+                    return;
+                }
+            }
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             // Draw connecting lines

@@ -4,21 +4,24 @@ All notable changes to the "Night City OS" project will be documented in this fi
 
 ## [v5.8.0] - Labs & Extras - 2025-12-28
 ### Features
-- **Feature Flags:** Introduced a local-first flag system to toggle experimental features via `Settings` -> `Labs`.
-- **Wallpaper Engine:** Particle-based live background engine with performance guardrails (auto-disables on Reduced Motion or Battery Saver).
-- **Plugin System:** Support for secure, dynamic app registration from local manifests via `registerPlugin`.
+- **Feature Flags:** Introduced a local-first flag system to toggle experimental features via `Settings` -> `Labs` (OFF by default).
+- **Wallpaper Engine:** Particle-based live background engine with EMA performance guardrails (auto-disables on lag, Reduced Motion, or Battery Saver).
+- **Hardened Plugin System:** Support for secure, dynamic app registration from local manifests via `registerPlugin`, restricted by an **ID Allowlist**.
 - **Multi-Monitor Sim:** Experimental "Simulated Multi-Display" mode that adjusts desktop scaling and ring indicators.
-- **Crypto Utilities:** Added SHA-256 hashing for backup integrity verification (WASM-like compute module).
+- **Crypto Utilities:** Added SHA-256 hashing for **checksum-based corruption detection** in system backups.
 - **Linux VM Stub:** Placeholder for x86 virtualization runtime.
 - **NetRelay Stub:** Placeholder for P2P collaboration layer.
 
 ### Architecture
-- **Registry:** Decoupled system apps from plugin apps; support for `getAllApps()` across the kernel.
-- **Guardrails:** Integrated performance-aware state checks in `WallpaperEngine`.
+- **Registry Hardening:** Decoupled system apps from plugin apps; added registration auth checks.
+- **Security Utilities:** Implemented recursion depth limits (10) and max string length caps (100KB) for backup import validation (Bomb Protection).
+- **Observability:** Added EMA-based performance monitoring to high-compute components.
 
 ### Fixed
-- **Start Menu:** Added filtering for experimental apps; icons only appear if corresponding feature flags are enabled.
-- **Testing:** Added regression coverage for Feature Flags, Plugin Registry, and Crypto hashing.
+- **AppSwitcher:** Wrapped in `FocusTrap` and added ARIA roles for keyboard navigation.
+- **Shell:** Blocked all global shortcuts (Command Palette, Switcher) during session lock.
+- **Diagnostics:** Implemented `sanitizeDiagnosticData` to redact PII and secrets from issue reports.
+- **Tests:** Consolidated registry and plugin tests into `registry.test.js`. Added coverage for security bomb protection.
 
 ## [v5.7.0] - Quality Gates & Accessibility - 2025-12-28
 ### Accessibility
