@@ -10,12 +10,12 @@ export default defineConfig({
     plugins: [react()],
     test: {
         globals: true,
-        environment: 'jsdom',
+        environment: 'happy-dom',
         setupFiles: './tests/setup.js',
-        include: ['tests/**/*.{test,spec}.{js,jsx}'],
+        include: ['tests/unit/**/*.{test,spec}.{js,jsx}', 'tests/integration/**/*.{test,spec}.{js,jsx}'],
         coverage: {
             reporter: ['text', 'json', 'html'],
-            exclude: ['node_modules/', 'tests/setup.js'],
+            exclude: ['node_modules/', 'tests/setup.js', 'src/test/**', 'tests/e2e/**'],
         },
     },
     resolve: {

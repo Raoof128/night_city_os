@@ -1,0 +1,114 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic:
+      - generic: NIGHT CITY NIGHT CITY NIGHT CITY
+    - generic [ref=e5]:
+      - button "FINANCE" [ref=e7]:
+        - img [ref=e9]
+        - generic [ref=e11]: FINANCE
+      - button "FILES" [ref=e13]:
+        - img [ref=e15]
+        - generic [ref=e17]: FILES
+      - button "TERMINAL" [ref=e19]:
+        - img [ref=e21]
+        - generic [ref=e23]: TERMINAL
+      - button "NETTRACE" [ref=e25]:
+        - img [ref=e27]
+        - generic [ref=e33]: NETTRACE
+      - button "TEXTPAD" [ref=e35]:
+        - img [ref=e37]
+        - generic [ref=e41]: TEXTPAD
+      - button "CALC" [active] [ref=e43]:
+        - img [ref=e45]
+        - generic [ref=e47]: CALC
+      - button "MUSIC" [ref=e49]:
+        - img [ref=e51]
+        - generic [ref=e54]: MUSIC
+      - button "SETTINGS" [ref=e56]:
+        - img [ref=e58]
+        - generic [ref=e61]: SETTINGS
+      - button "SYSMON" [ref=e63]:
+        - img [ref=e65]
+        - generic [ref=e67]: SYSMON
+      - generic [ref=e69]:
+        - generic [ref=e72]:
+          - generic [ref=e73]: SYNC_CHRONO
+          - generic [ref=e74]: ● LIVE
+        - generic [ref=e75]:
+          - img [ref=e76]
+          - generic [ref=e79]: 11:34:26
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - generic [ref=e82]: GREGORIAN
+            - generic [ref=e83]: SAT, DEC 27, 2025
+          - generic [ref=e84]:
+            - generic [ref=e85]: SOLAR HIJRI
+            - generic [ref=e86]: ۶ دی ۱۴۰۴
+      - generic [ref=e89]:
+        - generic:
+          - img
+          - generic: DROP_RECEIPT_OR_SHARD
+        - button "Choose File" [ref=e94] [cursor=pointer]
+  - generic [ref=e95]:
+    - generic [ref=e96]:
+      - heading "NOTIFICATIONS" [level=3] [ref=e97]
+      - button [ref=e99]:
+        - img [ref=e100]
+    - generic [ref=e104]:
+      - img [ref=e105]
+      - generic [ref=e110]: No Notifications
+  - generic [ref=e111]:
+    - generic [ref=e112]:
+      - generic [ref=e114]: Calc
+      - generic [ref=e115]:
+        - button "Minimize" [ref=e116]:
+          - img [ref=e117]
+        - button "Maximize" [ref=e118]:
+          - img [ref=e119]
+        - button "Close" [ref=e124]:
+          - img [ref=e125]
+    - generic [ref=e129]:
+      - generic [ref=e132]: "0"
+      - generic [ref=e133]:
+        - button "7" [ref=e134]
+        - button "8" [ref=e135]
+        - button "9" [ref=e136]
+        - button / [ref=e137]
+        - button "4" [ref=e138]
+        - button "5" [ref=e139]
+        - button "6" [ref=e140]
+        - button "*" [ref=e141]
+        - button "1" [ref=e142]
+        - button "2" [ref=e143]
+        - button "3" [ref=e144]
+        - button "-" [ref=e145]
+        - button "0" [ref=e146]
+        - button "." [ref=e147]
+        - button "=" [ref=e148]
+        - button "+" [ref=e149]
+        - button "CLEAR_MEMORY" [ref=e150]
+  - generic [ref=e159]:
+    - generic [ref=e160]:
+      - button "Start Menu" [ref=e161]: START
+      - button "Switch Space" [ref=e162]:
+        - img [ref=e163]
+        - generic [ref=e165]: Main Space
+      - generic [ref=e166]:
+        - img [ref=e167]
+        - textbox "Search" [ref=e170]:
+          - /placeholder: SEARCH_NET...
+    - button "Switch to Calc" [ref=e172]:
+      - generic [ref=e173]: Calc
+    - generic [ref=e175]:
+      - button "Notifications" [ref=e176]:
+        - img [ref=e177]
+      - button "Quick Settings" [ref=e180]:
+        - img [ref=e182]
+        - img [ref=e187]
+        - generic [ref=e189]:
+          - generic [ref=e190]: 11:34 AM
+          - generic [ref=e191]: 12/27/2025
+```

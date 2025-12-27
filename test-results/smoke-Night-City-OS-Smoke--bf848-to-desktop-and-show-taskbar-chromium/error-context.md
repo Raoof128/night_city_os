@@ -1,0 +1,82 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic:
+      - generic: NIGHT CITY NIGHT CITY NIGHT CITY
+    - generic [ref=e5]:
+      - button "FINANCE" [ref=e7]:
+        - img [ref=e9]
+        - generic [ref=e11]: FINANCE
+      - button "FILES" [ref=e13]:
+        - img [ref=e15]
+        - generic [ref=e17]: FILES
+      - button "TERMINAL" [ref=e19]:
+        - img [ref=e21]
+        - generic [ref=e23]: TERMINAL
+      - button "NETTRACE" [ref=e25]:
+        - img [ref=e27]
+        - generic [ref=e33]: NETTRACE
+      - button "TEXTPAD" [ref=e35]:
+        - img [ref=e37]
+        - generic [ref=e41]: TEXTPAD
+      - button "CALC" [ref=e43]:
+        - img [ref=e45]
+        - generic [ref=e47]: CALC
+      - button "MUSIC" [ref=e49]:
+        - img [ref=e51]
+        - generic [ref=e54]: MUSIC
+      - button "SETTINGS" [ref=e56]:
+        - img [ref=e58]
+        - generic [ref=e61]: SETTINGS
+      - button "SYSMON" [ref=e63]:
+        - img [ref=e65]
+        - generic [ref=e67]: SYSMON
+      - generic [ref=e69]:
+        - generic [ref=e72]:
+          - generic [ref=e73]: SYNC_CHRONO
+          - generic [ref=e74]: ● LIVE
+        - generic [ref=e75]:
+          - img [ref=e76]
+          - generic [ref=e79]: 11:34:17
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - generic [ref=e82]: GREGORIAN
+            - generic [ref=e83]: SAT, DEC 27, 2025
+          - generic [ref=e84]:
+            - generic [ref=e85]: SOLAR HIJRI
+            - generic [ref=e86]: ۶ دی ۱۴۰۴
+      - generic [ref=e89]:
+        - generic:
+          - img
+          - generic: DROP_RECEIPT_OR_SHARD
+        - button "Choose File" [ref=e94] [cursor=pointer]
+  - generic [ref=e95]:
+    - generic [ref=e96]:
+      - heading "NOTIFICATIONS" [level=3] [ref=e97]
+      - button [ref=e99]:
+        - img [ref=e100]
+    - generic [ref=e104]:
+      - img [ref=e105]
+      - generic [ref=e110]: No Notifications
+  - generic [ref=e111]:
+    - generic [ref=e112]:
+      - button "Start Menu" [ref=e113]: START
+      - button "Switch Space" [ref=e114]:
+        - img [ref=e115]
+        - generic [ref=e117]: Main Space
+      - generic [ref=e118]:
+        - img [ref=e119]
+        - textbox "Search" [ref=e122]:
+          - /placeholder: SEARCH_NET...
+    - generic [ref=e123]:
+      - button "Notifications" [ref=e124]:
+        - img [ref=e125]
+      - button "Quick Settings" [ref=e128]:
+        - img [ref=e130]
+        - img [ref=e135]
+        - generic [ref=e137]:
+          - generic [ref=e138]: 11:34 AM
+          - generic [ref=e139]: 12/27/2025
+```
