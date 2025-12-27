@@ -37,6 +37,7 @@ export const INITIAL_STATE = {
     },
     permissions: {}, // { appId: { permission: 'granted' | 'denied' } }
     permissionRequest: null, // { appId, permission, resolve, reject }
+    locked: false,
     user: null
 };
 
@@ -45,6 +46,8 @@ export const ACTIONS = {
     BOOT_START: 'BOOT_START',
     BOOT_COMPLETE: 'BOOT_COMPLETE',
     SHUTDOWN: 'SHUTDOWN',
+    LOCK_SESSION: 'LOCK_SESSION',
+    UNLOCK_SESSION: 'UNLOCK_SESSION',
 
     OPEN_WINDOW: 'OPEN_WINDOW',
     CLOSE_WINDOW: 'CLOSE_WINDOW',
@@ -93,6 +96,12 @@ export function osReducer(state, action) {
 
         case ACTIONS.SHUTDOWN:
             return { ...state, bootState: 'shutdown' };
+
+        case ACTIONS.LOCK_SESSION:
+            return { ...state, locked: true };
+
+        case ACTIONS.UNLOCK_SESSION:
+            return { ...state, locked: false };
 
         case ACTIONS.OPEN_WINDOW: {
             const { id, type, title, data, pos, size } = action.payload;

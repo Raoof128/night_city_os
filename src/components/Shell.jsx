@@ -12,6 +12,7 @@ import VirtualDesktopSwitcher from '../os/components/VirtualDesktopSwitcher';
 import NotificationCenter from '../os/components/NotificationCenter';
 import ToastManager from '../os/components/ToastManager';
 import PermissionPrompt from '../os/components/PermissionPrompt';
+import LockScreen from '../os/components/LockScreen';
 
 // Kernel
 import { SYSTEM_APPS } from '../os/kernel/registry';
@@ -44,6 +45,7 @@ const Shell = () => {
 
         return (
             <div className="relative w-screen h-screen overflow-hidden bg-black" onContextMenu={(e) => e.preventDefault()}>
+                <LockScreen />
                 <Desktop />
                 
                 {/* System Overlays */}

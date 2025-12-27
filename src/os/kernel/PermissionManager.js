@@ -1,4 +1,5 @@
 import { ACTIONS } from '../store/osReducer';
+import { EventBus } from './eventBus';
 
 export class PermissionManager {
     constructor(dispatch, state) {
@@ -32,17 +33,21 @@ export class PermissionManager {
         if (status !== 'prompt') return status;
 
         return new Promise((resolve) => {
-            // We need a unique ID for this request to match the resolution
-            // Ideally we store the resolve callback in a transient store or window object
-            // But since our reducer is pure, we can't store callbacks there.
-            // Workaround: We'll use a custom event on the EventBus or a window-level map.
-            
             const reqId = `perm_${Date.now()}_${Math.random()}`;
             
             // Temporary handler for resolution
             const handler = (e) => {
                 if (e.detail.reqId === reqId) {
                     window.removeEventListener('sys:perm_resolved', handler);
+                    
+                    // Audit Log the decision
+                    EventBus.emit('sec:permission_decision', {
+                        appId,
+                        permission,
+                        outcome: e.detail.decision,
+                        target: permission
+                    });
+
                     resolve(e.detail.decision);
                 }
             };
