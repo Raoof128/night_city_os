@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useOS } from '../os/hooks/useOS';
+import { resolveFileHandler } from '../os/kernel/registry';
 import { 
     Folder, File, HardDrive, ChevronRight, ChevronDown, 
     Grid, List, ArrowLeft, Plus, Trash2, Search 
@@ -89,12 +90,11 @@ const FileExplorer = () => {
         if (node.type === 'folder' || node.type === 'mount') {
             handleNavigate(node.id);
         } else {
-            // Open file logic
-            // Phase 2: Open txt/md files in TextPad
-            if (node.mime === 'text/plain' || node.name.endsWith('.txt') || node.name.endsWith('.md')) {
-                // Read content first? Or pass ID to app?
-                // Let's pass ID to app, app calls fs.readFile
-                actions.openWindow('textpad', 'textpad', { fileId: node.id, name: node.name });
+            // Resolve Handler
+            const handlerId = resolveFileHandler(node.name, node.mime);
+            
+            if (handlerId) {
+                actions.openWindow(handlerId, handlerId, { fileId: node.id, name: node.name });
             } else {
                 actions.addNotification({ 
                     title: 'Cannot Open', 

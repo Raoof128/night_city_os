@@ -35,6 +35,8 @@ export const INITIAL_STATE = {
         contrast: false,
         performanceMode: false
     },
+    permissions: {}, // { appId: { permission: 'granted' | 'denied' } }
+    permissionRequest: null, // { appId, permission, resolve, reject }
     user: null
 };
 
@@ -67,6 +69,10 @@ export const ACTIONS = {
     FS_SET_NODES: 'FS_SET_NODES',
     FS_UPDATE_NODE: 'FS_UPDATE_NODE',
     FS_DELETE_NODE: 'FS_DELETE_NODE',
+
+    // Permission Actions
+    REQUEST_PERMISSION: 'REQUEST_PERMISSION',
+    RESOLVE_PERMISSION: 'RESOLVE_PERMISSION',
 
     SET_THEME: 'SET_THEME',
     SET_QUICK_SETTING: 'SET_QUICK_SETTING',
@@ -326,6 +332,27 @@ export function osReducer(state, action) {
             };
         }
 
+        case ACTIONS.REQUEST_PERMISSION:
+            return {
+                ...state,
+                permissionRequest: action.payload // { appId, permission, resolveId }
+            };
+
+        case ACTIONS.RESOLVE_PERMISSION: {
+            const { appId, permission, decision } = action.payload;
+            return {
+                ...state,
+                permissionRequest: null,
+                permissions: {
+                    ...state.permissions,
+                    [appId]: {
+                        ...state.permissions[appId],
+                        [permission]: decision
+                    }
+                }
+            };
+        }
+
         case ACTIONS.SET_QUICK_SETTING:
             return {
                 ...state,
@@ -344,7 +371,8 @@ export function osReducer(state, action) {
                 spaces: action.payload.spaces || INITIAL_STATE.spaces,
                 currentSpace: action.payload.currentSpace || INITIAL_STATE.currentSpace,
                 quickSettings: { ...INITIAL_STATE.quickSettings, ...(action.payload.quickSettings || {}) },
-                fs: { ...INITIAL_STATE.fs, ...(action.payload.fs || {}) }
+                fs: { ...INITIAL_STATE.fs, ...(action.payload.fs || {}) },
+                permissions: action.payload.permissions || {}
             };
 
         default:

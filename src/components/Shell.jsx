@@ -11,37 +11,11 @@ import AppSwitcher from '../os/components/AppSwitcher';
 import VirtualDesktopSwitcher from '../os/components/VirtualDesktopSwitcher';
 import NotificationCenter from '../os/components/NotificationCenter';
 import ToastManager from '../os/components/ToastManager';
+import PermissionPrompt from '../os/components/PermissionPrompt';
 
-// Apps import
-import FinancialTracker from '../apps/FinancialTracker';
-import TerminalApp from '../apps/Terminal';
-import CalculatorApp from '../apps/Calculator';
-import SettingsApp from '../apps/Settings';
-import IcebreakerApp from '../apps/Icebreaker';
-import ConstructApp from '../apps/Construct';
-import SysMon from '../apps/SysMon';
-import MusicPlayerApp from '../apps/MusicPlayer';
-import NetworkMapApp from '../apps/NetworkMap';
-import TextPadApp from '../apps/TextPad';
-import VaultApp from '../apps/Vault';
-import FileExplorer from '../apps/FileExplorer';
-
-const APP_REGISTRY = {
-    'tracker': { component: FinancialTracker },
-    'terminal': { component: TerminalApp },
-    'calc': { component: CalculatorApp },
-    'settings': { component: SettingsApp },
-    'icebreaker': { component: IcebreakerApp },
-    'construct': { component: ConstructApp },
-    'sysmon': { component: SysMon },
-    'music': { component: MusicPlayerApp },
-    'network': { component: NetworkMapApp },
-    'textpad': { component: TextPadApp },
-    'vault': { component: VaultApp },
-    'files': { component: FileExplorer },
-    // System fallbacks
-    'default': { component: () => <div className="p-4 text-white">APP_NOT_FOUND</div> }
-};
+// Kernel
+import { SYSTEM_APPS } from '../os/kernel/registry';
+import AppContainer from '../os/kernel/AppContainer';
 
 const Shell = () => {
     const { state, actions } = useOS();
@@ -74,13 +48,19 @@ const Shell = () => {
                 
                 {/* System Overlays */}
                 <ToastManager />
+                <PermissionPrompt />
                 <NotificationCenter isOpen={notifCenterOpen} onClose={() => setNotifCenterOpen(false)} />
                 <AppSwitcher />
                 {spaceSwitcherOpen && <VirtualDesktopSwitcher onClose={() => setSpaceSwitcherOpen(false)} />}
 
                 {/* Window Layer */}
                 {visibleWindows.map(win => {
-                    const App = (APP_REGISTRY[win.type] || APP_REGISTRY['default']).component;
+                    const manifest = SYSTEM_APPS[win.type];
+                    
+                    if (!manifest) {
+                        return null; // Or render a fallback error window
+                    }
+
                     return (
                         <WindowFrame
                             key={win.id}
@@ -95,7 +75,16 @@ const Shell = () => {
                             onResize={actions.resizeWindow}
                             onSnap={actions.snapWindow}
                         >
-                            <App data={win.data} config={state.theme} onUpdateConfig={() => { }} auditLog={[]} />
+                            <AppContainer 
+                                manifest={manifest}
+                                data={win.data}
+                                osActions={actions}
+                                osState={state}
+                                onClose={actions.closeWindow}
+                                dispatch={actions.dispatch}
+                                isMinimized={win.minimized}
+                                isActive={activeWindowId === win.id}
+                            />
                         </WindowFrame>
                     );
                 })}

@@ -63,13 +63,14 @@ export const OSProvider = ({ children }) => {
             desktopIcons: state.desktopIcons,
             spaces: state.spaces,
             currentSpace: state.currentSpace,
-            quickSettings: state.quickSettings
+            quickSettings: state.quickSettings,
+            permissions: state.permissions
         };
         
         storage.saveSysState(snapshot).catch(e => console.error('State Save Failed', e));
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [state.windows, state.theme, state.desktopIcons, state.spaces, state.currentSpace, state.quickSettings]);
+    }, [state.windows, state.theme, state.desktopIcons, state.spaces, state.currentSpace, state.quickSettings, state.permissions]);
 
     // Event Bus Bridge
     useEffect(() => {
@@ -131,6 +132,9 @@ export const OSProvider = ({ children }) => {
 
         // Settings
         setQuickSetting: (key, value) => dispatch({ type: ACTIONS.SET_QUICK_SETTING, payload: { key, value } }),
+
+        // Permissions
+        resolvePermission: (appId, permission, decision) => dispatch({ type: ACTIONS.RESOLVE_PERMISSION, payload: { appId, permission, decision } }),
 
         // --- File System Operations ---
         fs: {

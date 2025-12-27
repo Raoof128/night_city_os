@@ -2,6 +2,24 @@
 
 All notable changes to the "Night City OS" project will be documented in this file.
 
+## [v5.5.0] - Platform Runtime - 2025-12-27
+### Architecture
+- **App Runtime:** Introduced `AppContainer` sandbox to isolate running applications.
+- **Manifest Registry:** Centralized app definitions in `src/os/kernel/registry.js` supporting lazy loading, permissions, and file handlers.
+- **Permission System:** Granular capability gates (`files:read`, `network`, `clipboard`) with user-facing "Allow/Deny" prompts and persistence.
+
+### Features
+- **App Lifecycle:** Apps now receive `active` / `suspended` lifecycle events (e.g., on minimize).
+- **Crash Isolation:** Per-app error boundaries prevent a single crashing app from taking down the entire OS.
+- **Inter-App Integration:**
+  - **Open With:** File Explorer dynamically resolves apps based on file extensions/MIME types.
+  - **Clipboard:** Secure wrapper around system clipboard with permission checks.
+- **Lazy Loading:** All system apps are now code-split and loaded on demand.
+
+### Fixed
+- **Fast Refresh:** Resolved React Refresh warnings in kernel components.
+- **Performance:** Optimized `useMemo` dependencies in AppContainer to prevent unnecessary re-renders.
+
 ## [v5.4.0] - Storage & Polish - 2025-12-27
 ### Architecture
 - **Hybrid Storage Engine:** Replaced `localStorage` persistence with a production-grade `IndexedDB` (metadata) + `OPFS` (binary content) implementation via `StorageKernel`.
