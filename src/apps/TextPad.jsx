@@ -1,27 +1,31 @@
-import { useEffect, useState } from 'react';
-import { useOS } from '../os/hooks/useOS';
+import { useEffect, useState, useRef } from 'react';
+import { useApp } from '../os/kernel/AppContext';
 import { Save, FilePlus, Loader } from 'lucide-react';
 
-const TextPadApp = ({ data }) => {
-    const { actions } = useOS();
+const TextPadApp = () => {
+    const { fs, addNotification, launchArgs, meta } = useApp();
     const [content, setContent] = useState('');
-    const [fileName, setFileName] = useState(data?.name || 'untitled.txt');
-    const [loading, setLoading] = useState(!!data?.fileId);
+    const [fileName, setFileName] = useState(launchArgs?.name || 'untitled.txt');
+    const [fileId, setFileId] = useState(launchArgs?.fileId || null);
+    const [loading, setLoading] = useState(!!launchArgs?.fileId);
     const [dirty, setDirty] = useState(false);
+    
+    // Autosave ref to prevent stale closures
+    const contentRef = useRef(content);
+    contentRef.current = content;
 
     useEffect(() => {
         const load = async () => {
-            if (data?.fileId) {
+            if (launchArgs?.fileId) {
                 setLoading(true);
                 try {
-                    const result = await actions.fs.readFile(data.fileId);
+                    const result = await fs.readFile(launchArgs.fileId);
                     if (result && result.blob) {
                         const text = await result.blob.text();
                         setContent(text);
                         setDirty(false);
                     }
                 } catch (e) {
-                    console.error('Failed to read file', e);
                     setContent('// ERROR: FAILED TO READ DATA SHARD');
                 }
                 setLoading(false);
@@ -30,21 +34,42 @@ const TextPadApp = ({ data }) => {
             }
         };
         load();
-    }, [data?.fileId, actions.fs]);
+    }, [launchArgs?.fileId]);
+
+    // Autosave
+    useEffect(() => {
+        if (!fileId || !dirty) return;
+
+        const timer = setTimeout(async () => {
+            try {
+                await fs.updateFile(fileId, contentRef.current);
+                setDirty(false);
+                // Optional: Silent toast or indicator
+            } catch (e) {
+                console.error('Autosave failed', e);
+            }
+        }, 2000);
+
+        return () => clearTimeout(timer);
+    }, [content, fileId, dirty]);
 
     const handleSave = async () => {
-        if (data?.fileId) {
-            await actions.fs.updateFile(data.fileId, content);
-            setDirty(false);
-            actions.addNotification({ title: 'Saved', message: fileName, type: 'success' });
-                } else {
-                    // New file creation - simpler to just prompt here or assume root? 
-                    // For now, let's just create in root if no context
-                    await actions.fs.createFile('root', fileName, content);
-                    actions.addNotification({ title: 'Created', message: fileName, type: 'success' });
-                    setDirty(false);
-                    // Ideally we'd redirect to this fileId, but for now just saved
-                }    };
+        try {
+            if (fileId) {
+                await fs.updateFile(fileId, content);
+                setDirty(false);
+                addNotification({ title: 'Saved', message: fileName, type: 'success' });
+            } else {
+                // Create in root by default if new
+                const node = await fs.createFile('root', fileName, content);
+                setFileId(node.id); // Update context
+                setDirty(false);
+                addNotification({ title: 'Created', message: fileName, type: 'success' });
+            }
+        } catch (e) {
+            addNotification({ title: 'Save Failed', message: e.message, type: 'error' });
+        }
+    };
 
     if (loading) {
         return (
@@ -69,7 +94,7 @@ const TextPadApp = ({ data }) => {
                         onClick={handleSave}
                         className="flex items-center gap-1 px-2 py-1 border border-[var(--color-blue)] text-[var(--color-blue)] hover:bg-[var(--color-blue)] hover:text-black"
                     >
-                        {data?.fileId ? <Save size={12} /> : <FilePlus size={12} />} SAVE
+                        {fileId ? <Save size={12} /> : <FilePlus size={12} />} SAVE
                     </button>
                 </div>
             </div>

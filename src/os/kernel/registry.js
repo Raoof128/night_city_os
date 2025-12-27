@@ -103,6 +103,21 @@ export const SYSTEM_APPS = {
         icon: HardDrive,
         permissions: ['files:manage', 'mount:manage'],
         component: lazy(() => import('../../apps/FileExplorer'))
+    },
+    'media': {
+        id: 'media',
+        name: 'Media Viewer',
+        icon: Monitor,
+        permissions: ['files:read'],
+        fileHandlers: {
+            'image/png': 'default',
+            'image/jpeg': 'default',
+            'video/mp4': 'default',
+            '.png': 'default',
+            '.jpg': 'default',
+            '.mp4': 'default'
+        },
+        component: lazy(() => import('../../apps/MediaViewer'))
     }
 };
 

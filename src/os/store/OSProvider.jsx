@@ -135,6 +135,7 @@ export const OSProvider = ({ children }) => {
 
         // Permissions
         resolvePermission: (appId, permission, decision) => dispatch({ type: ACTIONS.RESOLVE_PERMISSION, payload: { appId, permission, decision } }),
+        revokePermission: (appId, permission) => dispatch({ type: ACTIONS.REVOKE_PERMISSION, payload: { appId, permission } }),
 
         // --- File System Operations ---
         fs: {

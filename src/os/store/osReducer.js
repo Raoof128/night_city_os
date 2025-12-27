@@ -73,6 +73,7 @@ export const ACTIONS = {
     // Permission Actions
     REQUEST_PERMISSION: 'REQUEST_PERMISSION',
     RESOLVE_PERMISSION: 'RESOLVE_PERMISSION',
+    REVOKE_PERMISSION: 'REVOKE_PERMISSION',
 
     SET_THEME: 'SET_THEME',
     SET_QUICK_SETTING: 'SET_QUICK_SETTING',
@@ -349,6 +350,20 @@ export function osReducer(state, action) {
                         ...state.permissions[appId],
                         [permission]: decision
                     }
+                }
+            };
+        }
+
+        case ACTIONS.REVOKE_PERMISSION: {
+            const { appId, permission } = action.payload;
+            const appPerms = { ...state.permissions[appId] };
+            delete appPerms[permission];
+            
+            return {
+                ...state,
+                permissions: {
+                    ...state.permissions,
+                    [appId]: appPerms
                 }
             };
         }

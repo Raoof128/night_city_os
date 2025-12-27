@@ -80,6 +80,15 @@ const AppContainer = ({ manifest, data, osActions, osState, onClose, dispatch, i
             closeWindow: osActions.closeWindow,
             addNotification: osActions.addNotification,
             
+            // System State Access (Read-Only)
+            system: {
+                permissions: osState.permissions,
+                windows: osState.windows,
+                quickSettings: osState.quickSettings,
+                revokePermission: osActions.revokePermission,
+                setQuickSetting: osActions.setQuickSetting
+            },
+
             // Clipboard Wrapper
             clipboard: {
                 readText: () => clipboard.readText(manifest.id),
