@@ -2,7 +2,7 @@
 
 **Codename:** NC_OS_V5_NEURAL
 **Owner:** Raouf (Netrunner/Admin)
-**Status:** STABLE RELEASE (Kernel Refactor v5.3.0)
+**Status:** STABLE RELEASE (Storage Kernel + Polish v5.4.0)
 **Repository:** [https://github.com/Raoof128/night_city_os](https://github.com/Raoof128/night_city_os)
 
 ## ⚡ Executive Summary
@@ -11,6 +11,7 @@ Night City OS is a high-fidelity React-based Operating System simulation running
 ## 🛠️ Tech Stack & Dependencies
 - **Core:** React 18+ (Context + Reducer Architecture)
 - **State Management:** Custom Redux-lite Store (`osReducer`) + Typed Event Bus.
+- **Persistence:** **Hybrid Storage Engine** (IndexedDB for metadata + OPFS for binary content).
 - **Animation Physics:** framer-motion (Spring physics for windows, drag interactions, toast animations, charts)
 - **Testing:** Vitest + React Testing Library (Unit & Integration)
 - **CI/CD:** GitHub Actions (Lint, Test, Build)
@@ -21,28 +22,30 @@ Night City OS is a high-fidelity React-based Operating System simulation running
     - Audio Processing (Voice Note Expenses)
     - Financial Reasoning (Spending Insights & Anomaly Detection)
 - **Validation & Telemetry:** Centralized input validation + prefixed logging (`src/utils/validation`, `src/utils/logger`) used for uploads and finance mutations.
-- **Persistence & VFS:** Window manager runs on a reducer with persisted state snapshots; files are stored in a recursive VFS (`src/utils/vfs`) with create/rename/delete support.
 
 ## 🏗️ Architecture (Modular V5 Kernel)
 The OS features a fully modularized kernel architecture to support scalability and maintainability.
-- **Kernel Layer (`src/os/kernel`):** Centralized `EventBus` for system-wide messaging (Boot, Error, Window Ops).
+- **Kernel Layer (`src/os/kernel`):** 
+    - **`EventBus`:** Centralized system-wide messaging (Boot, Error, Window Ops) with history buffer.
+    - **`StorageKernel`:** Abstraction over `idb` and `navigator.storage` (OPFS) for persistent data.
 - **Store Layer (`src/os/store`):** Single source of truth via `OSProvider` and `osReducer`, handling Windows, Boot State, and Theme.
 - **Shell Layer (`Shell.jsx`):** Orchestrates the Boot -> Desktop -> Shutdown lifecycle.
 - **Component Library:**
-    - **`WindowFrame`:** High-performance, 8-point resizable container with local state optimization.
+    - **`WindowFrame`:** High-performance, 8-point resizable container with local state optimization and Snap/Tiling support.
     - **`Desktop` & `Taskbar`:** Decoupled functional components.
     - **`utils/theme`:** Centralized design tokens.
 - **Application Layer:** Each app is an isolated module in `src/apps/`:
-    - `FinancialTracker.jsx`, `Calculator.jsx`, `Terminal.jsx`, etc.
+    - `FinancialTracker.jsx`, `Calculator.jsx`, `Terminal.jsx`, `FileExplorer.jsx`, etc.
 
-## 📦 Key Features (v5.1 Updated - Social Suite)
+## 📦 Key Features (v5.4 Updated - Storage & Polish)
 
 ### 1. The "Arasaka" Interface (Glassmorphism Upgrade)
 - **Palette:** Strict adherence to `#FCEE0A` (Yellow), `#FF003C` (Red), `#00F0FF` (Blue), and `#000000` (Void).
 - **Aesthetic:** "Glass-morphism" windows with frosted backdrops, neon borders, and CRT/Glitch overlays.
 - **Stealth Mode:** Toggleable via Context Menu to reduce visual noise.
+- **Window Management:** Snapping (Split/Quarter), Virtual Desktops (Spaces), and Minimize/Maximize animations.
 
-### 2. Social & Collaborative Finance (NEW)
+### 2. Social & Collaborative Finance
 - **Shared Spaces:** Unified dashboard for Families, Roommates, or Couples.
     - **Roles & Permissions:** Admin/Editor/Viewer controls.
     - **Approval Workflows:** Transactions > Threshold require Admin approval.
@@ -53,6 +56,10 @@ The OS features a fully modularized kernel architecture to support scalability a
     - **Shared Shopping Lists:** Real-time synced lists linked to budgets.
 
 ### 3. Functional Applications
+- **File Explorer (NEW):**
+    - **Tree/Grid Views:** Navigate folders and manage files.
+    - **Mount Drive:** Mount local directories directly into the OS (Chrome/Edge).
+    - **Operations:** Create, Rename, Delete files and folders.
 - **cmd.exe (Terminal):** Functional CLI. Parses commands (`hack`, `balance`, `whoami`, `clear`, `date`). Maintains history state.
 - **Finance Tracker (v2.5 Neural):**
     - **Dashboard:** Tabbed interface (Overview, Assets, Analytics, Simulation, Insights).
@@ -71,13 +78,14 @@ The OS features a fully modularized kernel architecture to support scalability a
     - **Features:** Reset Grid, Toggle Stealth Mode, Run Diagnostics.
     - **Logic:** Auto-closes on interaction or outside click.
 - **Draggable Everything:** Icons, Widgets (Calendar, Upload), and Windows use framer-motion drag controls.
-- **Notifications & Audit:** "Toast" system for alerts + "Restricted" Audit Log in Settings.
+- **Notifications & Audit:** "Toast" system + Notification Center history panel.
+- **Quick Settings:** System Tray panel for Wifi, DND, Theme, and Performance toggles.
 - **Natural Search:** Taskbar input supports natural language app launching.
 
 ## 🧪 Engineering Runbook
 - **Quality gates:** `npm run lint`, `npm run test -- --run`, `npm run build`.
 - **Env:** Provide `VITE_GEMINI_API_KEY` via `.env.local` when exercising AI receipt scanning.
-- **State hygiene:** Persistent slices are stored in `localStorage`; clear storage to simulate a cold boot.
+- **State hygiene:** Persistent slices are stored in IndexedDB + OPFS; use "Hard Reset" in Recovery screen to wipe.
 - **Permissions:** Finance mutations respect `spaces` roles; approvals enforced over configured thresholds.
 - **Audio Engine:** `useSound` lazily creates and unlocks the Web Audio context on user interaction and is covered by `tests/unit/useSound.test.js`. Keep volume/mute wiring intact when adding new events.
 - **Docs:** Mermaid diagrams are GitHub-compatible; validate new diagrams locally before committing.
@@ -87,7 +95,7 @@ The OS features a fully modularized kernel architecture to support scalability a
 - **Palette & Layers:** Prefer `COLORS` tokens for UI fills/gradients and keep overlays (context menu, toast) above windows; memoize static backdrops to reduce re-renders.
 - **Strategic Ops:** Uses Recharts + `decimal.js` for high-precision planning (vaults, debt, FIRE). Keep projections deterministic by passing sanitized params into `strategicOps` utils.
 - **Lint discipline:** CI blocks warnings; clear unused imports before committing.
-- **Dependencies:** New chart/math deps are vendored locally (`recharts`, `decimal.js`)—ensure `npm install` is run after cloning.
+- **Dependencies:** New chart/math deps are vendored locally (`recharts`, `decimal.js`, `idb`)—ensure `npm install` is run after cloning.
 - **Round-ups:** Siphon math uses Decimal ceiling via `calculateRoundups`; keep inputs numeric to avoid NaN.
 - **Audio:** Web Audio-based `useSound` drives SFX (boot, clicks, errors); master volume/mute is controlled via Settings.
 - **Settings:** Wallpaper toggle (Night/Void), drag sensitivity, and volume sliders are persisted in `os_config`.

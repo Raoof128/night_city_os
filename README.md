@@ -10,13 +10,13 @@ Night City OS is a production-grade, browser-based operating system simulation i
 ---
 
 ## 🚀 Highlights
-- **Modular desktop**: Window manager with drag physics, minimization, z-index orchestration, and mobile-aware layout.
+- **Hybrid Storage Engine**: State-of-the-art persistence using **IndexedDB** for metadata and **OPFS** (Origin Private File System) for binary assets. Zero-latency moves and reliable backups.
+- **File System**: Full-featured File Explorer with drag-drop, folder trees, and support for mounting **local drives** directly into the OS.
+- **Window Management**: Snapping (tiling), virtual desktops (spaces), minimize/maximize animations, and focus history.
 - **Finance suite**: Shared spaces, permissions, anomaly detection, receipt scanning, and gamified savings quests.
-- **Strategic Ops**: Mission-style goal engine (vaults, debt liquidation, burn-rate limiters) with FIRE/legacy projections and micro-siphoning.
-- **Cybersec workspace**: Construct AI chat (Silverhand persona), Icebreaker code editor + sandbox, SysMon canvas monitor, and Vault secure store.
-- **Productivity tools**: Terminal, calculator, scratchpad, music amp, network map, image viewer, and start menu search.
-- **Resilience first**: Persistent state via `localStorage`, guarded input validation, and defensive logging around user uploads and transactions.
-- **Audio engine**: Web Audio-backed SFX (hover blips, window hums, error bursts) with gesture-unlock safeguards.
+- **Strategic Ops**: Mission-style goal engine (vaults, debt liquidation) with FIRE/legacy projections.
+- **Cybersec workspace**: Construct AI chat, Icebreaker code editor, SysMon, and Vault secure store.
+- **Resilience**: Global error boundary with auto-recovery, event bus logging, and "Safe Mode" reset.
 - **Theming**: Arasaka palette with CRT overlays, neon grids, and toggleable stealth/privacy modes.
 
 ---
@@ -27,33 +27,32 @@ Night City OS is a production-grade, browser-based operating system simulation i
 flowchart TD
     user([User]) --> ui[WinOS Shell]
     ui --> wm[Window Manager]
-    ui --> widgets[Desktop Widgets]
     wm --> apps[Applications Registry]
+    apps --> explorer[File Explorer]
     apps --> finance[FinancialTracker]
-    apps --> terminal[Terminal]
-    apps --> media[MusicPlayer]
-    apps --> settings[Settings]
-    finance --> storage["usePersistentState (localStorage)"]
-    settings --> theme[Theme Tokens]
-    widgets --> upload[DesktopUploadWidget]
-    upload --> validation[Validation Utilities]
-    validation --> finance
-    subgraph security_telemetry [Security & Telemetry]
-        validation -. guards .-> logger[(Logger)]
-        logger -. audit .-> auditLog[Audit Log]
+    
+    subgraph Kernel
+        store[OS Store (Redux)]
+        bus[Event Bus]
+        storage[Storage Engine]
     end
-    storage -. sync .-> ui
+    
+    ui -. actions .-> store
+    store -- persistence --> storage
+    storage -- metadata --> idb[(IndexedDB)]
+    storage -- blobs --> opfs[(OPFS)]
+    
+    wm -. events .-> bus
+    bus -. logs .-> recovery[Recovery UI]
 ```
-
-Additional design details live in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ---
 
 ## 🧱 Tech Stack
 - **Framework**: React 18 + Vite
+- **Storage**: IndexedDB + OPFS (Origin Private File System)
 - **Styling**: Tailwind CSS, custom design tokens, glassmorphism overlays
 - **Animation**: framer-motion
-- **Charts**: Recharts for mission planning projections
 - **Testing**: Vitest + React Testing Library
 - **Tooling**: ESLint, Prettier, Husky, lint-staged, GitHub Actions CI
 

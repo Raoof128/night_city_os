@@ -16,7 +16,7 @@ flowchart LR
     end
     subgraph Apps
         FinancialTracker
-        StrategicOps[Strategic Operations]
+        FileExplorer
         Terminal
         Calculator
         MusicPlayer
@@ -28,44 +28,38 @@ flowchart LR
         TextPad
         Settings
     end
-    subgraph Shared
-        Hooks[hooks/{usePersistentState,useSound}]
-        Utils[utils/{theme,validation,logger,helpers}]
-        Widgets[DesktopCalendarWidget,DesktopUploadWidget]
+    subgraph Kernel
+        Store[OS Store (Redux)]
+        Storage[StorageKernel (IDB+OPFS)]
+        EventBus
     end
     User --> WinOS
-    WinOS --> WindowFrame
-    WindowFrame --> Apps
-    Widgets --> FinancialTracker
-    FinancialTracker --> StrategicOps
-    Apps --> Hooks
-    Apps --> Utils
+    WinOS --> Store
+    Store --> Storage
+    Store --> Apps
+    Apps --> EventBus
 ```
 
 **Key principles**
-- **Single shell, modular apps**: `WinOS.jsx` owns orchestration while each app under `src/apps/` remains isolated and composable.
-- **Persistence with safeguards**: State is synced to `localStorage` via `usePersistentState`, with try/catch protection to avoid corrupting the UI.
-- **UI-first boundaries**: Animations, drag physics, and glassmorphism live inside presentational components, leaving business logic in hooks/utils.
+- **Single shell, modular apps**: `Shell.jsx` owns orchestration while each app under `src/apps/` remains isolated and composable.
+- **Hybrid Storage**: Metadata lives in IndexedDB for fast queries; binary content lives in OPFS for performance.
+- **Event Driven**: System events (errors, logs, window ops) flow through a central `EventBus`.
 
 ---
 
 ## 2. State Management
 - **Persistent slices**:
-  - `windows`: active windows, z-order, and minimization state.
-  - `files`: virtual shards uploaded via desktop widgets.
-  - `sysConfig`: background fit + visual toggles.
-  - `gamification`: XP, badges, and rotating quests.
-  - `audio`: master volume + mute preferences honored by `useSound`.
-  - `vault`: encrypted secrets stored by Vault after biometric unlock.
-  - `icebreaker`: user code persisted between sessions for the Icebreaker sandbox.
-  - `spaces`: collaborative finance spaces, members, and approvals.
-  - `strategicOps`: vault/debt/burn targets, round-up toggles, FIRE/legacy parameters.
-- **Ephemeral slices**:
-  - `notifications`: transient toasts.
-  - `contextMenu` and `commandPaletteOpen`: UI overlays.
-  - `auditLog`: rolling security/usage events (kept in memory).
+  - `windows`: active windows, z-order, snap state, and minimization state.
+  - `fs`: in-memory cache of the file system tree (persisted to IDB).
+  - `spaces`: virtual desktops and their configurations.
+  - `theme`: visual preferences (mode, volume).
+  - `quickSettings`: toggles for DND, WiFi, etc.
+- **Storage Engine**:
+  - `sys_kv`: IndexedDB store for OS snapshots.
+  - `fs_nodes`: IndexedDB store for file metadata.
+  - `blobs`: OPFS directory for file content.
 
-All slices are updated with functional `setState` calls to prevent race conditions when multiple components interact.
+State is managed via `useReducer` in `OSProvider`, with side-effects syncing to `StorageKernel`.
 
 ---
 

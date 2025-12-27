@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import { AlertTriangle, Power, RefreshCw } from 'lucide-react';
 import { EventBus, EVENTS } from '../kernel/eventBus';
+import { storage } from '../kernel/storage';
 
 export class GlobalErrorFallback extends Component {
     constructor(props) {
@@ -26,8 +27,13 @@ export class GlobalErrorFallback extends Component {
         window.location.reload();
     };
 
-    handleHardReset = () => {
-        localStorage.clear();
+    handleHardReset = async () => {
+        try {
+            localStorage.clear();
+            await storage.clear();
+        } catch (e) {
+            console.error('Hard reset failed', e);
+        }
         window.location.reload();
     };
 
@@ -48,10 +54,23 @@ export class GlobalErrorFallback extends Component {
                             </div>
                         </div>
 
-                        <div className="bg-[var(--color-red)]/10 p-4 border border-[var(--color-red)]/30 font-mono text-sm mb-8 overflow-auto max-h-48 whitespace-pre-wrap">
+                        <div className="bg-[var(--color-red)]/10 p-4 border border-[var(--color-red)]/30 font-mono text-sm mb-4 overflow-auto max-h-48 whitespace-pre-wrap">
                             {this.state.error?.toString()}
                             <br />
                             {this.state.errorInfo?.componentStack}
+                        </div>
+
+                        <div className="mb-8">
+                            <h3 className="text-xs font-bold mb-2 opacity-70">SYSTEM LOGS</h3>
+                            <div className="bg-black border border-gray-800 p-2 font-mono text-[10px] h-32 overflow-auto text-gray-400">
+                                {EventBus.getHistory().map((log, i) => (
+                                    <div key={i} className="mb-1 border-b border-white/5 pb-1">
+                                        <span className="text-[var(--color-blue)]">[{new Date(log.timestamp).toLocaleTimeString()}]</span>{' '}
+                                        <span className="text-[var(--color-yellow)]">{log.channel}</span>{' '}
+                                        <span className="opacity-70">{JSON.stringify(log.payload)}</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
                         <div className="flex gap-4">
