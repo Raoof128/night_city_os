@@ -1,8 +1,14 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import WindowFrame from '../../src/components/WindowFrame';
+import { OSContext } from '../../src/os/store/OSContext';
 
 describe('WindowFrame Component', () => {
+    const mockState = {
+        theme: { volume: 0.5, muted: false }
+    };
+    const mockActions = {};
+
     const defaultProps = {
         item: {
             id: 'win-1',
@@ -21,21 +27,29 @@ describe('WindowFrame Component', () => {
         onResize: vi.fn()
     };
 
+    const renderWindow = (props = defaultProps) => {
+        return render(
+            <OSContext.Provider value={{ state: mockState, actions: mockActions }}>
+                <WindowFrame {...props}><div data-testid="content">Content</div></WindowFrame>
+            </OSContext.Provider>
+        );
+    };
+
     it('should render window title', () => {
-        render(<WindowFrame {...defaultProps}><div data-testid="content">Content</div></WindowFrame>);
+        renderWindow();
         expect(screen.getByText('Test Window')).toBeInTheDocument();
         expect(screen.getByTestId('content')).toBeInTheDocument();
     });
 
     it('should call onClose when close button clicked', () => {
-        render(<WindowFrame {...defaultProps} />);
+        renderWindow();
         const closeBtn = screen.getByLabelText('Close');
         fireEvent.click(closeBtn);
         expect(defaultProps.onClose).toHaveBeenCalledWith('win-1');
     });
 
     it('should not render if minimized', () => {
-        render(<WindowFrame {...defaultProps} item={{ ...defaultProps.item, minimized: true }} />);
+        renderWindow({ ...defaultProps, item: { ...defaultProps.item, minimized: true } });
         expect(screen.queryByText('Test Window')).not.toBeInTheDocument();
     });
 });

@@ -88,7 +88,12 @@ const Shell = () => {
         const visibleWindows = windows.filter(w => w.spaceId === currentSpace);
 
         return (
-            <div className="relative w-screen h-screen overflow-hidden bg-black" onContextMenu={(e) => e.preventDefault()}>
+            <div 
+                className="relative w-screen h-screen overflow-hidden bg-black" 
+                onContextMenu={(e) => e.preventDefault()}
+                role="application"
+                aria-label="Night City OS Desktop"
+            >
                 <LockScreen />
                 <Desktop />
                 

@@ -68,15 +68,26 @@ const CommandPalette = ({ isOpen, onClose, commands, onSearch }) => {
                         ref={inputRef}
                         className="flex-1 bg-transparent border-none outline-none text-xl font-bold text-white placeholder:text-gray-700 uppercase"
                         placeholder="BREACH_PROTOCOL_V.5.0..."
+                        aria-label="Command search"
+                        aria-autocomplete="list"
+                        aria-controls="palette-results"
+                        aria-activedescendant={filteredCommands[selectedIndex] ? `cmd-${selectedIndex}` : undefined}
                         value={query}
                         onChange={e => { setQuery(e.target.value); setSelectedIndex(0); }}
                     />
                     <div className="text-[10px] bg-gray-900 border border-gray-700 px-2 py-1 text-gray-400">ESC TO CANCEL</div>
                 </div>
-                <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                <div 
+                    id="palette-results"
+                    role="listbox"
+                    className="max-h-[300px] overflow-y-auto custom-scrollbar"
+                >
                     {filteredCommands.map((cmd, i) => (
                         <button
                             key={i}
+                            id={`cmd-${i}`}
+                            role="option"
+                            aria-selected={i === selectedIndex}
                             className={`w-full text-left px-4 py-3 flex items-center justify-between group transition-colors ${i === selectedIndex ? 'bg-[var(--color-yellow)] text-black' : 'text-gray-400 hover:bg-white/5'}`}
                             onClick={() => { cmd.action(); onClose(); }}
                             onMouseEnter={() => setSelectedIndex(i)}

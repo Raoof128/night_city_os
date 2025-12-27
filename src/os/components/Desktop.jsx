@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useOS } from '../hooks/useOS';
 import DraggableItem from '../../components/DraggableItem';
 import DesktopCalendarWidget from '../../components/DesktopCalendarWidget';
@@ -8,7 +8,8 @@ import { COLORS } from '../../utils/theme';
 // Import Icons
 import {
     HardDrive, Activity, Grid, Terminal, Share2,
-    FileEdit, Bell, Settings, Cpu, Code2, ShieldCheck, Monitor
+    FileEdit, Bell, Settings, Cpu, Code2, ShieldCheck, Monitor,
+    RotateCcw, Layout
 } from 'lucide-react';
 
 const ICON_MAP = {
@@ -64,10 +65,80 @@ const Desktop = () => {
     const { desktopIcons, theme } = state;
     const desktopRef = useRef(null);
     const [contextMenu, setContextMenu] = useState(null);
+    const [focusedIdx, setFocusedIdx] = useState(-1);
+
+    // Keyboard Navigation for Desktop Icons
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            // Only handle if no window is active/focused (simplified)
+            if (state.activeWindowId) return;
+
+            if (['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                if (focusedIdx === -1) {
+                    setFocusedIdx(0);
+                    return;
+                }
+
+                // Grid Logic (Approx 2 columns based on x coord)
+                const isCol2 = desktopIcons[focusedIdx].x > 100;
+                
+                if (e.key === 'ArrowDown') setFocusedIdx(p => (p + 1) % desktopIcons.length);
+                if (e.key === 'ArrowUp') setFocusedIdx(p => (p - 1 + desktopIcons.length) % desktopIcons.length);
+                if (e.key === 'ArrowLeft' && isCol2) {
+                    // Try to find icon in same Y range in Col 1
+                    const currentY = desktopIcons[focusedIdx].y;
+                    const match = desktopIcons.findIndex(i => i.x < 100 && Math.abs(i.y - currentY) < 50);
+                    if (match !== -1) setFocusedIdx(match);
+                }
+                if (e.key === 'ArrowRight' && !isCol2) {
+                    // Try to find icon in same Y range in Col 2
+                    const currentY = desktopIcons[focusedIdx].y;
+                    const match = desktopIcons.findIndex(i => i.x > 100 && Math.abs(i.y - currentY) < 50);
+                    if (match !== -1) setFocusedIdx(match);
+                }
+            }
+
+            if (e.key === 'Enter' && focusedIdx !== -1) {
+                const item = desktopIcons[focusedIdx];
+                actions.openWindow(item.id, item.id, {}, item.label);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [focusedIdx, desktopIcons, actions, state.activeWindowId]);
 
     const handleContextMenu = (e) => {
         e.preventDefault();
-        setContextMenu({ x: e.clientX, y: e.clientY });
+        setContextMenu({ 
+            x: e.clientX, 
+            y: e.clientY,
+            title: "SYSTEM_OPS",
+            options: [
+                { 
+                    id: 'display', 
+                    label: "SWITCH_WORKSPACE", 
+                    icon: Layout, 
+                    action: () => actions.addSpace(),
+                    shortcut: "MOD+S"
+                },
+                { 
+                    id: 'scan', 
+                    label: "RUN_DIAGNOSTIC", 
+                    icon: Activity, 
+                    action: () => actions.addNotification({ title: 'System Integrity', message: 'Core files verified. 0 anomalies detected.', type: 'success' }) 
+                },
+                { 
+                    id: 'reset', 
+                    label: "HARD_RESET_LAYOUT", 
+                    icon: RotateCcw, 
+                    action: actions.resetState, 
+                    color: 'var(--color-red)',
+                    shortcut: "MOD+R"
+                }
+            ]
+        });
     };
 
     const handleCloseContextMenu = () => setContextMenu(null);
@@ -77,7 +148,7 @@ const Desktop = () => {
             ref={desktopRef}
             className={`absolute inset-0 w-full h-full overflow-hidden transition-all duration-500 ${state.flags.multiMonitor ? 'scale-[0.8] origin-center ring-4 ring-white/10' : ''}`}
             onContextMenu={handleContextMenu}
-            onClick={handleCloseContextMenu}
+            onClick={() => { handleCloseContextMenu(); setFocusedIdx(-1); }}
         >
             <DesktopBackdrop theme={theme} />
             <WallpaperEngine />
@@ -88,20 +159,23 @@ const Desktop = () => {
                 </div>
             )}
 
-            {/* Icons */}
+            {/* Context Menu */}
             {contextMenu && (
                 <ContextMenu
                     x={contextMenu.x}
                     y={contextMenu.y}
+                    title={contextMenu.title}
+                    options={contextMenu.options}
                     onClose={handleCloseContextMenu}
-                    onReset={actions.resetState}
                 />
             )}
 
             {/* Icons */}
             <div className="relative z-10 w-full h-full p-6 pb-20">
-                {desktopIcons.map((item) => {
+                {desktopIcons.map((item, idx) => {
                     const IconComp = ICON_MAP[item.id] || Activity;
+                    const isFocused = idx === focusedIdx;
+
                     return (
                         <DraggableItem
                             key={item.id}
@@ -112,13 +186,15 @@ const Desktop = () => {
                         >
                             <button
                                 onDoubleClick={() => actions.openWindow(item.id, item.id, {}, item.label)}
-                                className="group flex flex-col items-center gap-2 focus:outline-none w-full"
+                                onClick={(e) => { e.stopPropagation(); setFocusedIdx(idx); }}
+                                className={`group flex flex-col items-center gap-2 focus:outline-none w-full transition-transform ${isFocused ? 'scale-110' : ''}`}
+                                aria-label={item.label || item.id}
                             >
-                                <div className="w-16 h-16 bg-black/40 backdrop-blur-sm border border-gray-600 rounded-xl flex items-center justify-center group-hover:bg-[var(--color-yellow)] group-hover:border-[var(--color-yellow)] transition-all duration-200 shadow-lg group-hover:shadow-[0_0_20px_rgba(255,224,0,0.4)] relative overflow-hidden">
+                                <div className={`w-16 h-16 bg-black/40 backdrop-blur-sm border rounded-xl flex items-center justify-center transition-all duration-200 shadow-lg relative overflow-hidden ${isFocused ? 'bg-[var(--color-yellow)] border-[var(--color-yellow)] shadow-[0_0_20px_rgba(255,224,0,0.4)]' : 'border-gray-600 group-hover:bg-[var(--color-yellow)] group-hover:border-[var(--color-yellow)] group-hover:shadow-[0_0_20px_rgba(255,224,0,0.4)]'}`}>
                                     <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 skew-x-12 translate-x-full group-hover:animate-shine pointer-events-none" />
-                                    <IconComp size={30} className="text-[var(--color-blue)] group-hover:text-black transition-colors" />
+                                    <IconComp size={30} className={`transition-colors ${isFocused ? 'text-black' : 'text-[var(--color-blue)] group-hover:text-black'}`} />
                                 </div>
-                                <span className="text-xs font-bold tracking-widest bg-black/80 px-2 py-0.5 rounded text-gray-300 group-hover:text-[var(--color-yellow)] shadow-sm">
+                                <span className={`text-xs font-bold tracking-widest px-2 py-0.5 rounded shadow-sm transition-colors ${isFocused ? 'bg-[var(--color-yellow)] text-black' : 'bg-black/80 text-gray-300 group-hover:text-[var(--color-yellow)]'}`}>
                                     {(item.label || item.id).toUpperCase()}
                                 </span>
                             </button>

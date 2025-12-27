@@ -51,7 +51,8 @@ export const useSound = (masterVolume = 0.4, muted = false) => {
                 error: { freq: 120, duration: 0.25 },
                 type: { freq: 880, duration: 0.02 },
                 hover: { freq: 980, duration: 0.03 },
-                hum: { freq: 220, duration: 0.4 }
+                hum: { freq: 220, duration: 0.4 },
+                snap: { freq: 1200, duration: 0.05 }
             }[type] || { freq: 520, duration: 0.1 };
             try {
                 createTone(ctx, base.freq, base.duration, masterVolume);

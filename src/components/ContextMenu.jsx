@@ -1,17 +1,12 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, Activity, RotateCcw } from 'lucide-react';
 import { FocusTrap } from './FocusTrap';
 
-const ContextMenu = ({ x, y, onClose, onReset, onToggleStealth, stealthMode, onScan }) => {
+const ContextMenu = ({ x, y, onClose, title = "SYSTEM_OPS", options = [] }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const options = useMemo(() => [
-        { id: 'stealth', label: stealthMode ? "DISABLE_STEALTH" : "ENABLE_STEALTH", icon: Eye, action: onToggleStealth },
-        { id: 'scan', label: "RUN_DIAGNOSTIC", icon: Activity, action: onScan },
-        { id: 'reset', label: "RESET_GRID_LAYOUT", icon: RotateCcw, action: onReset, color: 'var(--color-red)' }
-    ], [stealthMode, onToggleStealth, onScan, onReset]);
 
     useEffect(() => {
+        if (options.length === 0) return;
         const handleKeyDown = (e) => {
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
@@ -21,8 +16,10 @@ const ContextMenu = ({ x, y, onClose, onReset, onToggleStealth, stealthMode, onS
                 setSelectedIndex(prev => (prev - 1 + options.length) % options.length);
             } else if (e.key === 'Enter') {
                 e.preventDefault();
-                options[selectedIndex].action();
-                onClose();
+                if (options[selectedIndex]) {
+                    options[selectedIndex].action();
+                    onClose();
+                }
             } else if (e.key === 'Escape') {
                 onClose();
             }
@@ -31,34 +28,40 @@ const ContextMenu = ({ x, y, onClose, onReset, onToggleStealth, stealthMode, onS
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [selectedIndex, options, onClose]);
 
+    if (options.length === 0) return null;
+
     return (
         <FocusTrap isActive={true} onDeactivate={onClose}>
             <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="absolute z-[1200] w-64 bg-black/95 backdrop-blur-sm border border-[var(--color-yellow)] shadow-[0_0_30px_rgba(0,0,0,0.5)]"
+                initial={{ opacity: 0, scale: 0.9, y: -10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: -10 }}
+                transition={{ duration: 0.1 }}
+                className="absolute z-[1200] w-64 bg-black/95 backdrop-blur-md border border-[var(--color-yellow)] shadow-[0_0_40px_rgba(0,0,0,0.7)] overflow-hidden"
                 style={{ left: x, top: y }}
                 role="menu"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="bg-[var(--color-yellow)] px-2 py-1 text-black font-black text-xs tracking-widest flex justify-between items-center">
-                    <span>SYSTEM_OPS</span>
-                    <div className="flex gap-1 text-[8px] opacity-50">
-                        <span>CTRL_V.5</span>
+                <div className="bg-[var(--color-yellow)] px-3 py-1.5 text-black font-black text-[10px] tracking-[0.2em] flex justify-between items-center uppercase">
+                    <span>{title}</span>
+                    <div className="flex gap-1 opacity-50">
+                        <div className="w-1 h-1 bg-black rounded-full" />
+                        <div className="w-1 h-1 bg-black rounded-full" />
                     </div>
                 </div>
                 <div className="p-1">
                     {options.map((opt, i) => (
                         <button
-                            key={opt.id}
+                            key={opt.id || i}
                             role="menuitem"
-                            onClick={() => { opt.action(); onClose(); }}
+                            disabled={opt.disabled}
+                            onClick={() => { if(!opt.disabled) { opt.action(); onClose(); } }}
                             onMouseEnter={() => setSelectedIndex(i)}
-                            className={`w-full flex items-center gap-3 px-3 py-2 transition-colors text-xs font-bold font-mono text-left group ${i === selectedIndex ? 'bg-[var(--color-yellow)] text-black' : 'text-[var(--color-blue)] hover:bg-white/5'}`}
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 transition-all text-xs font-bold font-mono text-left group border border-transparent ${i === selectedIndex ? 'bg-[var(--color-yellow)] text-black border-[var(--color-yellow)] shadow-[0_0_15px_rgba(252,238,10,0.3)]' : 'text-gray-400 hover:bg-white/5'} ${opt.disabled ? 'opacity-30 cursor-not-allowed' : ''}`}
                         >
-                            <opt.icon size={14} className={i === selectedIndex ? 'text-black' : (opt.color ? 'text-red-500' : 'group-hover:text-[var(--color-yellow)]')} />
-                            <span className={opt.color && i !== selectedIndex ? 'text-red-500' : ''}>{opt.label}</span>
+                            {opt.icon && <opt.icon size={14} className={i === selectedIndex ? 'text-black' : (opt.color ? '' : 'text-[var(--color-blue)]')} style={!opt.color || i === selectedIndex ? {} : { color: opt.color }} />}
+                            <span className="flex-1">{opt.label}</span>
+                            {opt.shortcut && <span className={`text-[9px] opacity-50 ${i === selectedIndex ? 'text-black' : ''}`}>{opt.shortcut}</span>}
                         </button>
                     ))}
                 </div>

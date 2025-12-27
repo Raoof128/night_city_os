@@ -2,41 +2,32 @@
 
 All notable changes to the "Night City OS" project will be documented in this file.
 
-## [v5.8.0] - Labs & Extras - 2025-12-28
-### Features
-- **Feature Flags:** Introduced a local-first flag system to toggle experimental features via `Settings` -> `Labs` (OFF by default).
-- **Wallpaper Engine:** Particle-based live background engine with EMA performance guardrails (auto-disables on lag, Reduced Motion, or Battery Saver).
-- **Hardened Plugin System:** Support for secure, dynamic app registration from local manifests via `registerPlugin`, restricted by an **ID Allowlist**.
-- **Multi-Monitor Sim:** Experimental "Simulated Multi-Display" mode that adjusts desktop scaling and ring indicators.
-- **Crypto Utilities:** Added SHA-256 hashing for **checksum-based corruption detection** in system backups.
-- **Linux VM Stub:** Placeholder for x86 virtualization runtime.
-- **NetRelay Stub:** Placeholder for P2P collaboration layer.
+## [v5.8.1] - Hardened & Polished - 2025-12-28
+### Security & Performance
+- **JSON Bomb Protection:** Added recursion depth (10) and string length (100KB) limits to `validateImport`.
+- **Plugin Allowlist:** Restricted `registerPlugin` to an explicit `PLUGIN_ALLOWLIST`.
+- **EMA Performance Monitoring:** Implemented 60-frame moving average FPS tracking for `WallpaperEngine` (auto-disables < 30FPS).
+- **Sanitized Diagnostics:** Added recursive redaction for sensitive keys in issue reports.
 
-### Architecture
-- **Registry Hardening:** Decoupled system apps from plugin apps; added registration auth checks.
-- **Security Utilities:** Implemented recursion depth limits (10) and max string length caps (100KB) for backup import validation (Bomb Protection).
-- **Observability:** Added EMA-based performance monitoring to high-compute components.
+### UI/UX & Inclusivity
+- **Adaptive Context Menus:** Refactored `ContextMenu` to be generic and target-aware; added specific actions for Files, Folders, and Desktop.
+- **AppSwitcher Polish:** Added `FocusTrap`, Arrow Key navigation, and ARIA listbox roles.
+- **Snap Layouts:** Implemented hover-triggered picker on window maximize buttons.
+- **DND Feedback:** Added visual hover states and `FolderOpen` icons for drag-over events in File Explorer.
+- **Haptic & Audio:** Added `snap` sound effect and `navigator.vibrate` feedback for window actions.
 
 ### Fixed
-- **AppSwitcher:** Wrapped in `FocusTrap` and added ARIA roles for keyboard navigation.
-- **Shell:** Blocked all global shortcuts (Command Palette, Switcher) during session lock.
-- **Diagnostics:** Implemented `sanitizeDiagnosticData` to redact PII and secrets from issue reports.
-- **Tests:** Consolidated registry and plugin tests into `registry.test.js`. Added coverage for security bomb protection.
+- **Shortcut Gating:** Blocked all global shortcuts (Cmd+K, Alt+Tab) during session lock.
+- **Test Integrity:** Resolved component test regressions in `Taskbar.test.jsx` and `WindowFrame.test.jsx`.
+- **Registry:** Fixed missing `Globe` icon and incorrect `useOS` import paths.
+
+## [v5.8.0] - Labs & Extras - 2025-12-28
+- **Feature Flags:** Toggles for experimental features in Settings.
+- **Wallpaper Engine:** Particle background system.
+- **Crypto Engine:** SHA-256 integrity hashing.
 
 ## [v5.7.0] - Quality Gates & Accessibility - 2025-12-28
-### Accessibility
-- **Global Font Scaling:** Added setting to scale system text from 80% to 150%.
-- **Focus Management:** Implemented `FocusTrap` utility.
-- **Keyboard Navigation:** Added Arrow Key navigation and Alt+W shortcuts.
-- **Adaptive UI:** High Contrast and Reduced Motion support.
-
-### Quality & Observability
-- **Error Reporting:** Global capture for console errors and unhandled rejections.
-- **Logs App:** New application to view Audit Logs and Console output.
-- **Diagnostic Export:** "Report Issue" bundle generation.
-
-## [v5.6.0] - Security & Hardening - 2025-12-27
-- **Audit Logging:** Permanent security event recording.
-- **Profile Isolation:** Multi-user profile support with isolated storage.
-- **Lock Screen:** Session locking mechanism.
-- **Terminal 2.0:** Real filesystem commands.
+- **Global Font Scaling:** System-wide text scaling setting.
+- **Focus Management:** `FocusTrap` utility.
+- **Error Reporting:** Global console capture pipeline.
+- **Logs App:** System event viewer.

@@ -2,7 +2,7 @@
 
 **Codename:** NC_OS_V5_NEURAL
 **Owner:** Raouf (Netrunner/Admin)
-**Status:** PRODUCTION READY (Labs Update v5.8.0)
+**Status:** STABLE (Hardened v5.8.1)
 **Repository:** [https://github.com/Raoof128/night_city_os](https://github.com/Raoof128/night_city_os)
 
 ## ⚡ Executive Summary
@@ -13,55 +13,50 @@ Night City OS is a high-fidelity React-based Operating System simulation running
 - **State Management:** Custom Redux-lite Store (`osReducer`) + Typed Event Bus.
 - **Persistence:** **Hybrid Storage Engine** (IndexedDB for metadata + OPFS for binary content).
 - **Runtime:** **AppContainer Sandbox** with Permission Gates and Lazy Loading.
-- **Security:** **Audit Logging**, **CSP**, and **Profile Isolation**.
-- **Extras:** **Feature Flag System**, **Wallpaper Engine**, and **SHA-256 Hashing**.
-- **A11y:** **Focus Management**, **Keyboard Navigation**, **Font Scaling**, and **High Contrast**.
-- **Testing:** Vitest + React Testing Library + Playwright.
+- **Security:** **Audit Logging**, **CSP**, **Import Bomb Protection**, and **Plugin Allowlisting**.
+- **A11y:** **Focus Management**, **Spatial Navigation**, and **Adaptive UI** (Contrast/Reduced Motion).
+- **Testing:** Vitest + React Testing Library (69+ Unit/Component tests).
 - **CI/CD:** GitHub Actions (Lint, Test, Build)
-- **Styling:** Tailwind CSS + CSS Variables (Dynamic Theming).
 
 ## 🏗️ Architecture (Modular V5 Kernel)
-The OS features a fully modularized kernel architecture to support scalability and maintainability.
+The OS features a fully modularized kernel architecture.
 - **Kernel Layer (`src/os/kernel`):** 
-    - **`EventBus`:** Centralized system-wide messaging with history buffer and audit logging.
-    - **`StorageKernel`:** Scoped to User Profiles.
-    - **`AppContainer`:** Runtime isolation and capability injection.
-    - **`PermissionManager`:** Gatekeeper for sensitive OS APIs.
-    - **`registry.js`:** App Manifests + **Hardened Plugin Registry** (Allowlisted).
-- **Store Layer (`src/os/store`):** Single source of truth via `OSProvider` and `osReducer`.
+    - **`EventBus`:** System-wide messaging with audit logging.
+    - **`StorageKernel`:** Profile-scoped IDB + OPFS storage.
+    - **`AppContainer`:** Sandbox providing error boundaries and capability enforcement.
+    - **`PermissionManager`:** Async request handling with user consent UI.
+    - **`registry.js`:** App registry with **Hardened Plugin Loader** (Allowlisted).
+- **Observability Layer:**
+    - **`errorCapture`:** Console and global error interception.
+    - **`performance`:** Real-time FPS monitoring and budget enforcement.
 
-## 📦 Key Features (v5.8 Updated - Labs & Extras)
+## 📦 Key Features (v5.8.1 Hardened)
 
-### 1. OS Labs (Phase 8)
-- **Feature Flags:** Toggle experimental features in Settings > Labs (Disabled by default).
-- **Live Wallpaper:** Particle-based background engine with **EMA Performance Guardrails** (auto-disables on lag, low-power, or reduced-motion).
-- **Plugin System:** Secure dynamic registration of third-party manifests restricted by an **ID Allowlist** (Local-only).
-- **Multi-Monitor Sim:** Virtual multi-display canvas environment.
-- **Corruption Detection:** SHA-256 hashing for system backup verification.
+### 1. Interaction & Inclusivity (Phase 7-10)
+- **Keyboard Mastery:** Fully usable via keyboard (Alt+Tab, Arrows, Home/End).
+- **Focus Control:** Robust focus trapping in windows, modals, and menus.
+- **Adaptive Context Menu:** Right-click menus change based on target (Files vs Desktop).
+- **Snap Layouts:** Hover-triggered UI for window organization.
+- **Haptics & Audio:** Clicks, vibration, and "snap" sounds for interaction feedback.
 
-### 2. Accessibility & Quality (Phase 7)
-- **Keyboard Mastery:** Fully usable via keyboard (Alt+Tab, Alt+W, Arrow keys for menus).
-- **Adaptive UI:** Global font scaling (80%-150%), High Contrast, and Reduced Motion support.
-- **Observability:** In-OS **Logs App** and **Diagnostic Bundle** export.
+### 2. Security & Labs
+- **Hardened Imports:** Protection against deep-nesting and massive string bombs.
+- **Sanitized Diagnostics:** Redacts secrets/PII from issue reports automatically.
+- **Labs Framework:** Experimental features (Live Wallpaper, Multi-Monitor) are **OFF by default** and auto-suspend on performance lag.
 
-### 3. Security & Privacy (Phase 6)
-- **Audit Log:** Immutable record of security events.
-- **Profile Isolation:** Storage and settings scoped to `profileId`.
-- **Hardening:** Strict CSP headers, safe parsing utilities (depth/string limits), and import validation.
-- **Lock Screen:** Session locking mechanism guarding the desktop.
-
-### 4. Functional Applications (Phase 5)
-- **Terminal:** Real filesystem commands (`ls`, `cd`, `cat`, `mkdir`, `rm`).
-- **File Explorer:** Tree/Grid navigation and external drive mounting.
-- **Stubs:** Linux VM and NetRelay sync placeholders.
+### 3. Functional Applications
+- **Terminal:** Real filesystem commands (`ls`, `cat`, `mkdir`, `rm`).
+- **File Explorer:** Tree/Grid navigation, DND feedback, and drive mounting.
+- **Text Pad:** Autosave enabled scratchpad.
+- **Logs App:** Centralized view for Audit and Console logs.
 
 ## 🧪 Engineering Runbook
 - **Quality gates:** `npm run lint`, `npm run test:unit`, `npm run build`.
-- **Labs:** Toggle flags in `Settings` -> `Labs` to test experimental features (OFF by default).
-- **Performance:** Live wallpaper auto-disables if EMA frame-time exceeds 33ms or `reducedMotion` is active.
-- **Env:** Provide `VITE_GEMINI_API_KEY` via `.env.local` for AI features.
+- **A11y Checks:** Verify Tab cycling in windows and Escape to close.
+- **Labs:** Toggle flags in `Settings` -> `Labs`.
+- **Performance:** Wallpaper auto-disables if EMA frame-time exceeds 33ms.
 
 ## 🔮 V6.0 Roadmap // The "Brave New World" Update
 - **Netrunner Relay:** P2P chat channel (Real WebRTC implementation).
 - **Cloud Sync:** Real Supabase Integration for global profile persistence.
-- **Gamification:** Breach Protocol mini-games and Cyberware inventory.
+- **Local LLM:** On-device AI processing via WebGPU.

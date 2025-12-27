@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Minus, Maximize2, X } from 'lucide-react';
 import { COLORS } from '../utils/theme';
 import { FocusTrap } from './FocusTrap';
+import { useSound } from '../hooks/useSound';
+import { useOS } from '../os/hooks/useOS';
 
 const RESIZE_HANDLES = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
 const SNAP_THRESHOLD = 20;
@@ -20,6 +22,8 @@ const WindowFrame = ({
     onSnap,
     zIndex
 }) => {
+    const { state } = useOS();
+    const { play } = useSound(state.theme.volume, state.theme.muted);
     const { id, title, minimized, maximized, pos, size } = item;
 
     // Local state for smooth dragging/resizing
@@ -27,6 +31,7 @@ const WindowFrame = ({
     const [localSize, setLocalSize] = useState(size || { w: 800, h: 600 });
     const [isDragging, setIsDragging] = useState(false);
     const [snapPreview, setSnapPreview] = useState(null); // { x, y, w, h }
+    const [showSnapPicker, setShowSnapPicker] = useState(false);
 
     // Keyboard shortcuts for window management
     useEffect(() => {
@@ -47,12 +52,13 @@ const WindowFrame = ({
             if (e.altKey && e.key === 'Enter') {
                 e.preventDefault();
                 onMaximize(id);
+                play('snap');
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isActive, id, onClose, onMinimize, onMaximize]);
+    }, [isActive, id, onClose, onMinimize, onMaximize, play]);
 
     useEffect(() => {
         if (!isDragging) {
@@ -62,6 +68,26 @@ const WindowFrame = ({
     }, [pos, size, isDragging]);
 
     if (minimized) return null;
+
+    const handleSnapAction = (type) => {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const taskbarH = 48;
+        let snapPos = { x: 0, y: 0 };
+        let snapSize = { w: vw, h: vh };
+
+        if (type === 'left') { snapPos = { x: 0, y: 0 }; snapSize = { w: vw / 2, h: vh - taskbarH }; }
+        if (type === 'right') { snapPos = { x: vw / 2, y: 0 }; snapSize = { w: vw / 2, h: vh - taskbarH }; }
+        if (type === 'tl') { snapPos = { x: 0, y: 0 }; snapSize = { w: vw / 2, h: vh / 2 }; }
+        if (type === 'tr') { snapPos = { x: vw / 2, y: 0 }; snapSize = { w: vw / 2, h: vh / 2 }; }
+        if (type === 'bl') { snapPos = { x: 0, y: vh / 2 }; snapSize = { w: vw / 2, h: (vh / 2) - taskbarH }; }
+        if (type === 'br') { snapPos = { x: vw / 2, y: vh / 2 }; snapSize = { w: vw / 2, h: (vh / 2) - taskbarH }; }
+
+        if (onSnap) onSnap(id, snapPos, snapSize, type);
+        play('snap');
+        if ('vibrate' in navigator) navigator.vibrate(10);
+        setShowSnapPicker(false);
+    };
 
     const handleResizeStart = (e, direction) => {
         e.preventDefault();
@@ -264,7 +290,24 @@ const WindowFrame = ({
                                     </div>
                                     <div className="flex items-center gap-2" onPointerDown={e => e.stopPropagation()}>
                                         <button onClick={() => onMinimize(id)} aria-label="Minimize" className={`p-1 hover:bg-white/20 rounded ${isActive ? "text-black" : "text-white"}`}><Minus size={14} /></button>
-                                        <button onClick={() => onMaximize(id)} aria-label="Maximize" className={`p-1 hover:bg-white/20 rounded ${isActive ? "text-black" : "text-white"}`}><Maximize2 size={14} /></button>
+                                        
+                                        <div 
+                                            className="relative"
+                                            onMouseEnter={() => !maximized && setShowSnapPicker(true)}
+                                            onMouseLeave={() => setShowSnapPicker(false)}
+                                        >
+                                            <button onClick={() => onMaximize(id)} aria-label="Maximize" className={`p-1 hover:bg-white/20 rounded ${isActive ? "text-black" : "text-white"}`}><Maximize2 size={14} /></button>
+                                            
+                                            {showSnapPicker && (
+                                                <div className="absolute top-full right-0 mt-1 p-2 bg-black/95 border border-[var(--color-yellow)] shadow-[0_0_30px_rgba(0,0,0,0.8)] z-[1000] grid grid-cols-2 gap-1 rounded-sm w-32 animate-in fade-in zoom-in-95 duration-100">
+                                                    <button onClick={() => handleSnapAction('left')} className="h-10 bg-white/10 hover:bg-[var(--color-yellow)] hover:text-black border border-white/10 rounded-sm transition-colors flex items-center justify-center"><div className="w-4 h-full bg-current opacity-30 border-r border-black/50 mr-4"/></button>
+                                                    <button onClick={() => handleSnapAction('right')} className="h-10 bg-white/10 hover:bg-[var(--color-yellow)] hover:text-black border border-white/10 rounded-sm transition-colors flex items-center justify-center"><div className="w-4 h-full bg-current opacity-30 border-l border-black/50 ml-4"/></button>
+                                                    <button onClick={() => handleSnapAction('tl')} className="h-10 bg-white/10 hover:bg-[var(--color-yellow)] hover:text-black border border-white/10 rounded-sm transition-colors"><div className="w-4 h-4 bg-current opacity-30 border-r border-b border-black/50"/></button>
+                                                    <button onClick={() => handleSnapAction('tr')} className="h-10 bg-white/10 hover:bg-[var(--color-yellow)] hover:text-black border border-white/10 rounded-sm transition-colors flex justify-end"><div className="w-4 h-4 bg-current opacity-30 border-l border-b border-black/50"/></button>
+                                                </div>
+                                            )}
+                                        </div>
+
                                         <button onClick={() => onClose(id)} aria-label="Close" className={`p-1 hover:bg-red-500 rounded ${isActive ? "text-black" : "text-white"}`}><X size={14} /></button>
                                     </div>
                                 </div>

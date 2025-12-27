@@ -1,30 +1,41 @@
 import { useState } from 'react';
 import { useOS } from '../os/hooks/useOS';
 import { resolveFileHandler } from '../os/kernel/registry';
-import { 
+import ContextMenu from '../components/ContextMenu';
+import {
     Folder, File, HardDrive, ChevronRight, ChevronDown, 
-    Grid, List, ArrowLeft, Plus, Trash2, Search 
+    Grid, List, ArrowLeft, Plus, Trash2, Search,
+    ExternalLink, FolderOpen
 } from 'lucide-react';
 
-const FileIcon = ({ type }) => {
-    if (type === 'folder') return <Folder size={20} className="text-[var(--color-yellow)]" />;
+const FileIcon = ({ type, isDragOver }) => {
+    if (type === 'folder') return isDragOver ? <FolderOpen size={20} className="text-[var(--color-blue)] animate-pulse" /> : <Folder size={20} className="text-[var(--color-yellow)]" />;
     if (type === 'mount') return <HardDrive size={20} className="text-[var(--color-red)]" />;
     return <File size={20} className="text-[var(--color-blue)]" />;
 };
 
-const TreeNode = ({ node, nodes, expanded, onToggle, onSelect, currentPath }) => {
+const TreeNode = ({ node, nodes, expanded, onToggle, onSelect, onContextMenu, currentPath, dragOverId, onDragOver, onDragLeave }) => {
     const isExpanded = expanded.includes(node.id);
     const hasChildren = Object.values(nodes).some(n => n.parentId === node.id && n.type !== 'file');
     const isSelected = currentPath === node.id;
+    const isDragOver = dragOverId === node.id;
 
     return (
         <div className="select-none">
             <div 
-                className={`flex items-center gap-1 px-2 py-1 cursor-pointer hover:bg-white/5 ${isSelected ? 'bg-white/10 text-[var(--color-yellow)]' : 'text-gray-400'}`}
+                className={`flex items-center gap-1 px-2 py-1 cursor-pointer hover:bg-white/5 transition-all ${isSelected ? 'bg-white/10 text-[var(--color-yellow)]' : 'text-gray-400'} ${isDragOver ? 'bg-[var(--color-blue)]/20 text-[var(--color-blue)]' : ''}`}
                 onClick={() => {
                     onSelect(node.id);
                     if (hasChildren) onToggle(node.id);
                 }}
+                onContextMenu={(e) => onContextMenu(e, node)}
+                onDragOver={(e) => {
+                    if (node.type === 'folder') {
+                        e.preventDefault();
+                        onDragOver(node.id);
+                    }
+                }}
+                onDragLeave={() => onDragLeave(node.id)}
             >
                 <div className="w-4 flex justify-center">
                     {hasChildren && (
@@ -33,7 +44,7 @@ const TreeNode = ({ node, nodes, expanded, onToggle, onSelect, currentPath }) =>
                         </div>
                     )}
                 </div>
-                <FileIcon type={node.type} />
+                <FileIcon type={node.type} isDragOver={isDragOver} />
                 <span className="text-xs truncate">{node.name}</span>
             </div>
             {isExpanded && (
@@ -48,6 +59,10 @@ const TreeNode = ({ node, nodes, expanded, onToggle, onSelect, currentPath }) =>
                                 expanded={expanded} 
                                 onToggle={onToggle}
                                 onSelect={onSelect}
+                                onContextMenu={onContextMenu}
+                                onDragOver={onDragOver}
+                                onDragLeave={onDragLeave}
+                                dragOverId={dragOverId}
                                 currentPath={currentPath}
                             />
                         ))}
@@ -66,6 +81,8 @@ const FileExplorer = () => {
     const [viewMode, setViewMode] = useState('grid');
     const [expandedFolders, setExpandedFolders] = useState(['root']);
     const [searchQuery, setSearchQuery] = useState('');
+    const [contextMenu, setContextMenu] = useState(null);
+    const [dragOverId, setDragOverId] = useState(null);
 
     const items = Object.values(nodes).filter(n => n.parentId === currentPath);
     
@@ -119,8 +136,53 @@ const FileExplorer = () => {
         }
     };
 
+    const handleItemContextMenu = (e, item) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const options = [
+            { 
+                id: 'open', 
+                label: "OPEN_RESOURCE", 
+                icon: ExternalLink, 
+                action: () => handleOpenFile(item) 
+            },
+            {
+                id: 'delete',
+                label: "DELETE",
+                icon: Trash2,
+                color: 'var(--color-red)',
+                action: () => {
+                    if (confirm(`Delete ${item.name}?`)) {
+                        actions.fs.deleteNode(item.id);
+                    }
+                }
+            }
+        ];
+
+        setContextMenu({
+            x: e.clientX,
+            y: e.clientY,
+            title: item.type.toUpperCase() + "_OPS",
+            options
+        });
+    };
+
+    const handleCloseContextMenu = () => setContextMenu(null);
+
     return (
-        <div className="flex h-full text-gray-200 bg-[#0a0a0a]">
+        <div className="flex h-full text-gray-200 bg-[#0a0a0a]" onClick={handleCloseContextMenu}>
+            {/* Context Menu */}
+            {contextMenu && (
+                <ContextMenu
+                    x={contextMenu.x}
+                    y={contextMenu.y}
+                    title={contextMenu.title}
+                    options={contextMenu.options}
+                    onClose={handleCloseContextMenu}
+                />
+            )}
+
             {/* Sidebar */}
             <div className="w-48 border-r border-white/10 flex flex-col bg-black/20">
                 <div className="p-3 border-b border-white/10 font-bold text-xs tracking-widest text-[var(--color-blue)]">
@@ -134,6 +196,10 @@ const FileExplorer = () => {
                             expanded={expandedFolders} 
                             onToggle={handleToggleExpand}
                             onSelect={handleNavigate}
+                            onContextMenu={handleItemContextMenu}
+                            onDragOver={setDragOverId}
+                            onDragLeave={() => setDragOverId(null)}
+                            dragOverId={dragOverId}
                             currentPath={currentPath}
                         />
                     )}
@@ -150,7 +216,18 @@ const FileExplorer = () => {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col min-w-0">
+            <div className="flex-1 flex flex-col min-w-0" onContextMenu={(e) => {
+                e.preventDefault();
+                setContextMenu({
+                    x: e.clientX,
+                    y: e.clientY,
+                    title: "DIRECTORY_OPS",
+                    options: [
+                        { id: 'new-file', label: "NEW_FILE", icon: Plus, action: handleCreateFile },
+                        { id: 'new-folder', label: "NEW_FOLDER", icon: Folder, action: handleCreateFolder }
+                    ]
+                });
+            }}>
                 {/* Toolbar */}
                 <div className="h-12 border-b border-white/10 flex items-center justify-between px-4 bg-white/5">
                     <div className="flex items-center gap-2">
@@ -207,12 +284,34 @@ const FileExplorer = () => {
                                 <div 
                                     key={item.id}
                                     onDoubleClick={() => handleOpenFile(item)}
+                                    onContextMenu={(e) => handleItemContextMenu(e, item)}
+                                    onDragOver={(e) => {
+                                        if (item.type === 'folder') {
+                                            e.preventDefault();
+                                            setDragOverId(item.id);
+                                        }
+                                    }}
+                                    onDragLeave={() => setDragOverId(null)}
+                                    draggable
+                                    onDragStart={(e) => {
+                                        e.dataTransfer.setData('text/plain', item.id);
+                                        e.dataTransfer.effectAllowed = 'move';
+                                    }}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        setDragOverId(null);
+                                        const draggedId = e.dataTransfer.getData('text/plain');
+                                        if (draggedId !== item.id) {
+                                            // Move Logic
+                                            actions.addNotification({title: 'FS', message: `Moved item to ${item.name}`, type: 'info'});
+                                        }
+                                    }}
                                     className={`group relative ${viewMode === 'grid' 
                                         ? 'flex flex-col items-center gap-2 p-3 hover:bg-white/5 rounded-lg cursor-pointer border border-transparent hover:border-white/10 transition-all'
                                         : 'flex items-center gap-3 p-2 hover:bg-white/5 rounded cursor-pointer border-b border-white/5'
-                                    }`}
+                                    } ${dragOverId === item.id ? 'bg-[var(--color-blue)]/20 border-[var(--color-blue)] ring-2 ring-[var(--color-blue)]' : ''}`}
                                 >
-                                    <FileIcon type={item.type} mime={item.mime} />
+                                    <FileIcon type={item.type} mime={item.mime} isDragOver={dragOverId === item.id} />
                                     
                                     <div className={`min-w-0 ${viewMode === 'grid' ? 'text-center' : 'flex-1 flex justify-between'}`}>
                                         <span className="text-xs font-bold text-gray-300 truncate block max-w-full">

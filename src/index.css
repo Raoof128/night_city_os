@@ -20,6 +20,13 @@
     cursor: crosshair;
   }
 
+  /* Focus Indicator */
+  :focus-visible {
+    outline: 2px solid var(--color-yellow);
+    outline-offset: 2px;
+    box-shadow: 0 0 10px var(--color-yellow);
+  }
+
   /* Selection styling */
   ::selection {
     background-color: var(--color-yellow);
@@ -27,9 +34,18 @@
   }
 }
 
-button, a, [role="button"], .interactive {
+/* Context Sensitive Cursors */
+.cursor-pointer, button, a, [role="button"], .interactive {
   cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" stroke="%23FF003C" stroke-width="2" fill="none"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="3" fill="%23FF003C"/></svg>') 12 12, crosshair;
 }
+
+.cursor-grab { cursor: grab; }
+.cursor-grabbing { cursor: grabbing; }
+.cursor-ns-resize { cursor: ns-resize; }
+.cursor-ew-resize { cursor: ew-resize; }
+.cursor-nesw-resize { cursor: nesw-resize; }
+.cursor-nwse-resize { cursor: nwse-resize; }
+.cursor-text { cursor: text; }
 
 @layer components {
 
