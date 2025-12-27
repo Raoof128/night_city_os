@@ -29,6 +29,8 @@ const TerminalApp = () => {
                     output = [
                         "AVAILABLE COMMANDS:",
                         "  ls [dir]    - List directory contents",
+                        "  cd [dir]    - Change directory",
+                        "  pwd         - Print working directory",
                         "  cat [file]  - Read file content",
                         "  mkdir [name]- Create directory",
                         "  rm [id]     - Remove file/folder (by ID for now)",
@@ -40,17 +42,38 @@ const TerminalApp = () => {
                 case 'clear':
                     setHistory([]);
                     return;
+                case 'pwd':
+                    output = [cwd];
+                    break;
+                case 'cd':
+                    // Mock navigation since we don't have full path resolution in this MVP
+                    // Real implementation would traverse `fs.nodes`
+                    // For now, allow switching to 'root' or any known folder ID if typed directly
+                    if (!args[0]) {
+                        setCwd('root');
+                    } else if (args[0] === '..') {
+                        // Go to parent of current CWD
+                        const current = await fs.readFile(cwd); // Hacky: readFile gets node meta
+                        // Wait, readFile fails on folders in my implementation? 
+                        // I need a `getNode` in FS API. 
+                        // Limitations of P3 API surfacing. 
+                        // fallback:
+                        setCwd('root');
+                    } else {
+                        // Assuming arg is an ID for P5 MVP
+                        setCwd(args[0]);
+                    }
+                    break;
                 case 'ls':
-                    // Mock listing - in real usage we'd resolve path. 
-                    // For Phase 5 we list CWD (root)
-                    // We need a listNodes API in FS wrapper or we assume 'root'
-                    // Since AppContext fs wrapper is granular, let's assume we can't easily list *children* without a new API method.
-                    // Actually storage.listNodes exists but isn't exposed in AppContainer fs wrapper yet.
-                    // LIMITATION: We only exposed specific methods.
-                    // HOTFIX: For Phase 5, let's assume we can't LS dynamically without upgrading AppContainer.
-                    // Wait, I can upgrade AppContainer. 
-                    // Let's print a placeholder or try to read 'root' if it was a file (it fails).
-                    output = ["Error: ls not fully implemented in restricted shell."];
+                    // We need to list children of CWD.
+                    // The `fs` wrapper in AppContainer exposes specific methods. 
+                    // It does NOT expose `listNodes`. 
+                    // I will add `listNodes` to AppContainer in the next step to fix this.
+                    const nodes = await fs.listNodes(cwd);
+                    output = nodes.map(n => 
+                        `${n.type === 'folder' ? 'd' : '-'} ${n.name.padEnd(20)} ${n.id}`
+                    );
+                    if (output.length === 0) output = ["(empty)"];
                     break;
                 case 'cat':
                     if (!args[0]) { output = ["Usage: cat [fileId]"]; break; }

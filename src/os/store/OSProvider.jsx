@@ -3,6 +3,7 @@ import { osReducer, INITIAL_STATE, ACTIONS } from './osReducer';
 import { EventBus, EVENTS } from '../kernel/eventBus';
 import { OSContext } from './OSContext';
 import { storage } from '../kernel/storage';
+import { fileIndexer } from '../kernel/indexer';
 import { nanoid } from 'nanoid';
 
 export const OSProvider = ({ children }) => {
@@ -137,6 +138,49 @@ export const OSProvider = ({ children }) => {
         resolvePermission: (appId, permission, decision) => dispatch({ type: ACTIONS.RESOLVE_PERMISSION, payload: { appId, permission, decision } }),
         revokePermission: (appId, permission) => dispatch({ type: ACTIONS.REVOKE_PERMISSION, payload: { appId, permission } }),
 
+        // Profiles
+        setProfile: async (profileId) => {
+            // Persist current state before switch
+            const snapshot = {
+                windows: state.windows,
+                theme: state.theme,
+                desktopIcons: state.desktopIcons,
+                spaces: state.spaces,
+                currentSpace: state.currentSpace,
+                quickSettings: state.quickSettings,
+                permissions: state.permissions
+            };
+            await storage.saveSysState(snapshot);
+
+            // Switch Storage
+            storage.setProfile(profileId);
+            await storage.init();
+
+            // Load New State
+            const newState = await storage.loadSysState();
+            // Reset to clean slate if no state found
+            dispatch({ type: ACTIONS.RESTORE_STATE, payload: newState || INITIAL_STATE });
+            
+            // Reload FS Metadata for new profile
+            if (storage.db) {
+                const allNodes = await storage.db.getAll('fs_nodes');
+                const nodeMap = allNodes.reduce((acc, node) => {
+                    acc[node.id] = node;
+                    return acc;
+                }, {});
+                
+                if (!nodeMap['root']) {
+                    const rootNode = { id: 'root', name: 'Root', type: 'folder', parentId: null, created: Date.now(), modified: Date.now() };
+                    await storage.createNode(rootNode);
+                    nodeMap['root'] = rootNode;
+                }
+                dispatch({ type: ACTIONS.FS_SET_NODES, payload: nodeMap });
+            }
+            
+            // Save active profile preference globally (using localStorage as meta-store)
+            localStorage.setItem('nc_active_profile', profileId);
+        },
+
         // --- File System Operations ---
         fs: {
             createFile: async (parentId, name, content = '') => {
@@ -153,6 +197,7 @@ export const OSProvider = ({ children }) => {
                 };
                 const blob = new Blob([content], { type: 'text/plain' });
                 await storage.createNode(node, blob);
+                fileIndexer.add(node, content); // Indexing
                 dispatch({ type: ACTIONS.FS_UPDATE_NODE, payload: node });
                 return node;
             },
@@ -167,15 +212,20 @@ export const OSProvider = ({ children }) => {
                     modified: Date.now()
                 };
                 await storage.createNode(node);
+                fileIndexer.add(node); // Index folder name
                 dispatch({ type: ACTIONS.FS_UPDATE_NODE, payload: node });
                 return node;
             },
             deleteNode: async (id) => {
                 await storage.deleteNode(id);
+                fileIndexer.remove(id); // Remove from index
                 dispatch({ type: ACTIONS.FS_DELETE_NODE, payload: { id } });
             },
             readFile: async (id) => {
                 return await storage.readFile(id);
+            },
+            listNodes: async (parentId) => {
+                return await storage.listNodes(parentId);
             },
             updateFile: async (id, content) => {
                 // Update blob in OPFS
@@ -188,6 +238,7 @@ export const OSProvider = ({ children }) => {
                 // We must also update metadata (modified time/size).
                 const updatedNode = { ...node, modified: Date.now(), size: blob.size };
                 await storage.createNode(updatedNode, blob); 
+                fileIndexer.add(updatedNode, content); // Re-index
                 dispatch({ type: ACTIONS.FS_UPDATE_NODE, payload: updatedNode });
             },
             mountDrive: async () => {

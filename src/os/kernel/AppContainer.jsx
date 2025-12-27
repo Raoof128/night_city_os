@@ -130,6 +130,10 @@ const AppContainer = ({ manifest, data, osActions, osState, onClose, dispatch, i
                     await checkPerm('files:read');
                     return osActions.fs.readFile(...args);
                 },
+                listNodes: async (...args) => {
+                    await checkPerm('files:read');
+                    return osActions.fs.listNodes(...args);
+                },
                 mountDrive: async (...args) => {
                     await checkPerm('mount:manage');
                     return osActions.fs.mountDrive(...args);

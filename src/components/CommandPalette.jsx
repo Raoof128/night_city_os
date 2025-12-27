@@ -3,22 +3,29 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Command } from 'lucide-react';
 
-const CommandPalette = ({ isOpen, onClose, commands }) => {
+const CommandPalette = ({ isOpen, onClose, commands, onSearch }) => {
     const [query, setQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
     const inputRef = useRef(null);
 
-    const filteredCommands = commands.filter(cmd =>
-        cmd.name.toLowerCase().includes(query.toLowerCase())
-    );
+    // If onSearch provided, commands are managed externally
+    const filteredCommands = commands;
 
     useEffect(() => {
         if (isOpen) {
             setQuery('');
             setSelectedIndex(0);
             setTimeout(() => inputRef.current?.focus(), 50);
+            if (onSearch) onSearch(''); // Init list
         }
     }, [isOpen]);
+
+    useEffect(() => {
+        if (isOpen && onSearch) {
+            onSearch(query);
+            setSelectedIndex(0);
+        }
+    }, [query, isOpen]); // removed onSearch dep to avoid loop
 
     // Keyboard nav
     useEffect(() => {

@@ -15,21 +15,50 @@ import PermissionPrompt from '../os/components/PermissionPrompt';
 import LockScreen from '../os/components/LockScreen';
 
 // Kernel
-import { SYSTEM_APPS } from '../os/kernel/registry';
+import { SYSTEM_APPS, resolveFileHandler } from '../os/kernel/registry';
 import AppContainer from '../os/kernel/AppContainer';
+import { fileIndexer } from '../os/kernel/indexer';
 
 const Shell = () => {
     const { state, actions } = useOS();
     const { bootState, windows, activeWindowId, currentSpace } = state;
     const [notifCenterOpen, setNotifCenterOpen] = useState(false);
     const [spaceSwitcherOpen, setSpaceSwitcherOpen] = useState(false);
+    const [paletteOpen, setPaletteOpen] = useState(false);
+    const [paletteCommands, setPaletteCommands] = useState([]);
 
+    // Hydrate Commands on Open
     useEffect(() => {
-        // Auto-boot if off
-        if (bootState === 'off') {
-            actions.boot();
+        if (paletteOpen) {
+            const systemCommands = Object.values(SYSTEM_APPS).map(app => ({
+                name: `Open ${app.name}`,
+                icon: app.icon,
+                action: () => actions.openWindow(app.id, app.id)
+            }));
+
+            // Basic Search Integration
+            // Ideally we pass query to palette and let it call search, but for P4 MVP we preload top results? 
+            // Better: CommandPalette needs to call search on type. 
+            // For now, let's just show apps. Real search happens in Palette logic if we refactor it.
+            // Wait, CommandPalette logic filters `commands` prop.
+            // We need to inject file results into `commands` prop dynamically? 
+            // Or refactor CommandPalette to accept a `onSearch` prop.
+            // Let's refactor CommandPalette next. For now, just apps.
+            setPaletteCommands(systemCommands);
         }
-    }, [bootState, actions]);
+    }, [paletteOpen, actions]);
+
+    // Global Keyboard Shortcuts
+    useEffect(() => {
+        const handleGlobalKeys = (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                setPaletteOpen(true);
+            }
+        };
+        window.addEventListener('keydown', handleGlobalKeys);
+        return () => window.removeEventListener('keydown', handleGlobalKeys);
+    }, []);
 
     if (bootState === 'booting') {
         return <BootScreen onComplete={actions.login} />;
@@ -51,6 +80,31 @@ const Shell = () => {
                 {/* System Overlays */}
                 <ToastManager />
                 <PermissionPrompt />
+                <CommandPalette 
+                    isOpen={paletteOpen} 
+                    onClose={() => setPaletteOpen(false)} 
+                    commands={paletteCommands}
+                    onSearch={(q) => {
+                        const fileResults = fileIndexer.search(q).map(f => ({
+                            name: f.name,
+                            icon: SYSTEM_APPS['files'].icon, // Generic icon
+                            shortcut: 'FILE',
+                            action: () => {
+                                const handler = resolveFileHandler(f.name);
+                                if (handler) actions.openWindow(handler, handler, { fileId: f.id, name: f.name });
+                            }
+                        }));
+                        // Merge with apps (simple logic)
+                        const apps = Object.values(SYSTEM_APPS)
+                            .filter(a => a.name.toLowerCase().includes(q.toLowerCase()))
+                            .map(app => ({
+                                name: `Open ${app.name}`,
+                                icon: app.icon,
+                                action: () => actions.openWindow(app.id, app.id)
+                            }));
+                        setPaletteCommands([...apps, ...fileResults]);
+                    }}
+                />
                 <NotificationCenter isOpen={notifCenterOpen} onClose={() => setNotifCenterOpen(false)} />
                 <AppSwitcher />
                 {spaceSwitcherOpen && <VirtualDesktopSwitcher onClose={() => setSpaceSwitcherOpen(false)} />}
