@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useApp } from '../os/kernel/AppContext';
+import { auditLogger } from '../os/kernel/AuditLog';
 import { 
     Monitor, Shield, HardDrive, Cpu, 
     ToggleLeft, ToggleRight, Trash2, RefreshCw 
@@ -8,6 +9,13 @@ import {
 const SettingsApp = ({ config }) => {
     const { system } = useApp();
     const [activeTab, setActiveTab] = useState('system');
+    const [auditLogs, setAuditLogs] = useState([]);
+
+    useEffect(() => {
+        if (activeTab === 'privacy') {
+            auditLogger.getLogs().then(setAuditLogs);
+        }
+    }, [activeTab]);
 
     const tabs = [
         { id: 'system', icon: Monitor, label: 'SYSTEM' },
@@ -99,6 +107,20 @@ const SettingsApp = ({ config }) => {
                                     </div>
                                 ))
                             )}
+                        </Section>
+
+                        <Section title="SECURITY_AUDIT_LOG">
+                            <div className="h-64 overflow-y-auto custom-scrollbar border border-red-900/30 bg-black/40 p-2 font-mono text-xs">
+                                {auditLogs.length === 0 && <span className="text-gray-600">NO_LOGS_FOUND</span>}
+                                {auditLogs.map(log => (
+                                    <div key={log.id} className="grid grid-cols-[80px_1fr] gap-2 mb-1 hover:bg-white/5 p-1 rounded">
+                                        <span className="text-gray-500">{new Date(log.timestamp).toLocaleTimeString()}</span>
+                                        <span className={`${log.outcome === 'deny' ? 'text-[var(--color-red)]' : 'text-[var(--color-blue)]'}`}>
+                                            [{log.appId.toUpperCase()}] {log.action} &rarr; {log.outcome.toUpperCase()}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
                         </Section>
                     </div>
                 )}

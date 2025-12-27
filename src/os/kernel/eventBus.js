@@ -1,4 +1,5 @@
 import logger from '../../utils/logger';
+import { auditLogger } from './AuditLog';
 
 class SystemBus {
     constructor() {
@@ -16,6 +17,17 @@ class SystemBus {
         // Log critical events
         if (channel.startsWith('err:') || channel.startsWith('sys:')) {
             logger.info(`[BUS] ${channel}`, payload);
+        }
+
+        // Audit Security Events
+        if (channel.startsWith('sec:')) {
+            auditLogger.log({
+                action: channel,
+                appId: payload.appId || 'system',
+                target: payload.target || 'unknown',
+                outcome: payload.outcome || 'info',
+                details: JSON.stringify(payload)
+            });
         }
         
         // Add to history
