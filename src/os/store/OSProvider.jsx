@@ -53,6 +53,51 @@ export const OSProvider = ({ children }) => {
         initOS();
     }, []);
 
+    // A11y & System Prefs
+    useEffect(() => {
+        const root = document.documentElement;
+        
+        // Apply Font Scale
+        root.style.fontSize = `${(state.quickSettings.fontScale || 1.0) * 16}px`;
+        
+        // Apply High Contrast
+        if (state.quickSettings.highContrast) {
+            root.classList.add('high-contrast');
+        } else {
+            root.classList.remove('high-contrast');
+        }
+
+        // Apply Reduced Motion
+        if (state.quickSettings.reducedMotion) {
+            root.classList.add('reduced-motion');
+        } else {
+            root.classList.remove('reduced-motion');
+        }
+    }, [state.quickSettings.fontScale, state.quickSettings.highContrast, state.quickSettings.reducedMotion]);
+
+    // System Media Query Listeners
+    useEffect(() => {
+        const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const contrastQuery = window.matchMedia('(prefers-contrast: more)');
+
+        const handleMotion = (e) => dispatch({ 
+            type: ACTIONS.SET_QUICK_SETTING, 
+            payload: { key: 'reducedMotion', value: e.matches } 
+        });
+        const handleContrast = (e) => dispatch({ 
+            type: ACTIONS.SET_QUICK_SETTING, 
+            payload: { key: 'highContrast', value: e.matches } 
+        });
+
+        motionQuery.addEventListener('change', handleMotion);
+        contrastQuery.addEventListener('change', handleContrast);
+
+        return () => {
+            motionQuery.removeEventListener('change', handleMotion);
+            contrastQuery.removeEventListener('change', handleContrast);
+        };
+    }, []);
+
     // Persistence Middleware (Debounced ideally, but here just effect)
     useEffect(() => {
         if (!state) return;

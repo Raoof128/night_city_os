@@ -118,6 +118,13 @@ export const SYSTEM_APPS = {
             '.mp4': 'default'
         },
         component: lazy(() => import('../../apps/MediaViewer'))
+    },
+    'logs': {
+        id: 'logs',
+        name: 'System Logs',
+        icon: Share2,
+        permissions: ['system:read'],
+        component: lazy(() => import('../../apps/Logs'))
     }
 };
 

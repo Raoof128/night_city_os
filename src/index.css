@@ -169,3 +169,44 @@ body.privacy-active .privacy-blur {
     opacity: 1;
   }
 }
+
+/* --- Phase 7: Accessibility --- */
+
+/* High Contrast Mode */
+.high-contrast {
+  --color-yellow: #ffff00;
+  --color-blue: #00ffff;
+  --color-red: #ff0000;
+  --color-surface: #000000;
+}
+
+.high-contrast body {
+  text-shadow: none !important;
+}
+
+.high-contrast .backdrop-blur-md,
+.high-contrast .backdrop-blur-sm,
+.high-contrast .backdrop-blur-xl {
+  backdrop-filter: none !important;
+  background-color: black !important;
+}
+
+.high-contrast .glitch::before,
+.high-contrast .glitch::after {
+  display: none !important;
+}
+
+/* Reduced Motion */
+.reduced-motion * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+.reduced-motion .animate-pulse,
+.reduced-motion .animate-scanline,
+.reduced-motion .animate-flicker,
+.reduced-motion .animate-shine {
+  animation: none !important;
+}

@@ -12,7 +12,11 @@ export default defineConfig({
         globals: true,
         environment: 'happy-dom',
         setupFiles: './tests/setup.js',
-        include: ['tests/unit/**/*.{test,spec}.{js,jsx}', 'tests/integration/**/*.{test,spec}.{js,jsx}'],
+        include: [
+            'tests/unit/**/*.{test,spec}.{js,jsx}', 
+            'tests/integration/**/*.{test,spec}.{js,jsx}',
+            'tests/components/**/*.{test,spec}.{js,jsx}'
+        ],
         coverage: {
             reporter: ['text', 'json', 'html'],
             exclude: ['node_modules/', 'tests/setup.js', 'src/test/**', 'tests/e2e/**'],

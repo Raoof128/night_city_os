@@ -5,6 +5,8 @@ import { Wifi, Volume2, Moon, Sun, Shield, Battery, Activity, Monitor } from 'lu
 const QuickToggle = ({ icon: Icon, label, active, onClick }) => (
     <button
         onClick={onClick}
+        aria-label={label}
+        aria-pressed={active}
         className={`flex flex-col items-center justify-center p-3 rounded-xl transition-all ${active ? 'bg-[var(--color-blue)] text-black' : 'bg-white/10 text-gray-400 hover:bg-white/20'}`}
     >
         <Icon size={20} />

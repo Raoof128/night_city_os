@@ -30,19 +30,19 @@ global.ResizeObserver = class ResizeObserver {
 
 // Mock Navigator Storage (OPFS)
 if (!global.navigator.storage) {
-    global.navigator.storage = {
-        getDirectory: async () => ({
-            getDirectoryHandle: async () => ({
-                getFileHandle: async () => ({
-                    createWritable: async () => ({
-                        write: async () => {},
-                        close: async () => {}
-                    }),
-                    getFile: async () => new Blob([''], { type: 'text/plain' })
-                }),
-                removeEntry: async () => {}
+    const createDirMock = () => ({
+        getDirectoryHandle: async () => createDirMock(),
+        getFileHandle: async () => ({
+            createWritable: async () => ({
+                write: async () => {},
+                close: async () => {}
             }),
-            removeEntry: async () => {}
-        })
+            getFile: async () => new Blob([''], { type: 'text/plain' })
+        }),
+        removeEntry: async () => {}
+    });
+
+    global.navigator.storage = {
+        getDirectory: async () => createDirMock()
     };
 }

@@ -233,6 +233,7 @@ const FileExplorer = () => {
                                                 actions.fs.deleteNode(item.id);
                                             }
                                         }}
+                                        aria-label={`Delete ${item.name}`}
                                         className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 text-gray-500 hover:text-red-500 rounded transition-all"
                                     >
                                         <Trash2 size={12} />

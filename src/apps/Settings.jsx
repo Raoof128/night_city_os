@@ -62,6 +62,26 @@ const SettingsApp = ({ config }) => {
                                 value={system.quickSettings.contrast} 
                                 onChange={() => system.setQuickSetting('contrast', !system.quickSettings.contrast)} 
                             />
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <div className="font-bold text-sm">FONT_SCALE</div>
+                                    <div className="text-[10px] text-gray-500 mt-1">Adjust system text size.</div>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-xs font-bold text-[var(--color-yellow)]">
+                                        {Math.round((config.fontScale || 1.0) * 100)}%
+                                    </span>
+                                    <input 
+                                        type="range" 
+                                        min="0.8" 
+                                        max="1.5" 
+                                        step="0.1" 
+                                        value={config.fontScale || 1.0}
+                                        onChange={(e) => system.setQuickSetting('fontScale', parseFloat(e.target.value))}
+                                        className="w-32 accent-[var(--color-yellow)]"
+                                    />
+                                </div>
+                            </div>
                         </Section>
                         <Section title="NOTIFICATIONS">
                             <Toggle 
@@ -148,17 +168,30 @@ const SettingsApp = ({ config }) => {
                                 </button>
                                 <button
                                     onClick={async () => {
-                                        // This requires direct storage access which is not exposed to apps by default.
-                                        // But this is a System App. We should expose export functionality via OS API.
-                                        // For P5/P6, let's assume we can add it to 'system' prop in AppContainer.
-                                        // Wait, I need to check if 'exportBackup' is exposed. It's not.
-                                        // I'll add a placeholder action that logs to console for now, or better: 
-                                        // Implement `system.exportBackup` in AppContainer.
-                                        console.log("Exporting backup...");
+                                        const logs = await auditLogger.getLogs(100);
+                                        const bundle = {
+                                            version: '5.6.0',
+                                            timestamp: new Date().toISOString(),
+                                            userAgent: navigator.userAgent,
+                                            state: {
+                                                theme: system.theme,
+                                                quickSettings: system.quickSettings,
+                                                windowCount: system.windows.length,
+                                                spaces: system.spaces.length
+                                            },
+                                            logs: logs.map(l => ({ ...l, details: undefined })) // Redact details
+                                        };
+                                        const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
+                                        const url = URL.createObjectURL(blob);
+                                        const a = document.createElement('a');
+                                        a.href = url;
+                                        a.download = `nc_os_diagnostics_${Date.now()}.json`;
+                                        a.click();
+                                        URL.revokeObjectURL(url);
                                     }}
                                     className="flex items-center gap-2 px-4 py-2 border border-[var(--color-blue)] text-[var(--color-blue)] hover:bg-[var(--color-blue)]/10 transition-colors text-xs font-bold rounded"
                                 >
-                                    <HardDrive size={14} /> EXPORT_PROFILE_BACKUP
+                                    <HardDrive size={14} /> EXPORT_DIAGNOSTIC_BUNDLE
                                 </button>
                             </div>
                         </Section>

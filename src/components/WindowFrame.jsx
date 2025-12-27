@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Minus, Maximize2, X } from 'lucide-react';
 import { COLORS } from '../utils/theme';
+import { FocusTrap } from './FocusTrap';
 
 const RESIZE_HANDLES = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
 const SNAP_THRESHOLD = 20;
@@ -26,6 +27,32 @@ const WindowFrame = ({
     const [localSize, setLocalSize] = useState(size || { w: 800, h: 600 });
     const [isDragging, setIsDragging] = useState(false);
     const [snapPreview, setSnapPreview] = useState(null); // { x, y, w, h }
+
+    // Keyboard shortcuts for window management
+    useEffect(() => {
+        if (!isActive) return;
+
+        const handleKeyDown = (e) => {
+            // Alt+W to Close
+            if (e.altKey && e.key.toLowerCase() === 'w') {
+                e.preventDefault();
+                onClose(id);
+            }
+            // Alt+M to Minimize
+            if (e.altKey && e.key.toLowerCase() === 'm') {
+                e.preventDefault();
+                onMinimize(id);
+            }
+            // Alt+Enter to Maximize
+            if (e.altKey && e.key === 'Enter') {
+                e.preventDefault();
+                onMaximize(id);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isActive, id, onClose, onMinimize, onMaximize]);
 
     useEffect(() => {
         if (!isDragging) {
@@ -121,6 +148,9 @@ const WindowFrame = ({
                 transition={{ duration: 0.1 }}
                 onMouseDown={onFocus}
                 className="absolute rounded-lg flex flex-col backdrop-blur-md overflow-hidden"
+                role="dialog"
+                aria-label={title}
+                aria-modal={isActive}
                 style={{
                     position: 'fixed',
                     backgroundColor: 'rgba(0, 0, 0, 0.9)',
@@ -239,7 +269,9 @@ const WindowFrame = ({
                                     </div>
                                 </div>
                 <div className="flex-1 relative overflow-hidden bg-black/50">
-                    {children}
+                    <FocusTrap isActive={isActive}>
+                        {children}
+                    </FocusTrap>
                     {!maximized && (
                         <>
                             {RESIZE_HANDLES.map(dir => (

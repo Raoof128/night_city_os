@@ -12,7 +12,8 @@ export const INITIAL_STATE = {
         { id: 'calc', label: 'Calc', x: 120, y: 20 },
         { id: 'music', label: 'Music', x: 120, y: 120 },
         { id: 'settings', label: 'Settings', x: 120, y: 220 },
-        { id: 'sysmon', label: 'SysMon', x: 120, y: 320 }
+        { id: 'sysmon', label: 'SysMon', x: 120, y: 320 },
+        { id: 'logs', label: 'Logs', x: 120, y: 420 }
     ], // { id, label, type, x, y }
     notifications: [], // { id, title, message, type, timestamp, read, appId }
     spaces: [{ id: 'main', label: 'Main Space' }],
@@ -33,7 +34,9 @@ export const INITIAL_STATE = {
         bluetooth: true,
         reducedMotion: false,
         contrast: false,
-        performanceMode: false
+        performanceMode: false,
+        fontScale: 1.0,
+        highContrast: false
     },
     permissions: {}, // { appId: { permission: 'granted' | 'denied' } }
     permissionRequest: null, // { appId, permission, resolve, reject }

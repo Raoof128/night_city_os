@@ -25,7 +25,10 @@ const Taskbar = ({ onToggleNotifCenter, onToggleSpaceSwitcher }) => {
             <StartMenu
                 isOpen={startMenuOpen}
                 onClose={() => setStartMenuOpen(false)}
-                onOpenApp={(id) => actions.openWindow(id, id)}
+                onOpenApp={(id) => {
+                    actions.openWindow(id, id);
+                    setStartMenuOpen(false);
+                }}
                 onShutdown={actions.shutdown}
             />
 

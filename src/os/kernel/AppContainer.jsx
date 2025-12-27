@@ -84,6 +84,8 @@ const AppContainer = ({ manifest, data, osActions, osState, onClose, dispatch, i
             system: {
                 permissions: osState.permissions,
                 windows: osState.windows,
+                theme: osState.theme,
+                spaces: osState.spaces,
                 quickSettings: osState.quickSettings,
                 revokePermission: osActions.revokePermission,
                 setQuickSetting: osActions.setQuickSetting
