@@ -13,13 +13,13 @@ import {
 // component: LazyComponent
 
 export const SYSTEM_APPS = {
-    'tracker': {
-        id: 'tracker',
-        name: 'Financial Tracker',
-        icon: Activity,
-        permissions: ['files:read', 'files:write', 'network'],
-        component: lazy(() => import('../../apps/FinancialTracker'))
-    },
+    // 'tracker': {
+    //     id: 'tracker',
+    //     name: 'Financial Tracker',
+    //     icon: Activity,
+    //     permissions: ['files:read', 'files:write', 'network'],
+    //     component: lazy(() => import('../../apps/FinancialTracker'))
+    // },
     'terminal': {
         id: 'terminal',
         name: 'Terminal',

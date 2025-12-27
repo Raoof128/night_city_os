@@ -120,7 +120,7 @@ const Desktop = () => {
                 })}
 
                 <DesktopCalendarWidget constraintsRef={desktopRef} />
-                <DesktopUploadWidget onFileUpload={() => { }} constraintsRef={desktopRef} />
+                {/* <DesktopUploadWidget onFileUpload={() => { }} constraintsRef={desktopRef} /> */}
             </div>
         </div>
     );

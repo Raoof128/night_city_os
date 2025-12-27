@@ -4,7 +4,7 @@ export const INITIAL_STATE = {
     windows: [], // { id, type, title, zIndex, minimized, maximized, pos: {x,y}, size: {w,h}, data, spaceId, snapState }
     activeWindowId: null,
     desktopIcons: [
-        { id: 'tracker', label: 'Finance', x: 20, y: 20 },
+        // { id: 'tracker', label: 'Finance', x: 20, y: 20 },
         { id: 'files', label: 'Files', x: 20, y: 120 },
         { id: 'terminal', label: 'Terminal', x: 20, y: 220 },
         { id: 'network', label: 'NetTrace', x: 20, y: 320 },
