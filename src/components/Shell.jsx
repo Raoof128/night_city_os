@@ -16,13 +16,13 @@ import LockScreen from '../os/components/LockScreen';
 import CommandPalette from './CommandPalette';
 
 // Kernel
-import { SYSTEM_APPS, resolveFileHandler } from '../os/kernel/registry';
+import { getAllApps, resolveFileHandler, SYSTEM_APPS } from '../os/kernel/registry';
 import AppContainer from '../os/kernel/AppContainer';
 import { fileIndexer } from '../os/kernel/indexer';
 
 const Shell = () => {
     const { state, actions } = useOS();
-    const { bootState, windows, activeWindowId, currentSpace } = state;
+    const { bootState, windows, activeWindowId, currentSpace, flags } = state;
     const [notifCenterOpen, setNotifCenterOpen] = useState(false);
     const [spaceSwitcherOpen, setSpaceSwitcherOpen] = useState(false);
     const [paletteOpen, setPaletteOpen] = useState(false);
@@ -38,8 +38,8 @@ const Shell = () => {
                 if (handler) actions.openWindow(handler, handler, { fileId: f.id, name: f.name });
             }
         }));
-        // Merge with apps (simple logic)
-        const apps = Object.values(SYSTEM_APPS)
+        // Merge with apps (including plugins if enabled)
+        const apps = Object.values(getAllApps())
             .filter(a => a.name.toLowerCase().includes(q.toLowerCase()))
             .map(app => ({
                 name: `Open ${app.name}`,
@@ -52,7 +52,7 @@ const Shell = () => {
     // Hydrate Commands on Open
     useEffect(() => {
         if (paletteOpen) {
-            const systemCommands = Object.values(SYSTEM_APPS).map(app => ({
+            const systemCommands = Object.values(getAllApps()).map(app => ({
                 name: `Open ${app.name}`,
                 icon: app.icon,
                 action: () => actions.openWindow(app.id, app.id)
@@ -106,7 +106,7 @@ const Shell = () => {
 
                 {/* Window Layer */}
                 {visibleWindows.map(win => {
-                    const manifest = SYSTEM_APPS[win.type];
+                    const manifest = getAllApps()[win.type];
                     
                     if (!manifest) {
                         return null; // Or render a fallback error window

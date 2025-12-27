@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../os/kernel/AppContext';
 import { auditLogger } from '../os/kernel/AuditLog';
-import { 
-    Monitor, Shield, HardDrive, Cpu, 
-    ToggleLeft, ToggleRight, Trash2 
+import {
+    Monitor, Shield, HardDrive, Cpu, FlaskConical,
+    ToggleLeft, ToggleRight, Trash2, RefreshCw 
 } from 'lucide-react';
 
 const SettingsApp = ({ config }) => {
@@ -21,9 +21,9 @@ const SettingsApp = ({ config }) => {
         { id: 'system', icon: Monitor, label: 'SYSTEM' },
         { id: 'privacy', icon: Shield, label: 'PRIVACY' },
         { id: 'storage', icon: HardDrive, label: 'STORAGE' },
+        { id: 'experimental', icon: FlaskConical, label: 'LABS' },
         { id: 'about', icon: Cpu, label: 'ABOUT' },
     ];
-
     return (
         <div className="h-full flex bg-black text-gray-300 font-mono">
             {/* Sidebar */}
@@ -194,6 +194,47 @@ const SettingsApp = ({ config }) => {
                                     <HardDrive size={14} /> EXPORT_DIAGNOSTIC_BUNDLE
                                 </button>
                             </div>
+                        </Section>
+                    </div>
+                )}
+
+                {activeTab === 'experimental' && (
+                    <div className="space-y-8">
+                        <Section title="OS_LABS // FEATURE_FLAGS">
+                            <p className="text-xs text-[var(--color-red)] mb-6 font-bold uppercase tracking-widest">
+                                Warning: These features are experimental and may cause instability or data loss.
+                            </p>
+                            
+                            <Toggle 
+                                label="LIVE_WALLPAPER" 
+                                value={system.flags.liveWallpaper} 
+                                onChange={() => system.setFlag('liveWallpaper', !system.flags.liveWallpaper)} 
+                                subtext="Enables WebGL/Video background engine."
+                            />
+                            <Toggle 
+                                label="MULTI_MONITOR_SIM" 
+                                value={system.flags.multiMonitor} 
+                                onChange={() => system.setFlag('multiMonitor', !system.flags.multiMonitor)} 
+                                subtext="Renders multiple virtual desktop spaces side-by-side."
+                            />
+                            <Toggle 
+                                label="PLUGIN_RUNTIME" 
+                                value={system.flags.pluginsEnabled} 
+                                onChange={() => system.setFlag('pluginsEnabled', !system.flags.pluginsEnabled)} 
+                                subtext="Allow loading of external app manifests."
+                            />
+                            <Toggle 
+                                label="WASM_ACCELERATION" 
+                                value={system.flags.wasmEnabled} 
+                                onChange={() => system.setFlag('wasmEnabled', !system.flags.wasmEnabled)} 
+                                subtext="Use WebAssembly for cryptographic operations."
+                            />
+                            <Toggle 
+                                label="LINUX_EMULATOR" 
+                                value={system.flags.experimentalLinux} 
+                                onChange={() => system.setFlag('experimentalLinux', !system.flags.experimentalLinux)} 
+                                subtext="Enables x86/Linux virtualization stub."
+                            />
                         </Section>
                     </div>
                 )}

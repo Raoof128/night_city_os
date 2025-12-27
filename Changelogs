@@ -2,263 +2,38 @@
 
 All notable changes to the "Night City OS" project will be documented in this file.
 
-## [v5.6.1] - Stability Maintenance - 2025-12-27
-### Fixed
-- **Boot Sequence:** Fixed critical "SYSTEM_HALTED" bug on initial load by correctly initializing `bootState` to `'booting'`.
-- **Lint Compliance:** Achieved 0-warning lint status by resolving unused variables, missing hook dependencies, and lexical declaration errors across the core OS and applications.
-- **Shell Stability:** Fixed critical `CommandPalette` undefined error in `Shell.jsx`.
-- **Media Viewer:** Refactored object URL management using `useRef` to ensure proper resource cleanup and prevent memory leaks.
-
-## [v5.6.0] - Security & Polish - 2025-12-27
-### Security
-- **Audit Logging:** Implemented IDB-backed `AuditLogger`. All permission decisions and system errors are now permanently recorded.
-- **Profile Isolation:** Refactored `StorageKernel` to support multi-user profiles with isolated DBs and OPFS roots.
-- **Hardening:** Added strict Content Security Policy (CSP) headers. Added `validateImport` for safe backups.
-- **Lock Screen:** Added session locking capability.
-
+## [v5.8.0] - Labs & Extras - 2025-12-28
 ### Features
-- **Global Search:** Upgraded Command Palette (`Cmd+K`) to index files and launch them directly.
-- **Terminal 2.0:** Implemented real filesystem commands (`ls`, `cd`, `cat`, `mkdir`, `rm`) interacting with the sandbox.
-- **Settings 2.0:** Redesigned Settings app with tabs for System, Privacy (Audit Log), and Storage management.
-- **TextPad:** Added autosave and dirty state indicators.
-- **Media Viewer:** New app for viewing images and video files.
+- **Feature Flags:** Introduced a local-first flag system to toggle experimental features via `Settings` -> `Labs`.
+- **Wallpaper Engine:** Particle-based live background engine with performance guardrails (auto-disables on Reduced Motion or Battery Saver).
+- **Plugin System:** Support for secure, dynamic app registration from local manifests via `registerPlugin`.
+- **Multi-Monitor Sim:** Experimental "Simulated Multi-Display" mode that adjusts desktop scaling and ring indicators.
+- **Crypto Utilities:** Added SHA-256 hashing for backup integrity verification (WASM-like compute module).
+- **Linux VM Stub:** Placeholder for x86 virtualization runtime.
+- **NetRelay Stub:** Placeholder for P2P collaboration layer.
 
-### Fixes
-- **App Runtime:** Fixed permission enforcement for all FS operations in `AppContainer`.
-- **Performance:** Optimized search indexing to be non-blocking (simple implementation).
-
-## [v5.5.0] - Platform Runtime - 2025-12-27
 ### Architecture
-- **App Runtime:** Introduced `AppContainer` sandbox to isolate running applications.
-- **Manifest Registry:** Centralized app definitions in `src/os/kernel/registry.js` supporting lazy loading, permissions, and file handlers.
-- **Permission System:** Granular capability gates (`files:read`, `network`, `clipboard`) with user-facing "Allow/Deny" prompts and persistence.
-
-### Features
-- **App Lifecycle:** Apps now receive `active` / `suspended` lifecycle events (e.g., on minimize).
-- **Crash Isolation:** Per-app error boundaries prevent a single crashing app from taking down the entire OS.
-- **Inter-App Integration:**
-  - **Open With:** File Explorer dynamically resolves apps based on file extensions/MIME types.
-  - **Clipboard:** Secure wrapper around system clipboard with permission checks.
-- **Lazy Loading:** All system apps are now code-split and loaded on demand.
+- **Registry:** Decoupled system apps from plugin apps; support for `getAllApps()` across the kernel.
+- **Guardrails:** Integrated performance-aware state checks in `WallpaperEngine`.
 
 ### Fixed
-- **Fast Refresh:** Resolved React Refresh warnings in kernel components.
-- **Performance:** Optimized `useMemo` dependencies in AppContainer to prevent unnecessary re-renders.
+- **Start Menu:** Added filtering for experimental apps; icons only appear if corresponding feature flags are enabled.
+- **Testing:** Added regression coverage for Feature Flags, Plugin Registry, and Crypto hashing.
 
-## [v5.4.0] - Storage & Polish - 2025-12-27
-### Architecture
-- **Hybrid Storage Engine:** Replaced `localStorage` persistence with a production-grade `IndexedDB` (metadata) + `OPFS` (binary content) implementation via `StorageKernel`.
-- **Event History:** Added rolling log buffer to `EventBus` for crash diagnostics.
-- **Safety:** Updated `GlobalErrorFallback` to support "Hard Reset", wiping both IDB and OPFS to recover from corrupt state.
+## [v5.7.0] - Quality Gates & Accessibility - 2025-12-28
+### Accessibility
+- **Global Font Scaling:** Added setting to scale system text from 80% to 150%.
+- **Focus Management:** Implemented `FocusTrap` utility.
+- **Keyboard Navigation:** Added Arrow Key navigation and Alt+W shortcuts.
+- **Adaptive UI:** High Contrast and Reduced Motion support.
 
-### Features
-- **File Explorer:** New system app for browsing the virtual filesystem. Supports:
-  - Tree and Grid views.
-  - Creating folders and files.
-  - **Mount Drive:** Integration with File System Access API to mount local folders.
-- **Window Management Polish:**
-  - **Snapping:** Drag-to-edge tiling (Split Left/Right, Quarters, Maximize) with visual preview overlays.
-  - **Focus Logic:** Closing the active window now intelligently focuses the next window in z-order.
-  - **Persistence:** Windows remember their pre-snap/pre-maximize dimensions and position.
-- **System UI:**
-  - **App Switcher:** Alt+Tab visualizer for rapid window switching.
-  - **Virtual Desktops:** Spaces management UI accessible via Taskbar.
-  - **Notification Center:** History panel for past alerts.
-  - **Quick Settings:** System tray toggle for Wifi, DND, Theme, and Performance mode.
+### Quality & Observability
+- **Error Reporting:** Global capture for console errors and unhandled rejections.
+- **Logs App:** New application to view Audit Logs and Console output.
+- **Diagnostic Export:** "Report Issue" bundle generation.
 
-### Fixed
-- **Accessibility:** Added `aria-label` attributes to all icon-only buttons (Taskbar, Explorer, WindowFrame).
-- **Persistence:** Fixed regression where FS state was lost on reload; now fully synced to `idb`.
-- **TextPad:** Updated to read/write real files from the new storage engine.
-
-## [v5.3.0] - The Kernel Update - 2025-12-27
-### Architecture
-- **OS Kernel:** Introduced a centralized "Kernel" architecture with a strictly typed `EventBus` and Redux-style `OSProvider` to replace the monolithic `WinOS.jsx` state.
-- **Global Error Boundary:** Added a "Blue Screen of Death" (Cyberpunk style) recovery screen to catch runtime UI crashes and offer "Hard Reset" options.
-- **Shell Refactor:** Decoupled `Shell.jsx`, `Desktop.jsx`, and `Taskbar.jsx` for better modularity and testability.
-
-### Window Manager
-- **8-Point Resizing:** Windows can now be resized from all 4 corners and 4 edges with custom cursors.
-- **Performance:** Drag and Resize operations now use split-state (local DOM events) to ensure 60fps performance without thrashing the global store.
-- **State Persistence:** Window size, position, and status (min/max) are persisted to `localStorage` and strictly validated on rehydration.
-
-### Fixed
-- **Boot Sequence:** Standardized the Boot -> Login -> Desktop lifecycle state machine.
-- **Lint Quality:** Achieved 0-warning lint status across the entire OS core.
-
-## [v5.1.1] - Stability & Governance - 2025-12-27
-### Added
-- Centralized validation + logging utilities to harden transaction ingestion and file uploads.
-- Documentation refresh across README, Architecture, and Security guides to reflect 5.1 safeguards and operational workflows.
-- Validation-focused unit coverage to protect receipt ingestion and finance mutations.
-- Strategic Operations module: mission-style goal engine (vaults, debt liquidation, burn limiters) with FIRE/legacy simulations and round-up daemons.
-- Recharts + `decimal.js` pulled in for precision projections and visualizations.
-### Changed
-- Finance, shopping, and psycho widgets cleaned for lint compliance, clearer labels, and safer state hydration.
-- Package metadata aligned to v5.1.1 to track stability release.
-- README architecture diagram updated to render correctly in GitHub Mermaid.
-- Lint budget tightened (zero-warning policy) across new Strategic Ops module.
-### Fixed
-- Window manager effect dependencies and shopping list initialization to prevent stale updates and rendering edge cases.
-- Round-up daemon now uses deterministic Decimal-based ceiling for siphon math.
-
-## [v5.1.0] - The Social Update - 2025-12-26
-### Added
-- **Shared Spaces:**
-  - **Multi-User Support:** Create and switch between Personal, Family, and Roommate spaces.
-  - **Role-Based Access Control:** Admin (Manage Everything), Editor (Edit Data), Viewer (Read Only).
-  - **Member Management:** Add/Remove members via the new Space Settings modal.
-- **Collaborative Finance:**
-  - **Bill Splitting:** Split transactions between space members with visual feedback.
-  - **Shared Goals:** Track savings targets collectively (e.g., "Arasaka Cyberdeck").
-  - **Collaborative Shopping List:** Real-time synced lists linked to budgets.
-  - **Group Challenges:** Gamified widget for tracking "No Spend" or "Savings Race" challenges.
-- **Security & Governance:**
-  - **Approval Workflows:** Transactions exceeding a configurable threshold (default 1000) require Admin approval.
-  - **Spending Limits:** Allowance/Teen mode support via permission checks.
-  - **Audit Logging:** Permission denials and approvals are logged.
-## [Unreleased]
-### Fixed
-- **Calculator:** Improved floating point precision handling. Fixed regression where large integers were losing precision (e.g. `1234567890123`) while maintaining fix for `0.1 + 0.2` epsilon errors.
-### Added
-- **Audio Engine:** `useSound` now lazily creates and unlocks the Web Audio context, auto-resumes on user interaction, and includes regression coverage in `tests/unit/useSound.test.js` to guard playback events.
-- **Documentation:** README, ARCHITECTURE, CONTRIBUTING, and SECURITY refreshed with audio engine guidance and testing expectations.
-- **Cybersec Workspace:** Added Construct AI chat (Silverhand persona), Icebreaker neon code editor + sandbox, SysMon canvas monitor, and Vault biometric-protected secrets store wired into the window manager and start menu.
-- **Cursor & Audio Polish:** Crosshair/red hover cursor plus new SFX (hover blip, window hum) mapped through `useSound`.
-- **Utilities & Tests:** Introduced `codeHighlighter` helper and Vitest coverage for keyword wrapping.
-### Fixed
-- Cleaned streaming and biometric timers to avoid runaway intervals when components unmount or relock.
-- Memoized desktop backdrop, enforced `COLORS` palette usage in gradients, and raised context menu layering above windows.
-
-## [v5.0.0] - The Neural Link Update - 2025-12-25
-### Added
-- **Core Intelligence:**
-  - **Auto-Categorization v2:** Context-aware transaction tagging (Loc/Merchant).
-  - **Smart Recategorization:** Neural Training UI allows users to teach the OS new rules.
-  - **Recurring Detection:** Auto-identification of subscriptions (Netflix, Spotify).
-  - **Voice Expenses:** Support for audio notes in DesktopUploadWidget (Speech-to-Text extraction).
-- **Advanced Finance:**
-  - **Multi-Currency:** Live conversion for €$, USD, JPY, BTC.
-  - **Asset Tracking:** New "Assets" tab for physical assets and subscription management.
-  - **Export Engine:** CSV Export functionality for transactions.
-  - **Tax Tagging:** Automated tax-deductible flagging.
-- **Security Suite:**
-  - **Privacy Mode:** Blur sensitive data with [CTRL+SHIFT+P].
-  - **Audit Logs:** System-wide security logging (Boot, Privacy, Anomaly).
-  - **Anomaly Detection:** Alerts for transactions > 10,000 €$.
-- **UX Polish:**
-  - **Neural Search:** Natural language app launching via Taskbar.
-
-## [v4.0.0] - Gold Master - 2025-12-25
-### Released
-- **Stable Build:** Achieved 100% lint compliance and successful production build.
-- **Repository Hygiene:** Implemented professional `.gitignore` to exclude system files (`.DS_Store`) and developer artifacts (`coverage/`, `.vscode/`, `.agent/`).
-- **Codebase Polish:** Final debug pass on `FinancialTracker` preventing UI glitches from invalid categories.
-
-## [v3.5.0] - Modular Architecture & UI Polish - 2025-12-25
-### Added
-- **Financial Tracker v2.0:**
-  - Tabbed interface (Overview, Analytics, AI Insights).
-  - Animated Donut Charts and Spend Trends.
-  - "Gemini Advisor" module for AI-driven financial recommendations.
-  - Enhanced Receipt Vision (Gemini 2.5) with category extraction.
-- **Glassmorphism UI:** New `WindowFrame` component with frosted glass effects and refined borders.
-- **Modular Apps:** Extracted all core apps (`Calculator`, `Settings`, `Terminal`, `MusicPlayer`) into dedicated files in `src/apps/`.
-
-### Changed
-- **Architecture:** Major refactor of `WinOS.jsx`, delegating app logic to standalone components.
-- **Theme System:** Centralized color tokens in `src/utils/theme.js`.
-
-### Fixed
-- **Build Config:** Resolved `__dirname` issues in `vite.config.js` by adopting `import.meta.url`.
-- **Linting:** Cleared unused variables and React imports for cleaner code.
-
-## [v3.2.0] - Production Audit & Infrastructure - 2025-12-25
-### Added
-- **CI/CD Pipeline:** Integrated GitHub Actions for automated linting, testing, and building.
-- **Testing Suite:** Added Vitest and React Testing Library for component and utility validation.
-- **Pre-commit Hooks:** Enabled Husky and lint-staged to ensure code quality before commits.
-- **Legal & Compliance:** Added MIT License, Contributing Guide, Code of Conduct, and Security Policy.
-- **Advanced Theming:** Refactored global CSS to use CSS Variables synchronized with React state.
-- **Modular Hooks:** Extracted `usePersistentState` and `useViewport` into reusable logic modules.
-
-### Changed
-- **Architecture:** Transitioned from a monolithic structure to a modular organization (Hooks, Utils, Styles).
-- **Styling:** Switched to standard Google Fonts (Rajdhani, Share Tech Mono) for premium aesthetics.
-- **Directory Structure:** Reorganized assets and code under functional subdirectories.
-
-## [v3.1.0] - Comprehensive OS Upgrade - 2025-12-25
-### Added
-- **Global Glitch CSS:** Implemented Cyberpunk 2077-style text/image glitch effects using `clip-path` and keyframes.
-- **New Core Apps:**
-  - **Calculator:** Functional arithmetic with precision handling.
-  - **Music Player:** "Cyber-Amp" with visualizers, progress bar, and playlist cycling.
-  - **Settings:** Configurable Background Fit (Cover/Contain/Fill) and system volume visuals.
-- **Persistence:** `usePersistentState` now saves Windows, Files, and Config to `localStorage` across reloads.
-- **Mobile Lockout:** "System Error" screen for devices < 768px width to preserve desktop immersion.
-- **GitHub Deployment:** Initialized git repository and pushed to [Raoof128/night_city_os](https://github.com/Raoof128/night_city_os).
-
-### Fixed
-- **React Hooks:** Fixed conditional Hook execution bug in mobile check logic.
-- **Stability:** Added `try-catch` blocks to storage logic to prevent crashes from data corruption.
-- **Math:** Fixed floating point errors in Calculator.
-
-
-## [v3.0.0] - Final Cut - 2025-12-25
-
-### Added
-- **Text Pad App:** Fully functional note-taking app with "Saved" state simulation.
-- **Image Viewer:** Double-clicking shards now opens a "Decryption" viewer.
-- **Toast Notifications:** System-wide alert bubbles (e.g., "Transaction Verified", "Data Shard Received").
-- **Shutdown Sequence:** "Jack Out" now triggers a full system halt screen with manual reboot.
-- **Context Menu Actions:**
-  - "Display Settings" now toggles Stealth Mode (disables CRT/Grid noise).
-  - "System Integrity" runs a diagnostic scan.
-
-### Fixed
-- **Context Menu Bug:** Fixed issue where right-click menu would stay stuck open. Now auto-closes on interaction.
-- **Z-Index Issues:** Windows now correctly layer on top of each other when focused.
-
-## [v2.1.0] - Desktop Operations - 2025-12-25
-
-### Added
-- **Right-Click Context Menu:** Custom UI replacing the browser default.
-- **Grid Reset:** "RESET_GRID" daemon to snap all icons back to default positions.
-- **Draggable Desktop:** All icons and widgets (Calendar, Upload) are now draggable via framer-motion.
-
-## [v2.0.0] - Netrunner Update - 2025-12-25
-
-### Added
-- **Network Map App:** Animated SVG visualizer replacing the static "Net" icon.
-- **Dual-Sync Calendar:** Widget displaying Solar Hijri (Persian) and Gregorian dates.
-- **Active Window Management:** Implemented `bringToFront` logic for window layering.
-- **CRT Overlays:** Added global scanlines and vignette effects.
-
-### Changed
-- **Calendar Widget:** Moved to desktop top-left (later moved to right) and restyled with high-contrast Black clock icon.
-
-## [v1.3.0] - Night City Palette - 2025-12-25
-
-### Changed
-- **Visual Overhaul:** Switched from "Persian Blue" theme to Cyberpunk 2077 Official (Yellow/Red/Black).
-- **Background:** Added dynamic wallpaper support with overlaid CSS grids and gradients.
-
-### Added
-- **Gemini Vision Integration:** DesktopUploadWidget now accepts images, sends them to Gemini 2.5 Flash, and updates the Finance App state.
-- **Terminal 1.0:** Basic command parsing structure.
-
-## [v1.0.0] - Initial Concept - 2025-12-25
-
-### Initialized
-- Project kick-off.
-- Basic "WebOS" card concept (deprecated in favor of Desktop Window Manager).
-- Basic React + Tailwind setup.
-## [v5.2.0] - The Construct - 2025-12-28
-### Added
-- Window manager refactored to a reducer with persisted z-order, minimize/maximize, and position restore.
-- Recursive VFS with create/rename/delete and TextPad save/update hooked into localStorage; files window supports inline actions.
-- Web Audio-based `useSound` hook for boot/click/error SFX with Settings-driven volume/mute and drag sensitivity controls.
-### Changed
-- Settings daemon now manages wallpaper theme (Night/Void), master volume, and drag calibration; window/desktop drag use memoized frames for perf.
-### Fixed
-- Session restore now rehydrates windows, files, and settings across reloads for a consistent boot state.
+## [v5.6.0] - Security & Hardening - 2025-12-27
+- **Audit Logging:** Permanent security event recording.
+- **Profile Isolation:** Multi-user profile support with isolated storage.
+- **Lock Screen:** Session locking mechanism.
+- **Terminal 2.0:** Real filesystem commands.

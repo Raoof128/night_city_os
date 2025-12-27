@@ -12,7 +12,17 @@ describe('Taskbar Component', () => {
         activeWindowId: 'app-1',
         currentSpace: 'main',
         spaces: [{ id: 'main', label: 'Main Space' }],
-        notifications: []
+        notifications: [],
+        flags: {
+            experimentalLinux: false,
+            collaborationMock: false
+        },
+        quickSettings: {
+            fontScale: 1.0,
+            highContrast: false,
+            reducedMotion: false,
+            performanceMode: false
+        }
     };
 
     const mockActions = {

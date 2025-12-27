@@ -1,7 +1,7 @@
 import { lazy } from 'react';
 import { 
     Terminal, Grid, Settings, Code2, Cpu, Monitor, 
-    Bell, Share2, FileEdit, ShieldCheck, HardDrive 
+    Bell, Share2, FileEdit, ShieldCheck, HardDrive, Globe 
 } from 'lucide-react';
 
 // Manifest Schema Definition (Implicit)
@@ -125,14 +125,43 @@ export const SYSTEM_APPS = {
         icon: Share2,
         permissions: ['system:read'],
         component: lazy(() => import('../../apps/Logs'))
+    },
+    'linux': {
+        id: 'linux',
+        name: 'Linux Runtime',
+        icon: Terminal,
+        permissions: ['system:admin'],
+        component: lazy(() => import('../../apps/LinuxStub'))
+    },
+    'relay': {
+        id: 'relay',
+        name: 'NetRelay',
+        icon: Globe,
+        permissions: ['network:connect'],
+        component: lazy(() => import('../../apps/CollaboratorStub'))
     }
 };
 
-export const getAppManifest = (id) => SYSTEM_APPS[id];
+let pluginApps = {};
+
+export const registerPlugin = (manifest) => {
+    // Integrity check (mock)
+    if (!manifest.id || !manifest.component) return false;
+    
+    pluginApps[manifest.id] = {
+        ...manifest,
+        isPlugin: true
+    };
+    return true;
+};
+
+export const getAppManifest = (id) => SYSTEM_APPS[id] || pluginApps[id];
+
+export const getAllApps = () => ({ ...SYSTEM_APPS, ...pluginApps });
 
 export const resolveFileHandler = (filename, mimeType) => {
     // Simple exact match for now
-    for (const app of Object.values(SYSTEM_APPS)) {
+    for (const app of Object.values(getAllApps())) {
         if (!app.fileHandlers) continue;
         
         // Check mime

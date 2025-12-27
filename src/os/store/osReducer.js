@@ -38,6 +38,14 @@ export const INITIAL_STATE = {
         fontScale: 1.0,
         highContrast: false
     },
+    flags: {
+        liveWallpaper: false,
+        multiMonitor: false,
+        pluginsEnabled: false,
+        wasmEnabled: false,
+        experimentalLinux: false,
+        collaborationMock: false
+    },
     permissions: {}, // { appId: { permission: 'granted' | 'denied' } }
     permissionRequest: null, // { appId, permission, resolve, reject }
     locked: false,
@@ -83,6 +91,7 @@ export const ACTIONS = {
 
     SET_THEME: 'SET_THEME',
     SET_QUICK_SETTING: 'SET_QUICK_SETTING',
+    SET_FLAG: 'SET_FLAG',
     RESET_STATE: 'RESET_STATE',
     RESTORE_STATE: 'RESTORE_STATE'
 };
@@ -384,6 +393,12 @@ export function osReducer(state, action) {
             return {
                 ...state,
                 quickSettings: { ...state.quickSettings, [action.payload.key]: action.payload.value }
+            };
+
+        case ACTIONS.SET_FLAG:
+            return {
+                ...state,
+                flags: { ...state.flags, [action.payload.key]: action.payload.value }
             };
 
         case ACTIONS.RESET_STATE:

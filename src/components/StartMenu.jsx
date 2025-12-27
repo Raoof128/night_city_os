@@ -14,13 +14,17 @@ import {
     Lock
 } from 'lucide-react';
 import { COLORS } from '../utils/theme';
+import { getAppManifest } from '../os/kernel/registry';
 import { FocusTrap } from './FocusTrap';
+import { useOS } from '../os/hooks/useOS';
 
 const StartMenu = ({ isOpen, onOpenApp, onShutdown, onClose }) => {
+    const { state } = useOS();
+    const { flags } = state;
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const menuItems = [
+    
+    const baseItems = [
         { id: 'terminal', label: 'TERMINAL', icon: Terminal },
-        { id: 'tracker', label: 'FINANCE_DASH', icon: Activity },
         { id: 'network', label: 'NET_TRACE', icon: Share2 },
         { id: 'files', label: 'DATA_SHARDS', icon: HardDrive },
         { id: 'textpad', label: 'TEXT_PAD', icon: FileEdit },
@@ -30,7 +34,17 @@ const StartMenu = ({ isOpen, onOpenApp, onShutdown, onClose }) => {
         { id: 'vault', label: 'VAULT', icon: Lock },
         { id: 'calc', label: 'CALCULATOR', icon: Grid },
         { id: 'music', label: 'MEDIA_AMP', icon: Bell },
-        { id: 'settings', label: 'SYS_CONFIG', icon: Settings },
+        { id: 'settings', label: 'SYS_CONFIG', icon: Settings }
+    ];
+
+    const experimentalItems = [
+        flags.experimentalLinux && { id: 'linux', label: 'LINUX_EMU', icon: Terminal },
+        flags.collaborationMock && { id: 'relay', label: 'NET_RELAY', icon: Globe }
+    ].filter(Boolean);
+
+    const menuItems = [
+        ...baseItems,
+        ...experimentalItems,
         { id: 'shutdown', label: 'JACK_OUT', icon: Power, color: 'var(--color-red)', action: onShutdown }
     ];
 

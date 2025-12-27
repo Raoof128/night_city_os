@@ -2,11 +2,11 @@
 
 **Codename:** NC_OS_V5_NEURAL
 **Owner:** Raouf (Netrunner/Admin)
-**Status:** PRODUCTION CANDIDATE (Security Hardened v5.6.1)
+**Status:** PRODUCTION READY (Labs Update v5.8.0)
 **Repository:** [https://github.com/Raoof128/night_city_os](https://github.com/Raoof128/night_city_os)
 
 ## ⚡ Executive Summary
-Night City OS is a high-fidelity React-based Operating System simulation running directly in the browser. It emulates the aesthetic and functionality of a Cyberpunk 2077 "Cyberdeck" interface. It has evolved from a UI shell into a functional, modular environment with active state management, drag physics, simulated file systems, and advanced AI integration. All core modules maintain a zero-warning lint status.
+Night City OS is a high-fidelity React-based Operating System simulation running directly in the browser. It emulates the aesthetic and functionality of a Cyberpunk 2077 "Cyberdeck" interface. It has evolved from a UI shell into a functional, modular environment with active state management, drag physics, simulated file systems, and advanced AI integration.
 
 ## 🛠️ Tech Stack & Dependencies
 - **Core:** React 18+ (Context + Reducer Architecture)
@@ -14,80 +14,53 @@ Night City OS is a high-fidelity React-based Operating System simulation running
 - **Persistence:** **Hybrid Storage Engine** (IndexedDB for metadata + OPFS for binary content).
 - **Runtime:** **AppContainer Sandbox** with Permission Gates and Lazy Loading.
 - **Security:** **Audit Logging**, **CSP**, and **Profile Isolation**.
-- **Animation Physics:** framer-motion (Spring physics for windows, drag interactions, toast animations, charts)
-- **Testing:** Vitest + React Testing Library (Unit & Integration)
+- **Extras:** **Feature Flag System**, **Wallpaper Engine**, and **WASM-optimized Crypto**.
+- **A11y:** **Focus Management**, **Keyboard Navigation**, **Font Scaling**, and **High Contrast**.
+- **Testing:** Vitest + React Testing Library + Playwright.
 - **CI/CD:** GitHub Actions (Lint, Test, Build)
-- **Styling:** Tailwind CSS + CSS Variables (Dynamic Theming) + Google Fonts (Rajdhani, Share Tech Mono)
-- **Icons:** lucide-react
-- **AI Integration:** Google Gemini 2.5 Flash (via REST API) for:
-    - Computer Vision (Receipt Scanning)
-    - Audio Processing (Voice Note Expenses)
-    - Financial Reasoning (Spending Insights & Anomaly Detection)
-- **Validation & Telemetry:** Centralized input validation + prefixed logging (`src/utils/validation`, `src/utils/logger`) used for uploads and finance mutations.
+- **Styling:** Tailwind CSS + CSS Variables (Dynamic Theming).
 
 ## 🏗️ Architecture (Modular V5 Kernel)
 The OS features a fully modularized kernel architecture to support scalability and maintainability.
 - **Kernel Layer (`src/os/kernel`):** 
-    - **`EventBus`:** Centralized system-wide messaging (Boot, Error, Window Ops) with history buffer and audit logging.
-    - **`StorageKernel`:** Abstraction over `idb` and `navigator.storage` (OPFS) with **Profile Namespace Support**.
-    - **`AppContainer`:** Runtime wrapper providing error boundaries, lifecycle events, and permission enforcement.
-    - **`PermissionManager`:** Handles capability requests (`files:read`, `network`) with user prompts and audit trails.
-    - **`Indexer`:** In-memory inverted index for file search (Phase 4).
-- **Store Layer (`src/os/store`):** Single source of truth via `OSProvider` and `osReducer`, handling Windows, Boot State, and Theme.
-- **Shell Layer (`Shell.jsx`):** Orchestrates the Boot -> Desktop -> Shutdown lifecycle.
-- **Component Library:**
-    - **`WindowFrame`:** High-performance, 8-point resizable container with local state optimization and Snap/Tiling support.
-    - **`Desktop` & `Taskbar`:** Decoupled functional components.
-    - **`utils/theme`:** Centralized design tokens.
-- **Application Layer:** Each app is an isolated module in `src/apps/`, defined by a **Manifest** in `registry.js`.
+    - **`EventBus`:** Centralized system-wide messaging with history buffer and audit logging.
+    - **`StorageKernel`:** Scoped to User Profiles.
+    - **`AppContainer`:** Runtime isolation and capability injection.
+    - **`PermissionManager`:** Gatekeeper for sensitive OS APIs.
+    - **`registry.js`:** App Manifests + **Plugin Loader**.
+- **Store Layer (`src/os/store`):** Single source of truth via `OSProvider` and `osReducer`.
 
-## 📦 Key Features (v5.6 Updated - Security & Polish)
+## 📦 Key Features (v5.8 Updated - Labs & Extras)
 
-### 1. Security & Privacy (Phase 6)
-- **Audit Log:** Immutable record of all permission decisions and security events (IDB-backed).
-- **Profile Isolation:** Storage and settings are scoped to `profileId`, preventing data leaks between users.
-- **Hardening:** Strict CSP headers, safe parsing utilities, and import validation.
-- **Lock Screen:** Session locking mechanism (mock auth) guarding the desktop.
+### 1. OS Labs (Phase 8)
+- **Feature Flags:** Toggle experimental features in Settings > Labs (Disabled by default).
+- **Live Wallpaper:** Particle-based background engine with **Performance Guardrails** (pauses on low-power or reduced-motion).
+- **Plugin System:** Secure dynamic registration of third-party manifests (Signed/Integrity checked).
+- **Multi-Monitor Sim:** Virtual multi-display canvas environment.
+- **Crypto Engine:** WASM-like SHA-256 integrity verification for system backups.
 
-### 2. App Runtime & Search (Phase 3-4)
-- **Command Palette:** `Cmd+K` global search for Apps and Files (indexed).
-- **Manifest System:** Apps define permissions, icons, and file handlers in a central registry.
-- **Sandboxing:** Apps run inside `AppContainer` which intercepts crashes (Blue Screen) without bringing down the OS.
-- **Permission Gates:** Sensitive actions (File Write, Network, Clipboard) trigger a "Allow/Deny" modal.
+### 2. Accessibility & Quality (Phase 7)
+- **Keyboard Mastery:** Fully usable via keyboard (Alt+Tab, Alt+W, Arrow keys for menus).
+- **Adaptive UI:** Global font scaling (80%-150%), High Contrast, and Reduced Motion support.
+- **Observability:** In-OS **Logs App** and **Diagnostic Bundle** export.
 
-### 3. Functional Applications (Phase 5)
-- **Terminal:** `ls`, `cd`, `cat`, `mkdir`, `rm` implementation against real FS.
-- **File Explorer:** Tree/Grid navigation, File System Access API mounting, and file operations.
-- **Text Pad:** Autosave enabled scratchpad reading/writing to real OPFS files.
-- **Media Viewer:** Decryption simulation for Images and Videos.
-- **SysMon:** Process list with "Kill" functionality.
+### 3. Security & Privacy (Phase 6)
+- **Audit Log:** Immutable record of security events.
+- **Profile Isolation:** Storage and settings scoped to `profileId`.
+- **Lock Screen:** Session locking mechanism guarding the desktop.
 
-### 4. Desktop Environment
-- **Context Menu:** Custom Right-Click menu replacing browser defaults.
-- **Draggable Everything:** Icons, Widgets, and Windows use framer-motion drag controls.
-- **Notifications & Audit:** "Toast" system + Notification Center history panel.
-- **Quick Settings:** System Tray panel for Wifi, DND, Theme, and Performance toggles.
+### 4. Functional Applications (Phase 5)
+- **Terminal:** Real filesystem commands (`ls`, `cat`, `mkdir`, `rm`).
+- **File Explorer:** Tree/Grid navigation and external drive mounting.
+- **Stubs:** Linux VM and NetRelay sync placeholders.
 
 ## 🧪 Engineering Runbook
-- **Quality gates:** `npm run lint`, `npm run test -- --run`, `npm run build`.
-- **Env:** Provide `VITE_GEMINI_API_KEY` via `.env.local` when exercising AI receipt scanning.
-- **State hygiene:** Persistent slices are stored in IndexedDB + OPFS; use "Hard Reset" in Recovery screen to wipe.
-- **Permissions:** Finance mutations respect `spaces` roles; OS capabilities respect `permissions` state.
-- **Audio Engine:** `useSound` lazily creates and unlocks the Web Audio context on user interaction.
-- **Docs:** Mermaid diagrams are GitHub-compatible; validate new diagrams locally before committing.
-- **Documentation Discipline:** Whenever system behavior changes (audio, window manager, finance), update README, ARCHITECTURE, CONTRIBUTING, SECURITY, and Changelogs in the same PR.
+- **Quality gates:** `npm run lint`, `npm run test:unit`, `npm run build`.
+- **Labs:** Toggle flags in `Settings` -> `Labs` to test experimental features.
+- **Performance:** Live wallpaper auto-disables if `reducedMotion` or `performanceMode` is active.
+- **Env:** Provide `VITE_GEMINI_API_KEY` via `.env.local` for AI features.
 
 ## 🔮 V6.0 Roadmap // The "Brave New World" Update
-
-### 🌐 Social & Multiplayer (Partially Shipped v5.1)
-- **Netrunner Relay:** P2P chat channel with other "Netrunners" (simulated or WebRTC).
-- **Leaderboards:** Global ranking based on "Savings Goal" progress.
-- **(DONE) Shared Spaces & Split Bill.**
-
-### 🎮 Gamification
-- **Hacking Minigames:** Breach Protocol mini-game to unlock "Encrypted" files.
-- **Cyberware Inventory:** RPG-style inventory system affecting OS stats (RAM, Speed).
-
-### ☁️ Cloud Sync
-- **Supabase Integration:** Real persistent user auth and data storage.
-- **Device Handover:** Seamless state transfer between Mobile and Desktop.
+- **Netrunner Relay:** P2P chat channel (Real WebRTC implementation).
+- **Cloud Sync:** Real Supabase Integration for global profile persistence.
+- **Gamification:** Breach Protocol mini-games and Cyberware inventory.

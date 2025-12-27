@@ -3,6 +3,7 @@ import { useOS } from '../hooks/useOS';
 import DraggableItem from '../../components/DraggableItem';
 import DesktopCalendarWidget from '../../components/DesktopCalendarWidget';
 import ContextMenu from '../../components/ContextMenu';
+import WallpaperEngine from './WallpaperEngine';
 import { COLORS } from '../../utils/theme';
 // Import Icons
 import {
@@ -74,13 +75,20 @@ const Desktop = () => {
     return (
         <div
             ref={desktopRef}
-            className="absolute inset-0 w-full h-full overflow-hidden"
+            className={`absolute inset-0 w-full h-full overflow-hidden transition-all duration-500 ${state.flags.multiMonitor ? 'scale-[0.8] origin-center ring-4 ring-white/10' : ''}`}
             onContextMenu={handleContextMenu}
             onClick={handleCloseContextMenu}
         >
             <DesktopBackdrop theme={theme} />
+            <WallpaperEngine />
 
-            {/* Context Menu */}
+            {state.flags.multiMonitor && (
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/80 border border-[var(--color-yellow)] px-4 py-1 text-[10px] font-bold z-[1000] rounded-full">
+                    SIMULATED_MULTI_DISPLAY_ENV // PRIMARY
+                </div>
+            )}
+
+            {/* Icons */}
             {contextMenu && (
                 <ContextMenu
                     x={contextMenu.x}

@@ -86,9 +86,11 @@ const AppContainer = ({ manifest, data, osActions, osState, onClose, dispatch, i
                 windows: osState.windows,
                 theme: osState.theme,
                 spaces: osState.spaces,
+                flags: osState.flags,
                 quickSettings: osState.quickSettings,
                 revokePermission: osActions.revokePermission,
-                setQuickSetting: osActions.setQuickSetting
+                setQuickSetting: osActions.setQuickSetting,
+                setFlag: osActions.setFlag
             },
 
             // Clipboard Wrapper
